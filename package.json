@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "nodemon server.js",
     "seed": "node scripts/seed-data.js",
-    "start": "node server.js"
+    "build": "next build",
+    "start": "NODE_ENV=production node server.js"
   },
   "dependencies": {
     "bcryptjs": "latest",

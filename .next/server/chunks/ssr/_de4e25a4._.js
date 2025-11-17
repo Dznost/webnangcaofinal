@@ -1,0 +1,3 @@
+module.exports=[70864,a=>{a.n(a.i(33290))},43619,a=>{a.n(a.i(79962))},13718,a=>{a.n(a.i(85523))},18198,a=>{a.n(a.i(45518))},50708,a=>{"use strict";var b=a.i(7997);function c(){return(0,b.jsx)("div",{className:"min-h-screen flex items-center justify-center",children:(0,b.jsxs)("div",{className:"text-center",children:[(0,b.jsx)("h1",{className:"text-4xl font-bold mb-4",children:"Nhà Hàng Sang Trọng"}),(0,b.jsx)("p",{className:"text-gray-600",children:"Dự án Express.js đang chạy trên server.js"}),(0,b.jsx)("p",{className:"text-sm text-gray-500 mt-2",children:"Truy cập ứng dụng qua Express server"})]})})}a.s(["default",()=>c])}];
+
+//# sourceMappingURL=_de4e25a4._.js.map
