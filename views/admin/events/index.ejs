@@ -1,0 +1,133 @@
+<section class="admin-section">
+    <div class="container">
+        <div class="section-header">
+            <h1>📅 Quản Lý Sự Kiện</h1>
+            <a href="/admin/events/new" class="btn btn-primary">➕ Thêm Sự Kiện Mới</a>
+        </div>
+
+        <% if (typeof success !== 'undefined' && success) { %>
+            <div class="alert alert-success"><%= success %></div>
+        <% } %>
+
+        <% if (events && events.length > 0) { %>
+            <div class="admin-card">
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>Hình Ảnh</th>
+                            <th>Tiêu Đề</th>
+                            <th>Giảm Giá</th>
+                            <th>Phạm Vi</th>
+                            <th>Ngày Bắt Đầu</th>
+                            <th>Ngày Kết Thúc</th>
+                            <th>Trạng Thái</th>
+                            <th>Hành Động</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% events.forEach(event => { %>
+                            <tr>
+                                <td>
+                                    <img src="<%= event.image %>" alt="<%= event.title %>" 
+                                         style="width: 60px; height: 60px; object-fit: cover; border-radius: 8px;"
+                                         onerror="this.src='https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=60&h=60&fit=crop'">
+                                </td>
+                                <td><strong><%= event.title %></strong></td>
+                                <td><span class="discount-badge"><%= event.discount %>%</span></td>
+                                <td>
+                                    <% if (event.isGlobal) { %>
+                                        <span class="scope-badge global">🌍 Toàn Hệ Thống</span>
+                                    <% } else if (event.branches && event.branches.length > 0) { %>
+                                        <span class="scope-badge specific">📍 <%= event.branches.length %> Chi Nhánh</span>
+                                    <% } else { %>
+                                        <span class="scope-badge none">⚠️ Chưa Gán</span>
+                                    <% } %>
+                                </td>
+                                <td><%= new Date(event.startDate).toLocaleDateString('vi-VN') %></td>
+                                <td><%= new Date(event.endDate).toLocaleDateString('vi-VN') %></td>
+                                <td>
+                                    <% const now = new Date(); %>
+                                    <% const start = new Date(event.startDate); %>
+                                    <% const end = new Date(event.endDate); %>
+                                    <% if (now < start) { %>
+                                        <span class="status-badge upcoming">⏳ Sắp Diễn Ra</span>
+                                    <% } else if (now >= start && now <= end) { %>
+                                        <span class="status-badge active">✅ Đang Diễn Ra</span>
+                                    <% } else { %>
+                                        <span class="status-badge expired">❌ Đã Kết Thúc</span>
+                                    <% } %>
+                                </td>
+                                <td class="action-buttons">
+                                    <a href="/admin/events/<%= event._id %>/edit" class="btn btn-small btn-primary">✏️ Sửa</a>
+                                    <a href="/admin/events/<%= event._id %>/delete" class="btn btn-small btn-danger" onclick="return confirm('Bạn chắc chắn muốn xóa?')">🗑️ Xóa</a>
+                                </td>
+                            </tr>
+                        <% }); %>
+                    </tbody>
+                </table>
+            </div>
+        <% } else { %>
+            <div class="empty-message">
+                <p>Chưa có sự kiện nào. <a href="/admin/events/new" class="btn btn-primary">Thêm ngay</a></p>
+            </div>
+        <% } %>
+    </div>
+</section>
+
+<style>
+    
+    .discount-badge {
+        background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+        color: white;
+        padding: 0.25rem 0.75rem;
+        border-radius: 15px;
+        font-weight: bold;
+        font-size: 0.9rem;
+    }
+    
+    .scope-badge {
+        padding: 0.25rem 0.75rem;
+        border-radius: 15px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+    
+    .scope-badge.global {
+        background: #d4edda;
+        color: #155724;
+    }
+    
+    .scope-badge.specific {
+        background: #d1ecf1;
+        color: #0c5460;
+    }
+    
+    .scope-badge.none {
+        background: #fff3cd;
+        color: #856404;
+    }
+    
+    .status-badge {
+        padding: 0.25rem 0.75rem;
+        border-radius: 15px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+    
+    .status-badge.upcoming {
+        background: #fff3cd;
+        color: #856404;
+    }
+    
+    .status-badge.active {
+        background: #d4edda;
+        color: #155724;
+    }
+    
+    .status-badge.expired {
+        background: #f8d7da;
+        color: #721c24;
+    }
+</style>

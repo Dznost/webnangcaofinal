@@ -1,0 +1,18 @@
+<section class="auth-section">
+    <div class="container">
+        <div class="auth-form">
+            <h1>Đăng Ký</h1>
+            <% if (typeof error !== 'undefined') { %>
+                <div class="alert alert-error"><%= error %></div>
+            <% } %>
+            <form method="POST" action="/auth/register">
+                <input type="text" name="name" placeholder="Tên của bạn" required>
+                <input type="email" name="email" placeholder="Email" required>
+                <input type="password" name="password" placeholder="Mật khẩu" required>
+                <input type="password" name="confirmPassword" placeholder="Xác nhận mật khẩu" required>
+                <button type="submit" class="btn btn-primary">Đăng Ký</button>
+            </form>
+            <p>Đã có tài khoản? <a href="/login">Đăng nhập</a></p>
+        </div>
+    </div>
+</section>

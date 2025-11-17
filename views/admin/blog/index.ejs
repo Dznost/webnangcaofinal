@@ -1,0 +1,36 @@
+<section class="admin-section">
+    <div class="container">
+        <div class="section-header">
+            <h1>📝 Quản Lý Blog</h1>
+            <a href="/admin/blogs/new" class="btn btn-primary">+ Thêm Bài Blog</a>
+        </div>
+
+        <% if (blogs && blogs.length > 0) { %>
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>Tiêu Đề</th>
+                    <th>Tác Giả</th>
+                    <th>Ngày Tạo</th>
+                    <th>Hành Động</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% blogs.forEach(blog => { %>
+                <tr>
+                    <td><%= blog.title %></td>
+                    <td><%= blog.author || 'Admin' %></td>
+                    <td><%= new Date(blog.createdAt).toLocaleDateString('vi-VN') %></td>
+                    <td>
+                        <a href="/admin/blogs/<%= blog._id %>/edit" class="btn btn-small btn-warning">Sửa</a>
+                        <a href="/admin/blogs/<%= blog._id %>/delete" class="btn btn-small btn-danger" onclick="return confirm('Bạn chắc chắn?')">Xóa</a>
+                    </td>
+                </tr>
+                <% }) %>
+            </tbody>
+        </table>
+        <% } else { %>
+        <p class="empty-message">Chưa có bài blog nào. <a href="/admin/blogs/new">Thêm bài blog mới</a></p>
+        <% } %>
+    </div>
+</section>

@@ -1,0 +1,8 @@
+# Bỏ qua thư mục rác của Visual Studio
+.vs/
+
+# Bỏ qua thư viện nặng (QUAN TRỌNG)
+node_modules/
+
+# Bỏ qua file môi trường
+.env

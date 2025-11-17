@@ -1,0 +1,183 @@
+<section class="admin-section">
+    <div class="container">
+        <div class="section-header">
+            <h1>🏢 Quản Lý Chi Nhánh</h1>
+            <!-- Fixed URL from /admin/branch/new to /admin/branches/new -->
+            <a href="/admin/branches/new" class="btn btn-primary">➕ Thêm Chi Nhánh Mới</a>
+        </div>
+
+        <% if (typeof success !== 'undefined' && success) { %>
+            <div class="alert alert-success"><%= success %></div>
+        <% } %>
+
+        <% if (branches && branches.length > 0) { %>
+            <div class="admin-card">
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>Hình Ảnh</th>
+                            <th>Tên</th>
+                            <th>Địa Chỉ</th>
+                            <th>Điện Thoại</th>
+                            <th>Bàn (Có/Tổng)</th>
+                            <th>Giờ Mở Cửa</th>
+                            <th>Số Món Ăn</th>
+                            <th>Hành Động</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% branches.forEach(branch => { %>
+                            <tr>
+                                <td>
+                                    <img src="<%= branch.image %>" alt="<%= branch.name %>" 
+                                         style="width: 60px; height: 60px; object-fit: cover; border-radius: 8px;"
+                                         onerror="this.src='https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=60&h=60&fit=crop'">
+                                </td>
+                                <td><strong><%= branch.name %></strong></td>
+                                <td><%= branch.address %></td>
+                                <td><%= branch.phone %></td>
+                                <td>
+                                    <span class="table-status <%= branch.availableTables === 0 ? 'full' : '' %>">
+                                        <%= branch.availableTables %>/<%= branch.totalTables %>
+                                    </span>
+                                    <!-- Add table management buttons -->
+                                    <div class="table-controls">
+                                        <button class="btn-table-control" onclick="changeTable('<%= branch._id %>', 'remove')" 
+                                                <%= branch.availableTables <= 0 ? 'disabled' : '' %>>
+                                            ➖
+                                        </button>
+                                        <button class="btn-table-control" onclick="changeTable('<%= branch._id %>', 'add')"
+                                                <%= branch.availableTables >= branch.totalTables ? 'disabled' : '' %>>
+                                            ➕
+                                        </button>
+                                    </div>
+                                </td>
+                                <td><%= branch.openingHours || 'N/A' %></td>
+                                <td><%= branch.dishes?.length || 0 %> món</td>
+                                <td class="action-buttons">
+                                    <!-- Fixed URLs from /admin/branch/ to /admin/branches/ -->
+                                    <a href="/admin/branches/<%= branch._id %>/edit" class="btn btn-small btn-primary">✏️ Sửa</a>
+                                    <a href="/admin/branches/<%= branch._id %>/delete" class="btn btn-small btn-danger" onclick="return confirm('Bạn chắc chắn muốn xóa chi nhánh này?')">🗑️ Xóa</a>
+                                </td>
+                            </tr>
+                        <% }); %>
+                    </tbody>
+                </table>
+            </div>
+        <% } else { %>
+            <div class="empty-message">
+                <!-- Fixed URL from /admin/branch/new to /admin/branches/new -->
+                <p>Chưa có chi nhánh nào. <a href="/admin/branches/new" class="btn btn-primary">Thêm ngay</a></p>
+            </div>
+        <% } %>
+    </div>
+</section>
+
+<style>
+    .admin-section {
+        padding: 2rem 0;
+    }
+    
+    .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+    }
+    
+    .section-header h1 {
+        margin: 0;
+        color: var(--primary);
+    }
+    
+    .admin-card {
+        background: white;
+        padding: 2rem;
+        border-radius: 10px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    
+    .table-status {
+        background-color: var(--accent);
+        padding: 0.25rem 0.75rem;
+        border-radius: 15px;
+        font-weight: bold;
+        color: var(--primary);
+        display: inline-block;
+        margin-bottom: 0.5rem;
+    }
+    
+    .table-status.full {
+        background-color: #f8d7da;
+        color: #721c24;
+    }
+    
+    /* Add styling for table control buttons */
+    .table-controls {
+        display: flex;
+        gap: 0.5rem;
+        justify-content: center;
+        margin-top: 0.5rem;
+    }
+    
+    .btn-table-control {
+        background: var(--primary);
+        color: white;
+        border: none;
+        border-radius: 5px;
+        padding: 0.25rem 0.75rem;
+        cursor: pointer;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-table-control:hover:not(:disabled) {
+        background: var(--secondary);
+        transform: scale(1.05);
+    }
+    
+    .btn-table-control:disabled {
+        background: #ccc;
+        cursor: not-allowed;
+        opacity: 0.5;
+    }
+    
+    .alert {
+        padding: 1rem;
+        margin-bottom: 1rem;
+        border-radius: 8px;
+    }
+    
+    .alert-success {
+        background-color: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+    }
+</style>
+
+<!-- Add JavaScript for table management -->
+<script>
+async function changeTable(branchId, action) {
+    try {
+        const url = `/admin/branches/${branchId}/${action}-table`;
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            // Reload page to update table count
+            window.location.reload();
+        } else {
+            alert(data.message || 'Có lỗi xảy ra');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Có lỗi xảy ra khi cập nhật bàn');
+    }
+}
+</script>

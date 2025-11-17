@@ -1,0 +1,91 @@
+<section class="admin-section">
+    <div class="container">
+        <div class="section-header">
+            <h1>📦 Chi Tiết Đơn Hàng #<%= order._id.toString().slice(-6) %></h1>
+            <a href="/admin/orders" class="btn btn-secondary">← Quay Lại</a>
+        </div>
+
+        <div class="detail-grid">
+            <div class="detail-card">
+                <h3>Thông Tin Khách Hàng</h3>
+                <p><strong>Email:</strong> <%= order.user?.email || order.email || 'N/A' %></p>
+                <p><strong>Tên:</strong> <%= order.user?.name || order.fullName || 'N/A' %></p>
+                <p><strong>SĐT:</strong> <%= order.user?.phone || order.phone || 'N/A' %></p>
+            </div>
+
+            <div class="detail-card">
+                <h3>Thông Tin Đơn Hàng</h3>
+                <p><strong>Loại:</strong> <%= order.orderType === 'dine-in' ? '🍽️ Ăn tại quán' : '🏠 Mang về' %></p>
+                <% if (order.branchId) { %>
+                    <p><strong>Chi nhánh:</strong> <%= order.branchId.name || 'N/A' %></p>
+                <% } %>
+                <p><strong>Tổng Tiền:</strong> <%= order.totalPrice?.toLocaleString('vi-VN') || 0 %> đ</p>
+                <% if (order.discount > 0) { %>
+                    <p><strong>Giảm giá:</strong> <span style="color: #28a745;"><%= order.discount?.toLocaleString('vi-VN') %> đ</span></p>
+                    <p><strong>Thành tiền:</strong> <strong><%= order.finalPrice?.toLocaleString('vi-VN') %> đ</strong></p>
+                <% } %>
+                <p><strong>Địa Chỉ Giao:</strong> <%= order.deliveryAddress || 'N/A' %></p>
+                <p><strong>Phương thức TT:</strong> <%= order.paymentMethod === 'bank' ? '🏦 Ngân hàng' : (order.paymentMethod === 'momo' ? '📱 MoMo' : '💵 COD') %></p>
+                <p><strong>Trạng thái TT:</strong> 
+                    <span class="status-badge <%= order.paymentStatus === 'paid' ? 'status-paid' : 'status-unpaid' %>">
+                        <%= order.paymentStatus === 'paid' ? 'Đã thanh toán' : 'Chưa thanh toán' %>
+                    </span>
+                </p>
+                <p><strong>Ngày Tạo:</strong> <%= new Date(order.createdAt).toLocaleDateString('vi-VN') %></p>
+            </div>
+        </div>
+
+        <div class="detail-card">
+            <h3>Các Món Ăn</h3>
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>Tên Món</th>
+                        <th>Số Lượng</th>
+                        <th>Giá</th>
+                        <th>Giảm Giá</th>
+                        <th>Tổng</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% order.items?.forEach(item => { %>
+                    <tr>
+                        <td><%= item.dishId?.name || item.name || 'N/A' %></td>
+                        <td><%= item.quantity %></td>
+                        <td><%= item.price?.toLocaleString('vi-VN') %> đ</td>
+                        <td><%= item.discount ? (item.discount + '%') : '0%' %></td>
+                        <td><%= ((item.quantity * item.price * (1 - (item.discount || 0) / 100)))?.toLocaleString('vi-VN') %> đ</td>
+                    </tr>
+                    <% }) %>
+                </tbody>
+            </table>
+        </div>
+
+        <% if (payment) { %>
+        <div class="detail-card">
+            <h3>💳 Thông Tin Thanh Toán</h3>
+            <p><strong>Mã GD:</strong> <%= payment.transactionId || 'N/A' %></p>
+            <p><strong>Số tiền:</strong> <%= payment.amount?.toLocaleString('vi-VN') %> đ</p>
+            <p><strong>Trạng thái:</strong> 
+                <span class="status-badge status-<%= payment.status %>">
+                    <%= payment.status === 'completed' ? '✅ Hoàn thành' : payment.status === 'pending' ? '⏳ Chờ xử lý' : '❌ Thất bại' %>
+                </span>
+            </p>
+            <p><strong>Thanh toán lúc:</strong> <%= payment.paidAt ? new Date(payment.paidAt).toLocaleString('vi-VN') : 'N/A' %></p>
+        </div>
+        <% } %>
+
+        <div class="detail-card">
+            <h3>Cập Nhật Trạng Thái</h3>
+            <!-- Fixed form action URL from /admin/order/ to /admin/orders/ -->
+            <form method="POST" action="/admin/orders/<%= order._id %>/status" class="status-form">
+                <select name="status" required>
+                    <option value="pending" <%= order.status === 'pending' ? 'selected' : '' %>>Chờ Xử Lý</option>
+                    <option value="completed" <%= order.status === 'completed' ? 'selected' : '' %>>Hoàn Thành</option>
+                    <option value="cancelled" <%= order.status === 'cancelled' ? 'selected' : '' %>>Hủy</option>
+                </select>
+                <button type="submit" class="btn btn-primary">Cập Nhật</button>
+            </form>
+        </div>
+    </div>
+</section>

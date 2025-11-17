@@ -1,0 +1,199 @@
+<section class="admin-section">
+    <div class="container">
+        <div class="section-header">
+            <h1>👤 Chi Tiết Người Dùng</h1>
+            <a href="/admin/users" class="btn btn-secondary">← Quay Lại</a>
+        </div>
+
+        <!-- Enhanced user detail with comprehensive information -->
+        <div class="detail-card">
+            <h3>📋 Thông Tin Cá Nhân</h3>
+            <div class="info-grid">
+                <div class="info-item">
+                    <strong>Email:</strong>
+                    <span><%= user.email %></span>
+                </div>
+                <div class="info-item">
+                    <strong>Tên:</strong>
+                    <span><%= user.name || 'N/A' %></span>
+                </div>
+                <div class="info-item">
+                    <strong>Số Điện Thoại:</strong>
+                    <span><%= user.phone || 'N/A' %></span>
+                </div>
+                <div class="info-item">
+                    <strong>Địa Chỉ:</strong>
+                    <span><%= user.address || 'N/A' %></span>
+                </div>
+                <div class="info-item">
+                    <strong>Ngày Đăng Ký:</strong>
+                    <span><%= new Date(user.createdAt).toLocaleDateString('vi-VN') %></span>
+                </div>
+                <div class="info-item">
+                    <strong>Trạng Thái:</strong>
+                    <span class="status-badge status-confirmed">Hoạt Động</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Added comprehensive payment history -->
+        <% if (payments && payments.length > 0) { %>
+        <div class="detail-card">
+            <h3>💰 Lịch Sử Thanh Toán (<%= payments.length %>)</h3>
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>Mã Thanh Toán</th>
+                        <th>Loại</th>
+                        <th>Số Tiền</th>
+                        <th>Phương Thức</th>
+                        <th>Trạng Thái</th>
+                        <th>Ngày Thanh Toán</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% payments.forEach(payment => { %>
+                    <tr>
+                        <td><%= payment._id.toString().slice(-8) %></td>
+                        <td>
+                            <% if (payment.orderId) { %>
+                                <span class="type-badge order">Đơn Hàng</span>
+                            <% } else if (payment.reservationId) { %>
+                                <span class="type-badge reservation">Đặt Bàn</span>
+                            <% } %>
+                        </td>
+                        <td><strong><%= payment.finalAmount?.toLocaleString('vi-VN') %> đ</strong></td>
+                        <td>
+                            <% if (payment.paymentMethod === 'bank') { %>
+                                🏦 Chuyển Khoản
+                            <% } else if (payment.paymentMethod === 'momo') { %>
+                                📱 MoMo
+                            <% } else { %>
+                                💵 Tiền Mặt
+                            <% } %>
+                        </td>
+                        <td><span class="status-badge status-<%= payment.status %>"><%= payment.status %></span></td>
+                        <td><%= payment.paidAt ? new Date(payment.paidAt).toLocaleDateString('vi-VN') : 'N/A' %></td>
+                    </tr>
+                    <% }) %>
+                </tbody>
+            </table>
+        </div>
+        <% } %>
+
+        <% if (orders && orders.length > 0) { %>
+        <div class="detail-card">
+            <h3>🛒 Đơn Hàng (<%= orders.length %>)</h3>
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>Mã Đơn</th>
+                        <th>Loại</th>
+                        <th>Chi Nhánh</th>
+                        <th>Tổng Tiền</th>
+                        <th>Trạng Thái</th>
+                        <th>Ngày Tạo</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% orders.forEach(order => { %>
+                    <tr>
+                        <td><%= order._id.toString().slice(-6) %></td>
+                        <td>
+                            <% if (order.orderType === 'dine-in') { %>
+                                🍽️ Ăn Tại Quán
+                            <% } else { %>
+                                📦 Mang Về
+                            <% } %>
+                        </td>
+                        <td><%= order.branchId?.name || 'N/A' %></td>
+                        <td><strong><%= order.finalPrice?.toLocaleString('vi-VN') %> đ</strong></td>
+                        <td><span class="status-badge status-<%= order.status %>"><%= order.status %></span></td>
+                        <td><%= new Date(order.createdAt).toLocaleDateString('vi-VN') %></td>
+                    </tr>
+                    <% }) %>
+                </tbody>
+            </table>
+        </div>
+        <% } %>
+
+        <% if (reservations && reservations.length > 0) { %>
+        <div class="detail-card">
+            <h3>🪑 Đặt Bàn (<%= reservations.length %>)</h3>
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>Mã Đặt Bàn</th>
+                        <th>Chi Nhánh</th>
+                        <th>Ngày Giờ</th>
+                        <th>Số Khách</th>
+                        <th>Tổng Tiền</th>
+                        <th>Trạng Thái</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% reservations.forEach(res => { %>
+                    <tr>
+                        <td><%= res._id.toString().slice(-6) %></td>
+                        <td><%= res.branchId?.name || 'N/A' %></td>
+                        <td><%= new Date(res.date).toLocaleDateString('vi-VN') %> <%= res.time %></td>
+                        <td><%= res.guests %> người</td>
+                        <td><strong><%= res.totalAmount?.toLocaleString('vi-VN') %> đ</strong></td>
+                        <td><span class="status-badge status-<%= res.status %>"><%= res.status %></span></td>
+                    </tr>
+                    <% }) %>
+                </tbody>
+            </table>
+        </div>
+        <% } %>
+
+        <% if ((!orders || orders.length === 0) && (!reservations || reservations.length === 0) && (!payments || payments.length === 0)) { %>
+        <div class="empty-message">
+            <p>Người dùng này chưa có hoạt động nào.</p>
+        </div>
+        <% } %>
+    </div>
+</section>
+
+<style>
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+    
+    .info-item {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+    
+    .info-item strong {
+        color: var(--primary);
+        font-size: 0.9rem;
+    }
+    
+    .info-item span {
+        color: var(--text);
+        font-size: 1rem;
+    }
+    
+    .type-badge {
+        display: inline-block;
+        padding: 0.25rem 0.75rem;
+        border-radius: 15px;
+        font-size: 0.8rem;
+        font-weight: bold;
+    }
+    
+    .type-badge.order {
+        background-color: #e3f2fd;
+        color: #1976d2;
+    }
+    
+    .type-badge.reservation {
+        background-color: #f3e5f5;
+        color: #7b1fa2;
+    }
+</style>

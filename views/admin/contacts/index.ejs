@@ -1,0 +1,50 @@
+<section class="admin-section">
+    <div class="container">
+        <div class="section-header">
+            <h1>📧 Quản Lý Phản Hồi</h1>
+        </div>
+
+        <% if (typeof success !== 'undefined' && success) { %>
+            <div class="alert alert-success"><%= success %></div>
+        <% } %>
+
+        <% if (contacts && contacts.length > 0) { %>
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>Tên</th>
+                    <th>Email</th>
+                    <th>Tin Nhắn</th>
+                    <th>Trạng Thái</th>
+                    <th>Ngày Gửi</th>
+                    <th>Hành Động</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% contacts.forEach(contact => { %>
+                <tr>
+                    <td><%= contact.name %></td>
+                    <td><%= contact.email %></td>
+                    <td><%= contact.message.substring(0, 50) %>...</td>
+                    <td>
+                        <span class="status-badge status-<%= contact.status %>">
+                            <% if (contact.status === 'new') { %>Mới<% } %>
+                            <% if (contact.status === 'read') { %>Đã Đọc<% } %>
+                            <% if (contact.status === 'replied') { %>Đã Trả Lời<% } %>
+                        </span>
+                    </td>
+                    <td><%= new Date(contact.createdAt).toLocaleDateString('vi-VN') %></td>
+                    <td class="action-buttons">
+                        <!-- Fixed URL from /admin/contact/ to /admin/contacts/ -->
+                        <a href="/admin/contacts/<%= contact._id %>" class="btn btn-small btn-primary">Xem</a>
+                        <a href="/admin/contacts/<%= contact._id %>/delete" class="btn btn-small btn-danger" onclick="return confirm('Bạn chắc chắn?')">Xóa</a>
+                    </td>
+                </tr>
+                <% }) %>
+            </tbody>
+        </table>
+        <% } else { %>
+        <p class="empty-message">Chưa có phản hồi nào.</p>
+        <% } %>
+    </div>
+</section>

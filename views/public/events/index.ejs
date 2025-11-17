@@ -1,0 +1,23 @@
+<section class="events-section">
+    <div class="container">
+        <h1>Sự Kiện & Khuyến Mãi</h1>
+        <div class="events-grid">
+            <% events.forEach(event => { %>
+                <div class="event-card">
+                    <div class="event-image-wrapper">
+                        <img src="<%= event.image || 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=300&h=250&fit=crop' %>" alt="<%= event.title %>" onerror="this.src='https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=300&h=250&fit=crop'">
+                        <% if (event.discount > 0) { %>
+                            <span class="discount-badge-card">-<%= event.discount %>%</span>
+                        <% } %>
+                    </div>
+                    <div class="event-card-content">
+                        <h3><%= event.title %></h3>
+                        <p class="event-date"><i>📅</i> <%= new Date(event.startDate).toLocaleDateString('vi-VN') %></p>
+                        <p class="event-description"><%= event.description.substring(0, 60) %>...</p>
+                        <a href="/event/<%= event._id %>" class="btn btn-small">Xem Chi Tiết</a>
+                    </div>
+                </div>
+            <% }); %>
+        </div>
+    </div>
+</section>

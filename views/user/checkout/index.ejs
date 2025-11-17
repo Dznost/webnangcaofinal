@@ -1,0 +1,225 @@
+<section class="checkout-section">
+    <div class="container">
+        <h1>💳 Thanh Toán</h1>
+        <div class="checkout-content">
+            <div class="order-summary">
+                <h2>Tóm Tắt Đơn Hàng</h2>
+                <table class="cart-table">
+                    <tr>
+                        <th>Tên Món</th>
+                        <th>Số Lượng</th>
+                        <th>Giá</th>
+                        <th>Giảm Giá</th>
+                    </tr>
+                    <% cart.forEach(item => { %>
+                        <% const itemTotal = item.price * item.quantity; %>
+                        <% const itemDiscount = (item.discount || 0) / 100 * itemTotal; %>
+                        <tr>
+                            <td><%= item.name %></td>
+                            <td><%= item.quantity %></td>
+                            <td><%= itemTotal.toLocaleString('vi-VN') %>đ</td>
+                            <td class="discount-cell">
+                                <% if (item.discount > 0) { %>
+                                    -<%= itemDiscount.toLocaleString('vi-VN') %>đ (<%= item.discount %>%)
+                                <% } else { %>
+                                    0đ
+                                <% } %>
+                            </td>
+                        </tr>
+                    <% }); %>
+                </table>
+                <div class="price-summary">
+                    <p>Tổng Tiền: <span><%= total.toLocaleString('vi-VN') %>đ</span></p>
+                    <% if (totalDiscount > 0) { %>
+                        <p class="discount-row">Giảm Giá: <span>-<%= totalDiscount.toLocaleString('vi-VN') %>đ</span></p>
+                    <% } %>
+                    <h3 class="final-total">Thành Tiền: <span><%= finalTotal.toLocaleString('vi-VN') %>đ</span></h3>
+                </div>
+            </div>
+
+            <form method="POST" action="/user/order" class="checkout-form">
+                <h2>Thông Tin Đặt Món</h2>
+                
+                <!-- Order type selection -->
+                <div class="form-group">
+                    <label>Hình Thức Đặt Món</label>
+                    <div class="order-type-options">
+                        <label class="radio-option">
+                            <input type="radio" name="orderType" value="takeaway" checked onchange="updateFormDisplay()">
+                            <span>🥡 Mang Về</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="orderType" value="dine-in" onchange="updateFormDisplay()">
+                            <span>🍽️ Ăn Tại Quán</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Dine-in section -->
+                <div id="dineInSection" style="display: none;">
+                    <div class="form-group">
+                        <label for="branchId">Chọn Chi Nhánh *</label>
+                        <select id="branchId" name="branchId">
+                            <option value="">-- Chọn Chi Nhánh --</option>
+                            <% if (branches && branches.length > 0) { %>
+                                <% branches.forEach(branch => { %>
+                                    <option value="<%= branch._id %>"><%= branch.name %> - <%= branch.address %></option>
+                                <% }); %>
+                            <% } %>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="guests">Số Người *</label>
+                        <input type="number" id="guests" name="guests" min="1" max="20" placeholder="Số người">
+                    </div>
+                </div>
+
+                <!-- Takeaway section with payment timing -->
+                <div id="takeawaySection">
+                    <div class="form-group">
+                        <label for="deliveryAddress">Địa Chỉ Giao Hàng *</label>
+                        <textarea id="deliveryAddress" name="deliveryAddress" placeholder="Địa chỉ giao hàng" required></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Hình Thức Thanh Toán</label>
+                        <div class="payment-timing-options">
+                            <label class="radio-option">
+                                <input type="radio" name="paymentTiming" value="prepaid" checked>
+                                <span>💳 Thanh Toán Trước (QR)</span>
+                            </label>
+                            <label class="radio-option">
+                                <input type="radio" name="paymentTiming" value="cod">
+                                <span>💵 Thanh Toán Khi Nhận Hàng (COD)</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="fullName">Họ và Tên *</label>
+                    <input type="text" id="fullName" name="fullName" placeholder="Họ và tên" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="email">Email *</label>
+                    <input type="email" id="email" name="email" placeholder="Email" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="phone">Số Điện Thoại *</label>
+                    <input type="tel" id="phone" name="phone" placeholder="Số điện thoại" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="specialRequests">Ghi Chú</label>
+                    <textarea id="specialRequests" name="specialRequests" rows="3" placeholder="Ghi chú đặc biệt (tùy chọn)"></textarea>
+                </div>
+                
+                <button type="submit" class="btn btn-primary">Đặt Hàng</button>
+            </form>
+        </div>
+    </div>
+</section>
+
+<script>
+function updateFormDisplay() {
+    const orderType = document.querySelector('input[name="orderType"]:checked').value;
+    const dineInSection = document.getElementById('dineInSection');
+    const takeawaySection = document.getElementById('takeawaySection');
+    const deliveryAddress = document.getElementById('deliveryAddress');
+    const branchId = document.getElementById('branchId');
+    const guests = document.getElementById('guests');
+    
+    if (orderType === 'dine-in') {
+        dineInSection.style.display = 'block';
+        takeawaySection.style.display = 'none';
+        deliveryAddress.required = false;
+        branchId.required = true;
+        guests.required = true;
+        // Dine-in always prepaid
+        document.querySelector('input[name="paymentTiming"][value="prepaid"]').checked = true;
+    } else {
+        dineInSection.style.display = 'none';
+        takeawaySection.style.display = 'block';
+        deliveryAddress.required = true;
+        branchId.required = false;
+        guests.required = false;
+    }
+}
+
+// Initialize on page load
+updateFormDisplay();
+</script>
+
+<style>
+.payment-timing-options {
+    display: flex;
+    gap: 15px;
+    margin-top: 10px;
+}
+
+.radio-option {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    padding: 15px;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.radio-option:hover {
+    border-color: #d4a574;
+    background: #fafaf8;
+}
+
+.radio-option input[type="radio"] {
+    margin-right: 10px;
+}
+
+.radio-option:has(input:checked) {
+    border-color: #d4a574;
+    background: #fafaf8;
+}
+
+.radio-option:has(input:checked) span {
+    color: #d4a574;
+    font-weight: bold;
+}
+
+.discount-cell {
+    color: #28a745;
+    font-weight: bold;
+}
+
+.price-summary {
+    margin-top: 20px;
+    padding: 20px;
+    background: #f9f9f9;
+    border-radius: 8px;
+}
+
+.price-summary p {
+    display: flex;
+    justify-content: space-between;
+    margin: 10px 0;
+    font-size: 16px;
+}
+
+.discount-row {
+    color: #28a745;
+    font-weight: bold;
+}
+
+.final-total {
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 2px solid #ddd;
+    display: flex;
+    justify-content: space-between;
+    color: #d4a574;
+    font-size: 22px;
+}
+</style>

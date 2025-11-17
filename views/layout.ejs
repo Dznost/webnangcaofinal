@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= typeof title !== 'undefined' ? title : 'Nhà Hàng Sang Trọng' %></title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-brand">
+                <a href="/">🍽️ Nhà Hàng Sang Trọng</a>
+            </div>
+            <ul class="navbar-menu">
+                <li><a href="/">Trang Chủ</a></li>
+                <li><a href="/menu">Thực Đơn</a></li>
+                <li><a href="/branches">Chi Nhánh</a></li>
+                <li><a href="/events">Sự Kiện</a></li>
+                <li><a href="/blog">Tin Tức</a></li>
+                <li><a href="/about">Về Chúng Tôi</a></li>
+                <li><a href="/contact">Liên Hệ</a></li>
+                <% if (isLoggedIn) { %>
+                    <% if (isAdmin) { %>
+                        <li><a href="/admin" class="btn-admin">Quản Trị</a></li>
+                    <% } else { %>
+                        <li><a href="/user/profile">Hồ Sơ</a></li>
+                        <li><a href="/user/cart">Giỏ Hàng</a></li>
+                    <% } %>
+                    <li><a href="/auth/logout" class="btn-logout">Đăng Xuất</a></li>
+                <% } else { %>
+                    <li><a href="/login" class="btn-login">Đăng Nhập</a></li>
+                    <li><a href="/register" class="btn-register">Đăng Ký</a></li>
+                <% } %>
+            </ul>
+        </div>
+    </nav>
+
+    <main>
+        <%- body %>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>Về Chúng Tôi</h3>
+                    <p>Nhà hàng sang trọng với ẩm thực tuyệt vời và dịch vụ chuyên nghiệp.</p>
+                </div>
+                <div class="footer-section">
+                    <h3>Liên Hệ</h3>
+                    <p>Điện thoại: 0123 456 789</p>
+                    <p>Email: info@restaurant.com</p>
+                </div>
+                <div class="footer-section">
+                    <h3>Giờ Mở Cửa</h3>
+                    <p>Thứ 2 - Thứ 6: 11:00 - 22:00</p>
+                    <p>Thứ 7 - Chủ Nhật: 10:00 - 23:00</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 Nhà Hàng Sang Trọng. Tất cả quyền được bảo lưu.</p>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

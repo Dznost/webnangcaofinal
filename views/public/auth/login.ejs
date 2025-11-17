@@ -1,0 +1,16 @@
+<section class="auth-section">
+    <div class="container">
+        <div class="auth-form">
+            <h1>Đăng Nhập</h1>
+            <% if (typeof error !== 'undefined') { %>
+                <div class="alert alert-error"><%= error %></div>
+            <% } %>
+            <form method="POST" action="/auth/login">
+                <input type="email" name="email" placeholder="Email" required>
+                <input type="password" name="password" placeholder="Mật khẩu" required>
+                <button type="submit" class="btn btn-primary">Đăng Nhập</button>
+            </form>
+            <p>Chưa có tài khoản? <a href="/register">Đăng ký ngay</a></p>
+        </div>
+    </div>
+</section>

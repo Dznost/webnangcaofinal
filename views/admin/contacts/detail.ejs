@@ -1,0 +1,87 @@
+<section class="admin-section">
+    <div class="container">
+        <div class="section-header">
+            <h1>📧 Chi Tiết Phản Hồi</h1>
+            <a href="/admin/contacts" class="btn btn-secondary">← Quay Lại</a>
+        </div>
+
+        <div class="contact-detail-card">
+            <div class="contact-info-box">
+                <h3>Thông Tin Người Gửi</h3>
+                <p><strong>Tên:</strong> <%= contact.name %></p>
+                <p><strong>Email:</strong> <a href="mailto:<%= contact.email %>"><%= contact.email %></a></p>
+                <p><strong>Ngày Gửi:</strong> <%= new Date(contact.createdAt).toLocaleString('vi-VN') %></p>
+                <p><strong>Trạng Thái:</strong> 
+                    <span class="status-badge status-<%= contact.status %>">
+                        <% if (contact.status === 'new') { %>Mới<% } %>
+                        <% if (contact.status === 'read') { %>Đã Đọc<% } %>
+                        <% if (contact.status === 'replied') { %>Đã Trả Lời<% } %>
+                    </span>
+                </p>
+            </div>
+
+            <div class="message-box">
+                <h3>Tin Nhắn</h3>
+                <div class="message-content">
+                    <%= contact.message %>
+                </div>
+            </div>
+
+            <% if (contact.reply) { %>
+            <div class="reply-box">
+                <h3>Phản Hồi Của Admin</h3>
+                <div class="reply-content">
+                    <%= contact.reply %>
+                </div>
+            </div>
+            <% } %>
+
+            <% if (!contact.reply) { %>
+            <!-- Fixed form action URL from /admin/contact/ to /admin/contacts/ -->
+            <form method="POST" action="/admin/contacts/<%= contact._id %>/reply" class="admin-form">
+                <div class="form-group">
+                    <label for="reply">Phản Hồi Cho Khách Hàng</label>
+                    <textarea id="reply" name="reply" rows="6" required placeholder="Nhập phản hồi của bạn..."></textarea>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Gửi Phản Hồi</button>
+                    <a href="/admin/contacts" class="btn btn-secondary">Hủy</a>
+                </div>
+            </form>
+            <% } %>
+        </div>
+    </div>
+</section>
+
+<style>
+    .contact-detail-card {
+        background: white;
+        padding: 2rem;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .contact-info-box, .message-box, .reply-box {
+        margin-bottom: 2rem;
+        padding: 1.5rem;
+        border: 1px solid #e0e0e0;
+        border-radius: 6px;
+    }
+
+    .contact-info-box h3, .message-box h3, .reply-box h3 {
+        margin-bottom: 1rem;
+        color: #8B6F47;
+    }
+
+    .message-content, .reply-content {
+        padding: 1rem;
+        background: #f9f9f9;
+        border-left: 3px solid #8B6F47;
+        white-space: pre-wrap;
+        line-height: 1.6;
+    }
+
+    .admin-form {
+        margin-top: 2rem;
+    }
+</style>

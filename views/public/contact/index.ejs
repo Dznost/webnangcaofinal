@@ -1,0 +1,57 @@
+<section class="contact-section">
+    <div class="container">
+        <h1>Liên Hệ Với Chúng Tôi</h1>
+        
+        <!-- Added error message display for rate limiting -->
+        <% if (typeof error !== 'undefined' && error) { %>
+            <div class="alert alert-error"><%= error %></div>
+        <% } %>
+
+        <% if (typeof success !== 'undefined' && success) { %>
+            <div class="alert alert-success"><%= success %></div>
+        <% } %>
+
+        <div class="contact-content">
+            <div class="contact-info">
+                <h3>Thông Tin Liên Hệ</h3>
+                <p>📞 Điện thoại: 0123 456 789</p>
+                <p>📧 Email: info@restaurant.com</p>
+                <p>📍 Địa chỉ: 123 Đường Chính, Thành Phố</p>
+                <p class="info-note">Lưu ý: Bạn chỉ có thể gửi tối đa 3 phản hồi trong 1 giờ.</p>
+            </div>
+            <form class="contact-form" method="POST" action="/contact">
+                <input type="text" name="name" placeholder="Tên của bạn" required>
+                <input type="email" name="email" placeholder="Email của bạn" required>
+                <textarea name="message" placeholder="Tin nhắn của bạn" rows="5" required></textarea>
+                <button type="submit" class="btn btn-primary">Gửi Phản Hồi</button>
+            </form>
+        </div>
+    </div>
+</section>
+
+<style>
+    .alert {
+        padding: 1rem;
+        margin-bottom: 1rem;
+        border-radius: 4px;
+    }
+    
+    .alert-success {
+        background: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+    }
+    
+    .alert-error {
+        background: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+    }
+    
+    .info-note {
+        font-size: 0.9rem;
+        color: #666;
+        font-style: italic;
+        margin-top: 1rem;
+    }
+</style>

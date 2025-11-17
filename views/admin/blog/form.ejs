@@ -1,0 +1,47 @@
+<section class="admin-section">
+    <div class="container">
+        <h1><%= blog ? '✏️ Sửa Bài Blog' : '📝 Thêm Bài Blog Mới' %></h1>
+
+        <!-- Added error message display -->
+        <% if (typeof error !== 'undefined' && error) { %>
+            <div class="alert alert-error"><%= error %></div>
+        <% } %>
+
+        <!-- Fixed form action to use correct route for both create and update -->
+        <form method="POST" class="admin-form" action="<%= blog ? `/admin/blogs/${blog._id}` : '/admin/blogs' %>">
+            <div class="form-group">
+                <label for="title">Tiêu Đề *</label>
+                <input type="text" id="title" name="title" value="<%= blog?.title || '' %>" required>
+            </div>
+
+            <div class="form-group">
+                <label for="author">Tác Giả</label>
+                <input type="text" id="author" name="author" value="<%= blog?.author || 'Admin' %>">
+            </div>
+
+            <div class="form-group">
+                <label for="image">Hình Ảnh (URL)</label>
+                <input type="url" id="image" name="image" value="<%= blog?.image || '' %>" placeholder="https://example.com/image.jpg">
+                <!-- Improved image preview with better styling -->
+                <% if (blog?.image) { %>
+                    <div class="image-preview">
+                        <img src="<%= blog.image %>" alt="<%= blog.title %>" onerror="this.src='https://images.unsplash.com/photo-1495195134817-aeb325a55b65?w=300&h=200&fit=crop'">
+                    </div>
+                <% } %>
+            </div>
+
+            <div class="form-group">
+                <label for="content">Nội Dung *</label>
+                <textarea id="content" name="content" rows="10" required><%= blog?.content || '' %></textarea>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">
+                    <%= blog ? 'Cập Nhật' : 'Thêm Mới' %>
+                </button>
+                <!-- Changed cancel link from /admin/blog to /admin/blogs -->
+                <a href="/admin/blogs" class="btn btn-secondary">Hủy</a>
+            </div>
+        </form>
+    </div>
+</section>

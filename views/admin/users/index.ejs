@@ -1,0 +1,36 @@
+<section class="admin-section">
+    <div class="container">
+        <h1>👥 Quản Lý Người Dùng</h1>
+
+        <% if (users && users.length > 0) { %>
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>Email</th>
+                    <th>Tên</th>
+                    <th>Số Điện Thoại</th>
+                    <th>Ngày Tạo</th>
+                    <th>Hành Động</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% users.forEach(user => { %>
+                <tr>
+                    <td><%= user.email %></td>
+                    <td><%= user.name || 'N/A' %></td>
+                    <td><%= user.phone || 'N/A' %></td>
+                    <td><%= new Date(user.createdAt).toLocaleDateString('vi-VN') %></td>
+                    <td>
+                        <!-- Fixed URLs from /admin/user/ to /admin/users/ -->
+                        <a href="/admin/users/<%= user._id %>" class="btn btn-small">Chi Tiết</a>
+                        <a href="/admin/users/<%= user._id %>/delete" class="btn btn-small btn-danger" onclick="return confirm('Bạn chắc chắn?')">Xóa</a>
+                    </td>
+                </tr>
+                <% }) %>
+            </tbody>
+        </table>
+        <% } else { %>
+        <p class="empty-message">Chưa có người dùng nào.</p>
+        <% } %>
+    </div>
+</section>
