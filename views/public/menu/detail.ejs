@@ -1,0 +1,32 @@
+<section class="dish-detail">
+    <div class="container">
+        <div class="dish-detail-content">
+            <div class="dish-image">
+                <img src="<%= dish.image || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=500&h=400&fit=crop' %>" alt="<%= dish.name %>" onerror="this.src='https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=500&h=400&fit=crop'">
+            </div>
+            <div class="dish-info">
+                <h1><%= dish.name %></h1>
+                <p class="category-badge"><%= dish.category %></p>
+                <p class="description"><%= dish.description %></p>
+                <div class="price-section">
+                    <span class="price"><%= dish.price.toLocaleString('vi-VN') %>đ</span>
+                    <% if (dish.discount > 0) { %>
+                        <span class="discount">Giảm <%= dish.discount %>%</span>
+                    <% } %>
+                </div>
+                <% if (isLoggedIn && !isAdmin) { %>
+                    <form action="/user/cart/add" method="POST" class="add-to-cart-form">
+                        <input type="hidden" name="dishId" value="<%= dish._id %>">
+                        <div class="quantity-selector">
+                            <label for="quantity">Số lượng:</label>
+                            <input type="number" id="quantity" name="quantity" value="1" min="1" max="99" class="quantity-input">
+                        </div>
+                        <button type="submit" class="btn btn-primary">Thêm Vào Giỏ</button>
+                    </form>
+                <% } else if (!isLoggedIn) { %>
+                    <a href="/login" class="btn btn-primary">Đăng Nhập Để Đặt Hàng</a>
+                <% } %>
+            </div>
+        </div>
+    </div>
+</section>

@@ -1,0 +1,34 @@
+<section class="admin-section">
+    <div class="container">
+        <h1>🛒 Quản Lý Đơn Hàng</h1>
+
+        <% if (orders && orders.length > 0) { %>
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Khách Hàng</th>
+                    <th>Tổng Tiền</th>
+                    <th>Trạng Thái</th>
+                    <th>Ngày Tạo</th>
+                    <th>Hành Động</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% orders.forEach(order => { %>
+                <tr>
+                    <td><%= order._id.toString().slice(-6) %></td>
+                    <td><%= order.userId?.email || 'N/A' %></td>
+                    <td><%= order.totalPrice?.toLocaleString('vi-VN') %> đ</td>
+                    <td><span class="status-badge status-<%= order.status %>"><%= order.status %></span></td>
+                    <td><%= new Date(order.createdAt).toLocaleDateString('vi-VN') %></td>
+                    <td><a href="/admin/orders/<%= order._id %>" class="btn btn-small">Chi Tiết</a></td>
+                </tr>
+                <% }) %>
+            </tbody>
+        </table>
+        <% } else { %>
+        <p class="empty-message">Chưa có đơn hàng nào.</p>
+        <% } %>
+    </div>
+</section>

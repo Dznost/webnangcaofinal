@@ -1,0 +1,317 @@
+<section class="admin-section">
+    <div class="container">
+        <h1><%= branch ? 'Sửa Chi Nhánh' : 'Thêm Chi Nhánh Mới' %></h1>
+        
+        <% if (typeof error !== 'undefined' && error) { %>
+            <div class="alert alert-error"><%= error %></div>
+        <% } %>
+        
+        <!-- Fixed form action URL to use /admin/branches/ instead of /admin/branch/ -->
+        <form method="POST" action="<%= branch ? '/admin/branches/' + branch._id : '/admin/branches' %>" class="admin-form">
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="name">Tên Chi Nhánh *</label>
+                    <input type="text" id="name" name="name" value="<%= branch?.name || '' %>" placeholder="Nhập tên chi nhánh" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="phone">Điện Thoại *</label>
+                    <input type="tel" id="phone" name="phone" value="<%= branch?.phone || '' %>" placeholder="Nhập số điện thoại" required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="address">Địa Chỉ *</label>
+                <input type="text" id="address" name="address" value="<%= branch?.address || '' %>" placeholder="Nhập địa chỉ đầy đủ" required>
+            </div>
+
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" value="<%= branch?.email || '' %>" placeholder="Nhập email liên hệ">
+            </div>
+
+            <!-- Improved main image section with live preview -->
+            <div class="form-group">
+                <label for="image">Hình Ảnh Chính (URL) *</label>
+                <input type="url" id="image" name="image" value="<%= branch?.image || '' %>" placeholder="https://example.com/main-image.jpg" required>
+                <div class="image-preview-single" id="mainImagePreview">
+                    <% if (branch?.image) { %>
+                        <img src="<%= branch.image %>" alt="Main image">
+                    <% } %>
+                </div>
+            </div>
+
+            <!-- Simplified gallery images input - change type from url to text -->
+            <div class="form-group">
+                <label>Gallery Hình Ảnh</label>
+                <div id="imagesContainer">
+                    <% if (branch?.images && branch.images.length > 0) { %>
+                        <% branch.images.forEach((img, index) => { %>
+                            <div class="image-input-group">
+                                <input type="text" name="images" value="<%= img %>" placeholder="https://example.com/image.jpg">
+                                <button type="button" class="btn-icon btn-remove" onclick="removeImageField(this)">
+                                    <span>×</span>
+                                </button>
+                                <div class="image-mini-preview">
+                                    <img src="<%= img %>" alt="Gallery image <%= index + 1 %>">
+                                </div>
+                            </div>
+                        <% }) %>
+                    <% } %>
+                </div>
+                <button type="button" class="btn btn-secondary btn-add-image" onclick="addImageField()">
+                    + Thêm Hình Ảnh
+                </button>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="totalTables">Tổng Số Bàn *</label>
+                    <input type="number" id="totalTables" name="totalTables" value="<%= branch?.totalTables || 20 %>" min="1" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="availableTables">Số Bàn Còn Trống *</label>
+                    <input type="number" id="availableTables" name="availableTables" value="<%= branch?.availableTables || 20 %>" min="0" required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="openingHours">Giờ Mở Cửa *</label>
+                <input type="text" id="openingHours" name="openingHours" value="<%= branch?.openingHours || '10:00 - 22:00' %>" placeholder="Ví dụ: 10:00 - 22:00" required>
+            </div>
+
+            <div class="form-group">
+                <label for="description">Mô Tả Chi Nhánh *</label>
+                <textarea id="description" name="description" rows="4" placeholder="Nhập mô tả về chi nhánh" required><%= branch?.description || '' %></textarea>
+            </div>
+
+            <!-- Improved dishes selection with better styling -->
+            <div class="form-group">
+                <label for="dishes">Món Ăn Có Sẵn Tại Chi Nhánh</label>
+                <div class="dishes-select-wrapper">
+                    <select id="dishes" name="dishes" multiple>
+                        <% if (dishes && dishes.length > 0) { %>
+                            <% dishes.forEach(dish => { %>
+                                <option value="<%= dish._id %>" 
+                                    <%= branch?.dishes?.some(d => d._id?.toString() === dish._id.toString()) ? 'selected' : '' %>>
+                                    <%= dish.name %> - <%= dish.price.toLocaleString('vi-VN') %>đ
+                                </option>
+                            <% }) %>
+                        <% } %>
+                    </select>
+                    <small class="form-help">Giữ Ctrl (Windows) hoặc Cmd (Mac) để chọn nhiều món</small>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">
+                    <%= branch ? 'Cập Nhật Chi Nhánh' : 'Thêm Chi Nhánh' %>
+                </button>
+                <a href="/admin/branches" class="btn btn-secondary">Hủy</a>
+            </div>
+        </form>
+    </div>
+</section>
+
+<script>
+    document.querySelector('.admin-form').addEventListener('submit', function(e) {
+        console.log("[restaurant] ========== FORM SUBMITTING ==========");
+        
+        const imageInputs = document.querySelectorAll('input[name="images"]');
+        console.log("[restaurant] Number of image input fields:", imageInputs.length);
+        
+        if (imageInputs.length === 0) {
+            console.log("[restaurant] No image inputs found, adding hidden empty field");
+            const hiddenInput = document.createElement('input');
+            hiddenInput.type = 'hidden';
+            hiddenInput.name = 'images';
+            hiddenInput.value = '';
+            this.appendChild(hiddenInput);
+        }
+        
+        const formData = new FormData(this);
+        
+        console.log("[restaurant] All form data:");
+        for (let [key, value] of formData.entries()) {
+            console.log(`[restaurant]   ${key}: "${value}"`);
+        }
+        
+        const imagesFields = formData.getAll('images');
+        console.log("[restaurant] Images array from formData:", imagesFields);
+        console.log("[restaurant] Images count:", imagesFields.length);
+        console.log("[restaurant] Images with values:", imagesFields.filter(img => img && img.trim()));
+    });
+    
+    document.getElementById('image').addEventListener('input', function() {
+        const preview = document.getElementById('mainImagePreview');
+        if (this.value) {
+            preview.innerHTML = `<img src="${this.value}" alt="Main image" onerror="this.style.display='none'">`;
+        } else {
+            preview.innerHTML = '';
+        }
+    });
+
+    function addImageField() {
+        console.log("[restaurant] Adding new image field");
+        const container = document.getElementById('imagesContainer');
+        const div = document.createElement('div');
+        div.className = 'image-input-group';
+        div.innerHTML = `
+            <input type="text" name="images" placeholder="https://example.com/image.jpg">
+            <button type="button" class="btn-icon btn-remove" onclick="removeImageField(this)">
+                <span>×</span>
+            </button>
+            <div class="image-mini-preview"></div>
+        `;
+        container.appendChild(div);
+        
+        const input = div.querySelector('input');
+        input.addEventListener('input', function() {
+            const preview = this.parentElement.querySelector('.image-mini-preview');
+            if (this.value) {
+                preview.innerHTML = `<img src="${this.value}" alt="Gallery image" onerror="this.style.display='none'">`;
+            } else {
+                preview.innerHTML = '';
+            }
+        });
+    }
+
+    function removeImageField(btn) {
+        console.log("[restaurant] Removing image field");
+        const inputValue = btn.closest('.image-input-group').querySelector('input').value;
+        console.log("[restaurant] Removing image with value:", inputValue);
+        
+        const container = document.getElementById('imagesContainer');
+        const remainingBefore = container.querySelectorAll('.image-input-group').length;
+        
+        btn.closest('.image-input-group').remove();
+        
+        const remainingAfter = container.querySelectorAll('.image-input-group').length;
+        console.log(`[restaurant] Image fields before removal: ${remainingBefore}, after: ${remainingAfter}`);
+    }
+
+    document.querySelectorAll('#imagesContainer input[name="images"]').forEach(input => {
+        input.addEventListener('input', function() {
+            const preview = this.parentElement.querySelector('.image-mini-preview');
+            if (this.value) {
+                preview.innerHTML = `<img src="${this.value}" alt="Gallery image" onerror="this.style.display='none'">`;
+            } else {
+                preview.innerHTML = '';
+            }
+        });
+    });
+</script>
+
+<style>
+    .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+    }
+    
+    .image-preview-single {
+        margin-top: 0.5rem;
+        max-width: 100%;
+    }
+    
+    .image-preview-single img {
+        width: 100%;
+        max-width: 500px;
+        height: 250px;
+        object-fit: cover;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+    
+    .image-input-group {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+        align-items: start;
+    }
+    
+    .image-input-group input {
+        grid-column: 1;
+    }
+    
+    .btn-icon {
+        width: 36px;
+        height: 36px;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 24px;
+        transition: all 0.2s;
+    }
+    
+    .btn-remove {
+        background-color: #ef4444;
+        color: white;
+    }
+    
+    .btn-remove:hover {
+        background-color: #dc2626;
+        transform: scale(1.05);
+    }
+    
+    .image-mini-preview {
+        grid-column: 1 / -1;
+        margin-top: 0.5rem;
+    }
+    
+    .image-mini-preview img {
+        width: 100%;
+        max-width: 300px;
+        height: 150px;
+        object-fit: cover;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    
+    .btn-add-image {
+        margin-top: 0.5rem;
+    }
+    
+    .dishes-select-wrapper select {
+        width: 100%;
+        min-height: 200px;
+        padding: 0.5rem;
+        border: 1px solid var(--border);
+        border-radius: 5px;
+        font-size: 14px;
+    }
+    
+    .dishes-select-wrapper select option {
+        padding: 0.5rem;
+        margin: 0.25rem 0;
+        cursor: pointer;
+    }
+    
+    .dishes-select-wrapper select option:checked {
+        background: linear-gradient(#ff6b35, #ff6b35);
+        color: white;
+    }
+    
+    .form-help {
+        display: block;
+        margin-top: 0.5rem;
+        color: #666;
+        font-size: 13px;
+    }
+    
+    @media (max-width: 768px) {
+        .form-row {
+            grid-template-columns: 1fr;
+        }
+        
+        .image-input-group {
+            grid-template-columns: 1fr auto;
+        }
+    }
+</style>

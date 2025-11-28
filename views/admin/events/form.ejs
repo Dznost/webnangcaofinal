@@ -1,0 +1,221 @@
+<section class="admin-section">
+    <div class="container">
+        <h1><%= event ? '✏️ Sửa Sự Kiện' : '➕ Thêm Sự Kiện Mới' %></h1>
+        
+        <% if (typeof error !== 'undefined' && error) { %>
+            <div class="alert alert-error"><%= error %></div>
+        <% } %>
+        
+        <form method="POST" action="<%= event ? '/admin/events/' + event._id : '/admin/events' %>" class="admin-form">
+            <div class="form-group">
+                <label for="title">Tiêu Đề Sự Kiện *</label>
+                <input type="text" id="title" name="title" value="<%= event?.title || '' %>" placeholder="Nhập tiêu đề sự kiện" required>
+            </div>
+
+            <div class="form-group">
+                <label for="description">Mô Tả Sự Kiện *</label>
+                <textarea id="description" name="description" rows="5" placeholder="Mô tả chi tiết về sự kiện" required><%= event?.description || '' %></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="image">Hình Ảnh (URL) *</label>
+                <input type="url" id="image" name="image" value="<%= event?.image || '' %>" placeholder="https://example.com/event-image.jpg" onchange="previewImage(this.value)" required>
+                <div class="image-preview" id="imagePreview">
+                    <% if (event?.image) { %>
+                        <img src="<%= event.image %>" alt="<%= event.title %>" onerror="this.src='https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=300&h=200&fit=crop'">
+                    <% } %>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="discount">Giảm Giá (%) *</label>
+                <input type="number" id="discount" name="discount" value="<%= event?.discount || 0 %>" min="0" max="100" placeholder="Nhập % giảm giá" required>
+                <small>Nhập 0 nếu không có giảm giá</small>
+            </div>
+
+            <!-- Added discount type selection -->
+            <div class="form-group">
+                <label for="discountType">Loại Giảm Giá *</label>
+                <select id="discountType" name="discountType" onchange="toggleDiscountOptions(this.value)" required>
+                    <option value="branch" <%= event?.discountType === 'branch' || !event ? 'selected' : '' %>>Giảm giá cho Chi Nhánh</option>
+                    <option value="dish" <%= event?.discountType === 'dish' ? 'selected' : '' %>>Giảm giá cho Món Ăn</option>
+                </select>
+            </div>
+
+            <!-- Branch discount options -->
+            <div id="branchDiscountOptions" style="<%= event?.discountType === 'dish' ? 'display: none;' : '' %>">
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" name="isGlobal" id="isGlobalCheckbox" <%= event?.isGlobal ? 'checked' : '' %> onchange="toggleBranchSelection(this)">
+                        Áp dụng cho tất cả chi nhánh
+                    </label>
+                </div>
+
+                <div class="form-group" id="branchSelection" style="<%= event?.isGlobal ? 'display: none;' : '' %>">
+                    <label for="branches">Chi Nhánh Áp Dụng</label>
+                    <select id="branches" name="branches" multiple size="8">
+                        <% if (branches && branches.length > 0) { %>
+                            <% branches.forEach(branch => { %>
+                                <option value="<%= branch._id %>" 
+                                    <%= event?.branches?.some(b => b._id.toString() === branch._id.toString()) ? 'selected' : '' %>>
+                                    <%= branch.name %> - <%= branch.address %>
+                                </option>
+                            <% }) %>
+                        <% } %>
+                    </select>
+                    <small>Giữ Ctrl (Windows) hoặc Cmd (Mac) để chọn nhiều chi nhánh</small>
+                </div>
+            </div>
+
+            <!-- Dish discount options -->
+            <div id="dishDiscountOptions" style="<%= event?.discountType === 'branch' || !event ? 'display: none;' : '' %>">
+                <div class="form-group">
+                    <label for="dishSearch">Tìm Món Ăn</label>
+                    <input type="text" id="dishSearch" placeholder="Tìm theo tên món..." onkeyup="filterDishes()">
+                </div>
+                
+                <div class="form-group">
+                    <label for="dishes">Món Ăn Áp Dụng *</label>
+                    <div class="dishes-checkbox-list" id="dishesList">
+                        <% if (dishes && dishes.length > 0) { %>
+                            <% dishes.forEach(dish => { %>
+                                <label class="dish-checkbox-item" data-name="<%= dish.name.toLowerCase() %>">
+                                    <input type="checkbox" name="dishes" value="<%= dish._id %>"
+                                        <%= event?.dishes?.some(d => d._id.toString() === dish._id.toString()) ? 'checked' : '' %>>
+                                    <span class="dish-info">
+                                        <strong><%= dish.name %></strong>
+                                        <small><%= dish.category %> - <%= dish.price.toLocaleString('vi-VN') %>đ</small>
+                                    </span>
+                                </label>
+                            <% }) %>
+                        <% } %>
+                    </div>
+                    <small>Chọn các món ăn muốn áp dụng giảm giá</small>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="startDate">Ngày Bắt Đầu *</label>
+                    <input type="datetime-local" id="startDate" name="startDate" 
+                        value="<%= event ? event.startDate.toISOString().slice(0, 16) : '' %>" 
+                        min="<%= new Date().toISOString().slice(0, 16) %>"
+                        required>
+                </div>
+
+                <div class="form-group">
+                    <label for="endDate">Ngày Kết Thúc *</label>
+                    <input type="datetime-local" id="endDate" name="endDate" 
+                        value="<%= event ? event.endDate.toISOString().slice(0, 16) : '' %>" 
+                        min="<%= new Date().toISOString().slice(0, 16) %>"
+                        required>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">
+                    <%= event ? '💾 Cập Nhật Sự Kiện' : '➕ Thêm Sự Kiện' %>
+                </button>
+                <a href="/admin/events" class="btn btn-secondary">❌ Hủy</a>
+            </div>
+        </form>
+    </div>
+</section>
+
+<script>
+    function previewImage(url) {
+        const preview = document.getElementById('imagePreview');
+        if (url) {
+            preview.innerHTML = `<img src="${url}" alt="Event image" onerror="this.src='https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=300&h=200&fit=crop'">`;
+        } else {
+            preview.innerHTML = '';
+        }
+    }
+
+    function toggleBranchSelection(checkbox) {
+        const branchSelection = document.getElementById('branchSelection');
+        if (checkbox.checked) {
+            branchSelection.style.display = 'none';
+        } else {
+            branchSelection.style.display = 'block';
+        }
+    }
+
+    function toggleDiscountOptions(type) {
+        const branchOptions = document.getElementById('branchDiscountOptions');
+        const dishOptions = document.getElementById('dishDiscountOptions');
+        
+        if (type === 'branch') {
+            branchOptions.style.display = 'block';
+            dishOptions.style.display = 'none';
+        } else {
+            branchOptions.style.display = 'none';
+            dishOptions.style.display = 'block';
+        }
+    }
+
+    function filterDishes() {
+        const search = document.getElementById('dishSearch').value.toLowerCase();
+        const items = document.querySelectorAll('.dish-checkbox-item');
+        
+        items.forEach(item => {
+            const name = item.getAttribute('data-name');
+            if (name.includes(search)) {
+                item.style.display = 'flex';
+            } else {
+                item.style.display = 'none';
+            }
+        });
+    }
+</script>
+
+<style>
+    .dishes-checkbox-list {
+        max-height: 400px;
+        overflow-y: auto;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 1rem;
+        background: #f9f9f9;
+    }
+    
+    .dish-checkbox-item {
+        display: flex;
+        align-items: center;
+        padding: 0.75rem;
+        margin-bottom: 0.5rem;
+        background: white;
+        border-radius: 6px;
+        border: 1px solid #e0e0e0;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    
+    .dish-checkbox-item:hover {
+        border-color: var(--primary-color, #8b6f47);
+        background: #fff8f0;
+    }
+    
+    .dish-checkbox-item input[type="checkbox"] {
+        margin-right: 1rem;
+        width: 18px;
+        height: 18px;
+        cursor: pointer;
+    }
+    
+    .dish-info {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+    
+    .dish-info strong {
+        color: #333;
+        font-size: 1rem;
+    }
+    
+    .dish-info small {
+        color: #666;
+        font-size: 0.875rem;
+    }
+</style>

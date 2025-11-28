@@ -1,0 +1,92 @@
+<section class="admin-section">
+    <div class="container">
+        <div class="section-header">
+            <h1>🪑 Chi Tiết Đặt Bàn #<%= reservation._id.toString().slice(-6) %></h1>
+            <a href="/admin/reservations" class="btn btn-secondary">← Quay Lại</a>
+        </div>
+
+        <div class="detail-grid">
+            <div class="detail-card">
+                <h3>Thông Tin Khách Hàng</h3>
+                <p><strong>Email:</strong> <%= reservation.user?.email || 'N/A' %></p>
+                <p><strong>Tên:</strong> <%= reservation.user?.name || 'N/A' %></p>
+                <p><strong>SĐT:</strong> <%= reservation.user?.phone || reservation.phone || 'N/A' %></p>
+            </div>
+
+            <div class="detail-card">
+                <h3>Thông Tin Đặt Bàn</h3>
+                <p><strong>Chi Nhánh:</strong> <%= reservation.branch?.name || 'N/A' %></p>
+                <p><strong>Địa chỉ:</strong> <%= reservation.branch?.address || 'N/A' %></p>
+                <p><strong>Ngày:</strong> <%= new Date(reservation.reservationDate).toLocaleDateString('vi-VN') %></p>
+                <p><strong>Giờ:</strong> <%= reservation.reservationTime %></p>
+                <p><strong>Số Khách:</strong> <%= reservation.numberOfGuests %> người</p>
+                <p><strong>Phí đặt cọc:</strong> <%= reservation.depositAmount?.toLocaleString('vi-VN') || 0 %> đ</p>
+            </div>
+        </div>
+
+        <% if (reservation.orderItems && reservation.orderItems.length > 0) { %>
+        <div class="detail-card">
+            <h3>🍽️ Món Ăn Đặt Trước</h3>
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>Tên Món</th>
+                        <th>Số Lượng</th>
+                        <th>Giá</th>
+                        <th>Thành Tiền</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% reservation.orderItems.forEach(item => { %>
+                    <tr>
+                        <td><%= item.dish?.name || 'N/A' %></td>
+                        <td><%= item.quantity %></td>
+                        <td><%= item.price?.toLocaleString('vi-VN') %> đ</td>
+                        <td><%= (item.quantity * item.price)?.toLocaleString('vi-VN') %> đ</td>
+                    </tr>
+                    <% }) %>
+                    <tr>
+                        <td colspan="3" style="text-align: right;"><strong>Tổng tiền món ăn:</strong></td>
+                        <td><strong><%= reservation.totalAmount?.toLocaleString('vi-VN') %> đ</strong></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <% } %>
+
+        <div class="detail-card">
+            <h3>Yêu Cầu Đặc Biệt</h3>
+            <p><%= reservation.specialRequests || 'Không có' %></p>
+        </div>
+
+        <% if (payment) { %>
+        <div class="detail-card">
+            <h3>💳 Thông Tin Thanh Toán</h3>
+            <p><strong>Mã GD:</strong> <%= payment.transactionId || 'N/A' %></p>
+            <p><strong>Tổng thanh toán:</strong> <%= payment.amount?.toLocaleString('vi-VN') %> đ</p>
+            <p><strong>Phương thức:</strong> 
+                <%= payment.paymentMethod === 'bank' ? '🏦 Chuyển khoản ngân hàng' : '📱 MoMo' %>
+            </p>
+            <p><strong>Trạng thái:</strong> 
+                <span class="status-badge status-<%= payment.status %>">
+                    <%= payment.status === 'completed' ? '✅ Đã thanh toán' : '⏳ Chờ xác nhận' %>
+                </span>
+            </p>
+            <p><strong>Thanh toán lúc:</strong> <%= payment.paidAt ? new Date(payment.paidAt).toLocaleString('vi-VN') : 'N/A' %></p>
+        </div>
+        <% } %>
+
+        <div class="detail-card">
+            <h3>Cập Nhật Trạng Thái</h3>
+            <!-- Fixed form action URL from /admin/reservation/ to /admin/reservations/ -->
+            <form method="POST" action="/admin/reservations/<%= reservation._id %>/status" class="status-form">
+                <select name="status" required>
+                    <option value="pending" <%= reservation.status === 'pending' ? 'selected' : '' %>>Chờ Xác Nhận</option>
+                    <option value="confirmed" <%= reservation.status === 'confirmed' ? 'selected' : '' %>>Đã Xác Nhận</option>
+                    <option value="cancelled" <%= reservation.status === 'cancelled' ? 'selected' : '' %>>Hủy</option>
+                </select>
+                <button type="submit" class="btn btn-primary">Cập Nhật</button>
+            </form>
+        </div>
+    </div>
+</section>

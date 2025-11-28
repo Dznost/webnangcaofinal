@@ -1,0 +1,113 @@
+<section class="admin-section">
+    <div class="container">
+        <div class="section-header">
+            <h1>🍽️ Quản Lý Món Ăn</h1>
+            <a href="/admin/dishes/new" class="btn btn-primary">➕ Thêm Món Ăn Mới</a>
+        </div>
+
+        <% if (typeof success !== 'undefined' && success) { %>
+            <div class="alert alert-success"><%= success %></div>
+        <% } %>
+
+        <% if (dishes && dishes.length > 0) { %>
+            <div class="admin-card">
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>Hình Ảnh</th>
+                            <th>Tên</th>
+                            <th>Mô Tả</th>
+                            <th>Giá</th>
+                            <th>Danh Mục</th>
+                            <th>Giảm Giá</th>
+                            <th>Hành Động</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% dishes.forEach(dish => { %>
+                            <tr>
+                                <td>
+                                    <img src="<%= dish.image %>" alt="<%= dish.name %>" 
+                                         style="width: 60px; height: 60px; object-fit: cover; border-radius: 8px;"
+                                         onerror="this.src='https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=60&h=60&fit=crop'">
+                                </td>
+                                <td><strong><%= dish.name %></strong></td>
+                                <td style="max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                                    <%= dish.description %>
+                                </td>
+                                <td>
+                                    <% const eventDiscount = dish.event ? dish.event.discount : 0; %>
+                                    <% const finalDiscount = eventDiscount || dish.discount; %>
+                                    <% if (finalDiscount > 0) { %>
+                                        <div>
+                                            <span style="text-decoration: line-through; color: #999; font-size: 0.85rem;">
+                                                <%= dish.price.toLocaleString('vi-VN') %>đ
+                                            </span>
+                                            <br>
+                                            <strong style="color: var(--accent);">
+                                                <%= (dish.price * (1 - finalDiscount / 100)).toLocaleString('vi-VN') %>đ
+                                            </strong>
+                                        </div>
+                                    <% } else { %>
+                                        <strong><%= dish.price.toLocaleString('vi-VN') %>đ</strong>
+                                    <% } %>
+                                </td>
+                                <td>
+                                    <% const categoryMap = {
+                                        'appetizer': { icon: '🥗', label: 'Khai Vị', color: '#d1ecf1' },
+                                        'main': { icon: '🍖', label: 'Món Chính', color: '#fff3cd' },
+                                        'dessert': { icon: '🍰', label: 'Tráng Miệng', color: '#f8d7da' },
+                                        'beverage': { icon: '🍹', label: 'Đồ Uống', color: '#d4edda' }
+                                    }; %>
+                                    <% const cat = categoryMap[dish.category] || { icon: '🍽️', label: dish.category, color: '#e2e3e5' }; %>
+                                    <span class="category-badge" style="background: <%= cat.color %>;">
+                                        <%= cat.icon %> <%= cat.label %>
+                                    </span>
+                                </td>
+                                <td>
+                                    <% if (dish.event) { %>
+                                        <span class="discount-badge" style="background: linear-gradient(135deg, #FF6B6B 0%, #FF8E53 100%);">
+                                            <%= dish.event.discount %>% (<%= dish.event.title %>)
+                                        </span>
+                                    <% } else if (dish.discount > 0) { %>
+                                        <span class="discount-badge"><%= dish.discount %>%</span>
+                                    <% } else { %>
+                                        <span style="color: #999;">-</span>
+                                    <% } %>
+                                </td>
+                                <td class="action-buttons">
+                                    <a href="/admin/dishes/<%= dish._id %>/edit" class="btn btn-small btn-primary">✏️ Sửa</a>
+                                    <a href="/admin/dishes/<%= dish._id %>/delete" class="btn btn-small btn-danger" onclick="return confirm('Bạn chắc chắn muốn xóa?')">🗑️ Xóa</a>
+                                </td>
+                            </tr>
+                        <% }); %>
+                    </tbody>
+                </table>
+            </div>
+        <% } else { %>
+            <div class="empty-message">
+                <p>Chưa có món ăn nào. <a href="/admin/dishes/new" class="btn btn-primary">Thêm ngay</a></p>
+            </div>
+        <% } %>
+    </div>
+</section>
+
+<style>
+    
+    .category-badge {
+        padding: 0.25rem 0.75rem;
+        border-radius: 15px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+    
+    .discount-badge {
+        background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+        color: white;
+        padding: 0.25rem 0.75rem;
+        border-radius: 15px;
+        font-weight: bold;
+        font-size: 0.9rem;
+    }
+</style>

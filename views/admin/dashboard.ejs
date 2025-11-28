@@ -1,0 +1,216 @@
+<section class="admin-dashboard">
+    <div class="container">
+        <h1>⚙️ Bảng Điều Khiển Quản Trị</h1>
+        
+        <!-- Updated statistics with all counts -->
+        <div class="dashboard-stats">
+            <div class="stat-card">
+                <h3>🍽️ Tổng Số Món Ăn</h3>
+                <p class="stat-number"><%= dishCount || 0 %></p>
+                <a href="/admin/dishes" class="btn btn-small">Quản Lý</a>
+            </div>
+            <div class="stat-card">
+                <h3>🏢 Tổng Số Chi Nhánh</h3>
+                <p class="stat-number"><%= branchCount || 0 %></p>
+                <a href="/admin/branches" class="btn btn-small">Quản Lý</a>
+            </div>
+            <div class="stat-card">
+                <h3>👥 Tổng Số Người Dùng</h3>
+                <p class="stat-number"><%= userCount || 0 %></p>
+                <a href="/admin/users" class="btn btn-small">Quản Lý</a>
+            </div>
+            <div class="stat-card">
+                <h3>📅 Tổng Số Sự Kiện</h3>
+                <p class="stat-number"><%= eventCount || 0 %></p>
+                <a href="/admin/events" class="btn btn-small">Quản Lý</a>
+            </div>
+            <div class="stat-card">
+                <h3>📝 Tổng Số Bài Blog</h3>
+                <p class="stat-number"><%= blogCount || 0 %></p>
+                <a href="/admin/blogs" class="btn btn-small">Quản Lý</a>
+            </div>
+            <div class="stat-card">
+                <h3>🛒 Tổng Số Đơn Hàng</h3>
+                <p class="stat-number"><%= orderCount || 0 %></p>
+                <a href="/admin/orders" class="btn btn-small">Quản Lý</a>
+            </div>
+            <div class="stat-card">
+                <h3>🪑 Tổng Số Đặt Bàn</h3>
+                <p class="stat-number"><%= reservationCount || 0 %></p>
+                <a href="/admin/reservations" class="btn btn-small">Quản Lý</a>
+            </div>
+            <!-- Added revenue statistics card -->
+            <div class="stat-card highlight">
+                <h3>💰 Thống Kê Doanh Thu</h3>
+                <p class="stat-number">📊</p>
+                <a href="/admin/revenue" class="btn btn-small">Xem Chi Tiết</a>
+            </div>
+            <!-- Updated contacts card title -->
+            <div class="stat-card">
+                <h3>📧 Phản Hồi Mới</h3>
+                <p class="stat-number"><%= contactCount || 0 %></p>
+                <a href="/admin/contacts" class="btn btn-small">Quản Lý</a>
+            </div>
+        </div>
+
+        <!-- Added quick access menu -->
+        <div class="admin-menu">
+            <h2>🔧 Quản Lý Nhanh</h2>
+            <ul>
+                <li><a href="/admin/dishes">🍽️ Quản Lý Món Ăn</a></li>
+                <li><a href="/admin/branches">🏢 Quản Lý Chi Nhánh</a></li>
+                <li><a href="/admin/events">📅 Quản Lý Sự Kiện</a></li>
+                <li><a href="/admin/blogs">📝 Quản Lý Blog</a></li>
+                <li><a href="/admin/orders">🛒 Quản Lý Đơn Hàng</a></li>
+                <li><a href="/admin/reservations">🪑 Quản Lý Đặt Bàn</a></li>
+                <li><a href="/admin/users">👥 Quản Lý Người Dùng</a></li>
+                <!-- Added revenue link -->
+                <li><a href="/admin/revenue">💰 Thống Kê Doanh Thu</a></li>
+                <!-- Updated contacts link title -->
+                <li><a href="/admin/contacts">📧 Quản Lý Phản Hồi</a></li>
+            </ul>
+        </div>
+
+        <!-- Added recent orders section -->
+        <% if (recentOrders && recentOrders.length > 0) { %>
+        <div class="recent-section">
+            <h2>📦 Đơn Hàng Gần Đây</h2>
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Khách Hàng</th>
+                        <th>Tổng Tiền</th>
+                        <th>Trạng Thái</th>
+                        <th>Ngày Tạo</th>
+                        <th>Hành Động</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% recentOrders.forEach(order => { %>
+                    <tr>
+                        <td><%= order._id.toString().slice(-6) %></td>
+                        <td><%= order.userId?.email || 'N/A' %></td>
+                        <td><%= order.totalPrice?.toLocaleString('vi-VN') %> đ</td>
+                        <td><span class="status-badge status-<%= order.status %>"><%= order.status %></span></td>
+                        <td><%= new Date(order.createdAt).toLocaleDateString('vi-VN') %></td>
+                        <td><a href="/admin/orders/<%= order._id %>" class="btn btn-small">Chi Tiết</a></td>
+                    </tr>
+                    <% }) %>
+                </tbody>
+            </table>
+        </div>
+        <% } %>
+
+        <!-- Added recent reservations section -->
+        <% if (recentReservations && recentReservations.length > 0) { %>
+        <div class="recent-section">
+            <h2>🪑 Đặt Bàn Gần Đây</h2>
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Khách Hàng</th>
+                        <th>Chi Nhánh</th>
+                        <th>Ngày Giờ</th>
+                        <th>Số Khách</th>
+                        <th>Trạng Thái</th>
+                        <th>Hành Động</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% recentReservations.forEach(res => { %>
+                    <tr>
+                        <td><%= res._id.toString().slice(-6) %></td>
+                        <td><%= res.userId?.email || 'N/A' %></td>
+                        <td><%= res.branchId?.name || 'N/A' %></td>
+                        <td><%= new Date(res.date).toLocaleDateString('vi-VN') %> <%= res.time %></td>
+                        <td><%= res.guests %></td>
+                        <td><span class="status-badge status-<%= res.status %>"><%= res.status %></span></td>
+                        <td><a href="/admin/reservations/<%= res._id %>" class="btn btn-small">Chi Tiết</a></td>
+                    </tr>
+                    <% }) %>
+                </tbody>
+            </table>
+        </div>
+        <% } %>
+    </div>
+</section>
+
+<style>
+    .admin-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 1rem;
+        background: white;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .admin-table thead {
+        background: #8B6F47;
+        color: white;
+    }
+
+    .admin-table th, .admin-table td {
+        padding: 12px;
+        text-align: left;
+        border-bottom: 1px solid #eee;
+    }
+
+    .admin-table tbody tr:hover {
+        background: #f5f5f5;
+    }
+
+    .status-badge {
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 0.85rem;
+        font-weight: bold;
+    }
+
+    .status-pending {
+        background: #fff3cd;
+        color: #856404;
+    }
+
+    .status-confirmed, .status-completed {
+        background: #d4edda;
+        color: #155724;
+    }
+
+    .status-cancelled {
+        background: #f8d7da;
+        color: #721c24;
+    }
+
+    .recent-section {
+        margin-top: 2rem;
+        padding: 1.5rem;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .recent-section h2 {
+        margin-bottom: 1rem;
+        color: #8B6F47;
+    }
+
+    .stat-card.highlight {
+        background: linear-gradient(135deg, #d4a574 0%, #8B6F47 100%);
+        color: white;
+        border: none;
+    }
+
+    .stat-card.highlight .stat-number {
+        color: white;
+        font-size: 48px;
+    }
+
+    .stat-card.highlight .btn {
+        background: white;
+        color: #8B6F47;
+    }
+</style>

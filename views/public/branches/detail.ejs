@@ -1,0 +1,304 @@
+<section class="branch-detail-enhanced">
+    <div class="container">
+        <div class="branch-hero">
+            <div class="branch-hero-content">
+                <h1><%= branch.name %></h1>
+                <p class="branch-tagline"><%= branch.description %></p>
+                
+                <div class="availability-status">
+                    <div class="status-item <%= branch.availableTables > 0 ? 'available' : 'unavailable' %>">
+                        <span class="status-icon">🪑</span>
+                        <div class="status-text">
+                            <strong><%= branch.availableTables %>/<%= branch.totalTables %></strong>
+                            <span>Bàn còn trống</span>
+                        </div>
+                    </div>
+                    
+                    <% if (branch.availableTables > 0 && isLoggedIn && !isAdmin) { %>
+                        <a href="/user/reservation?branch=<%= branch._id %>" class="btn btn-primary btn-large">
+                            🪑 Đặt Bàn Ngay
+                        </a>
+                    <% } else if (!isLoggedIn) { %>
+                        <a href="/login?redirect=/branch/<%= branch._id %>" class="btn btn-primary btn-large">
+                            Đăng Nhập Để Đặt Bàn
+                        </a>
+                    <% } else if (branch.availableTables === 0) { %>
+                        <button class="btn btn-large" disabled style="background: #999;">
+                            ✕ Hết Chỗ
+                        </button>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+
+        <!-- Enhanced promotions banner with visual indicators -->
+        <% if (events && events.length > 0) { %>
+        <div class="active-promotions-banner">
+            <div class="promo-banner-header">
+                <h2 class="promo-title">🎉 Chương Trình Đang Diễn Ra Tại Chi Nhánh</h2>
+                <span class="promo-count"><%= events.length %> sự kiện</span>
+            </div>
+            <div class="promotions-carousel">
+                <% events.forEach((event, index) => { %>
+                <div class="promotion-banner <%= index === 0 ? 'featured' : '' %>">
+                    <div class="promo-visual">
+                        <div class="promo-badge-large">-<%= event.discount %>%</div>
+                        <img src="<%= event.image || 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=400&h=250&fit=crop' %>" 
+                             alt="<%= event.title %>" 
+                             onerror="this.src='https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=400&h=250&fit=crop'">
+                        <div class="promo-overlay"></div>
+                    </div>
+                    <div class="promo-details">
+                        <div class="promo-labels">
+                            <span class="promo-type-badge">Giảm Giá</span>
+                            <% if (event.isGlobal) { %>
+                                <span class="promo-scope-badge global">Toàn Hệ Thống</span>
+                            <% } else { %>
+                                <span class="promo-scope-badge branch">Chi Nhánh Này</span>
+                            <% } %>
+                        </div>
+                        <h3><%= event.title %></h3>
+                        <p class="promo-description"><%= event.description %></p>
+                        <div class="promo-dates">
+                            <span class="date-badge-large">
+                                📅 <strong>Từ:</strong> <%= new Date(event.startDate).toLocaleDateString('vi-VN') %><br>
+                                📅 <strong>Đến:</strong> <%= new Date(event.endDate).toLocaleDateString('vi-VN') %>
+                            </span>
+                        </div>
+                        <a href="/event/<%= event._id %>" class="btn btn-small btn-outline">Chi Tiết Sự Kiện</a>
+                    </div>
+                </div>
+                <% }) %>
+            </div>
+        </div>
+        <% } %>
+        <!-- </CHANGE> -->
+
+        <div class="branch-gallery-section">
+            <h2>📸 Hình Ảnh Chi Nhánh</h2>
+            <div class="branch-gallery-grid">
+                <div class="gallery-main">
+                    <img id="mainGalleryImage" 
+                         src="<%= branch.image || 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=800&h=500&fit=crop' %>" 
+                         alt="<%= branch.name %>" 
+                         onerror="this.src='https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=800&h=500&fit=crop'">
+                </div>
+                
+                <% if (branch.images && branch.images.length > 0) { %>
+                <div class="gallery-thumbnails">
+                    <div class="thumbnail-item active" onclick="changeGalleryImage(this, '<%= branch.image %>')">
+                        <img src="<%= branch.image %>" alt="Main" onerror="this.src='https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=150&h=100&fit=crop'">
+                    </div>
+                    <% branch.images.forEach((img, index) => { %>
+                        <div class="thumbnail-item" onclick="changeGalleryImage(this, '<%= img %>')">
+                            <img src="<%= img %>" 
+                                 alt="Image <%= index + 1 %>" 
+                                 onerror="this.src='https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=150&h=100&fit=crop'">
+                        </div>
+                    <% }) %>
+                </div>
+                <% } %>
+            </div>
+        </div>
+
+        <div class="branch-info-grid">
+            <div class="info-card">
+                <h3>📍 Thông Tin Liên Hệ</h3>
+                <ul class="info-list">
+                    <li><strong>Địa chỉ:</strong> <%= branch.address %></li>
+                    <li><strong>Điện thoại:</strong> <a href="tel:<%= branch.phone %>"><%= branch.phone %></a></li>
+                    <li><strong>Email:</strong> <a href="mailto:<%= branch.email %>"><%= branch.email %></a></li>
+                    <li><strong>Giờ mở cửa:</strong> <%= branch.openingHours %></li>
+                </ul>
+            </div>
+
+            <div class="info-card">
+                <h3>🪑 Thông Tin Bàn Ăn</h3>
+                <div class="table-capacity-visual">
+                    <div class="capacity-bar">
+                        <div class="capacity-fill" style="width: <%= (branch.availableTables / branch.totalTables) * 100 %>%"></div>
+                    </div>
+                    <div class="capacity-stats">
+                        <div class="stat">
+                            <strong><%= branch.totalTables %></strong>
+                            <span>Tổng số bàn</span>
+                        </div>
+                        <div class="stat">
+                            <strong><%= branch.availableTables %></strong>
+                            <span>Còn trống</span>
+                        </div>
+                        <div class="stat">
+                            <strong><%= branch.totalTables - branch.availableTables %></strong>
+                            <span>Đã đặt</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Added direct booking widget on branch detail page -->
+        <% if (branch.availableTables > 0 && isLoggedIn && !isAdmin) { %>
+        <div class="quick-booking-widget">
+            <div class="widget-header">
+                <h3>⚡ Đặt Bàn Nhanh</h3>
+                <p>Đặt bàn ngay tại chi nhánh này</p>
+            </div>
+            <div class="widget-body">
+                <form action="/user/reservation" method="GET" class="quick-booking-form">
+                    <input type="hidden" name="branch" value="<%= branch._id %>">
+                    
+                    <div class="quick-form-row">
+                        <div class="quick-form-group">
+                            <label>Số Khách</label>
+                            <input type="number" name="guests" min="1" max="20" value="2" required>
+                        </div>
+                        <div class="quick-form-group">
+                            <label>Ngày</label>
+                            <input type="date" name="date" min="<%= new Date().toISOString().split('T')[0] %>" required>
+                        </div>
+                        <div class="quick-form-group">
+                            <label>Giờ</label>
+                            <input type="time" name="time" required>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary btn-block">
+                        🪑 Tiếp Tục Đặt Bàn
+                    </button>
+                </form>
+            </div>
+        </div>
+        <% } %>
+        <!-- </CHANGE> -->
+
+        <% if (branch.dishes && branch.dishes.length > 0) { %>
+        <div class="branch-menu-section">
+            <div class="section-header-flex">
+                <h2>🍽️ Thực Đơn Tại Chi Nhánh</h2>
+                <!-- Updated filter buttons to use database category values -->
+                <div class="menu-filter">
+                    <button class="filter-btn active" onclick="filterDishes('all')">Tất cả (<%= branch.dishes.length %>)</button>
+                    <button class="filter-btn" onclick="filterDishes('appetizer')">Khai vị</button>
+                    <button class="filter-btn" onclick="filterDishes('main')">Món chính</button>
+                    <button class="filter-btn" onclick="filterDishes('dessert')">Tráng miệng</button>
+                    <button class="filter-btn" onclick="filterDishes('beverage')">Đồ uống</button>
+                </div>
+            </div>
+
+            <div class="branch-dishes-grid">
+                <% branch.dishes.forEach(dish => { %>
+                <div class="dish-showcase-card" data-category="<%= dish.category %>">
+                    <div class="dish-image-enhanced">
+                        <img src="<%= dish.image || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=300&h=250&fit=crop' %>" 
+                             alt="<%= dish.name %>" 
+                             onerror="this.src='https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=300&h=250&fit=crop'">
+                        
+                        <% if (dish.discount > 0) { %>
+                            <div class="dish-discount-badge">-<%= dish.discount %>%</div>
+                        <% } %>
+                        
+                        <div class="dish-quick-actions">
+                            <a href="/dish/<%= dish._id %>" class="quick-action-btn">👁️</a>
+                        </div>
+                    </div>
+                    
+                    <div class="dish-showcase-content">
+                        <!-- Display Vietnamese category labels -->
+                        <div class="dish-category-tag">
+                            <% 
+                            const categoryLabels = {
+                                'appetizer': 'Khai Vị',
+                                'main': 'Món Chính', 
+                                'dessert': 'Tráng Miệng',
+                                'beverage': 'Đồ Uống'
+                            };
+                            %>
+                            <%= categoryLabels[dish.category] || dish.category %>
+                        </div>
+                        <h4><%= dish.name %></h4>
+                        <p class="dish-description-short"><%= dish.description.substring(0, 80) %>...</p>
+                        
+                        <div class="dish-price-action">
+                            <div class="price-display">
+                                <% if (dish.discount > 0) { %>
+                                    <span class="discounted-price"><%= Math.floor(dish.price * (1 - dish.discount / 100)).toLocaleString('vi-VN') %>đ</span>
+                                    <span class="original-price"><%= dish.price.toLocaleString('vi-VN') %>đ</span>
+                                <% } else { %>
+                                    <span class="current-price"><%= dish.price.toLocaleString('vi-VN') %>đ</span>
+                                <% } %>
+                            </div>
+                            <a href="/dish/<%= dish._id %>" class="btn btn-small">Xem</a>
+                        </div>
+                    </div>
+                </div>
+                <% }) %>
+            </div>
+        </div>
+        <% } %>
+    </div>
+</section>
+
+<script>
+    function changeGalleryImage(thumbnail, imageUrl) {
+        document.getElementById('mainGalleryImage').src = imageUrl;
+        document.querySelectorAll('.thumbnail-item').forEach(item => item.classList.remove('active'));
+        thumbnail.classList.add('active');
+    }
+
+    function filterDishes(category) {
+        console.log('[restaurant] Filtering dishes by category:', category);
+        
+        const dishes = document.querySelectorAll('.dish-showcase-card');
+        const buttons = document.querySelectorAll('.filter-btn');
+        
+        console.log('[restaurant] Total dishes found:', dishes.length);
+        console.log('[restaurant] Total buttons found:', buttons.length);
+        
+        // Remove active class from all buttons
+        buttons.forEach(btn => {
+            btn.classList.remove('active');
+            console.log('[restaurant] Button text:', btn.textContent.trim());
+        });
+        
+        // Add active class to clicked button based on category
+        buttons.forEach(btn => {
+            const btnText = btn.textContent.trim().toLowerCase();
+            if ((category === 'all' && btnText.includes('tất cả')) ||
+                (category === 'appetizer' && btnText.includes('khai vị')) ||
+                (category === 'main' && btnText.includes('món chính')) ||
+                (category === 'dessert' && btnText.includes('tráng miệng')) ||
+                (category === 'beverage' && btnText.includes('đồ uống'))) {
+                btn.classList.add('active');
+                console.log('[restaurant] Activated button:', btnText);
+            }
+        });
+        
+        // Filter dishes
+        let visibleCount = 0;
+        dishes.forEach(dish => {
+            const dishCategory = dish.getAttribute('data-category');
+            console.log('[restaurant] Checking dish - category:', dishCategory, 'filter:', category);
+            
+            if (category === 'all' || dishCategory === category) {
+                dish.style.display = '';
+                dish.style.visibility = 'visible';
+                dish.style.opacity = '1';
+                visibleCount++;
+                console.log('[restaurant] Showing dish with category:', dishCategory);
+            } else {
+                dish.style.display = 'none';
+                dish.style.visibility = 'hidden';
+                dish.style.opacity = '0';
+                console.log('[restaurant] Hiding dish with category:', dishCategory);
+            }
+        });
+        
+        console.log('[restaurant] Filter complete - visible dishes:', visibleCount);
+    }
+    
+    // Initialize filter on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('[restaurant] Page loaded, initializing filter');
+        filterDishes('all');
+    });
+</script>

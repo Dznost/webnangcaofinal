@@ -1,0 +1,18 @@
+<section class="event-detail">
+    <div class="container">
+        <div class="event-detail-content">
+            <div class="event-image">
+                <img src="<%= event.image || 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=500&h=400&fit=crop' %>" alt="<%= event.title %>" onerror="this.src='https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=500&h=400&fit=crop'">
+            </div>
+            <div class="event-info">
+                <h1><%= event.title %></h1>
+                <p><%= event.description %></p>
+                <% if (event.discount > 0) { %>
+                    <p class="discount-info">🎉 Khuyến mãi: Giảm <%= event.discount %>%</p>
+                <% } %>
+                <p><strong>📅 Từ:</strong> <%= new Date(event.startDate).toLocaleDateString('vi-VN') %></p>
+                <p><strong>📅 Đến:</strong> <%= new Date(event.endDate).toLocaleDateString('vi-VN') %></p>
+            </div>
+        </div>
+    </div>
+</section>

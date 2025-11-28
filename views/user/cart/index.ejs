@@ -1,0 +1,39 @@
+<section class="cart-section">
+    <div class="container">
+        <h1>🛒 Giỏ Hàng</h1>
+        <% if (cart && cart.length > 0) { %>
+            <table class="cart-table">
+                <tr>
+                    <th>Tên Món</th>
+                    <th>Giá</th>
+                    <th>Số Lượng</th>
+                    <th>Tổng</th>
+                    <th>Hành Động</th>
+                </tr>
+                <% let total = 0; %>
+                <% cart.forEach(item => { %>
+                    <% const itemTotal = item.price * item.quantity; %>
+                    <% total += itemTotal; %>
+                    <tr>
+                        <td><%= item.name %></td>
+                        <td><%= item.price.toLocaleString('vi-VN') %>đ</td>
+                        <td><%= item.quantity %></td>
+                        <td><%= itemTotal.toLocaleString('vi-VN') %>đ</td>
+                        <!-- Changed from item._id to item.dishId for cart remove -->
+                        <td><a href="/user/cart/remove/<%= item.dishId %>" class="btn btn-small btn-danger">Xóa</a></td>
+                    </tr>
+                <% }); %>
+            </table>
+            <div class="cart-total">
+                <h3>💰 Tổng Cộng: <%= total.toLocaleString('vi-VN') %>đ</h3>
+                <a href="/user/checkout" class="btn btn-primary">Tiến Hành Thanh Toán</a>
+                <a href="/menu" class="btn">Tiếp Tục Mua Sắm</a>
+            </div>
+        <% } else { %>
+            <div class="empty-cart">
+                <p>🛒 Giỏ hàng trống</p>
+                <a href="/menu" class="btn btn-primary">Tiếp Tục Mua Sắm</a>
+            </div>
+        <% } %>
+    </div>
+</section>

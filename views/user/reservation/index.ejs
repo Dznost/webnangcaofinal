@@ -1,0 +1,678 @@
+<section class="reservation-section">
+    <div class="container">
+        <h1>Đặt Bàn Trước</h1>
+        <p class="section-description">Đặt bàn và chọn món trước để đảm bảo trải nghiệm tốt nhất. Phí đặt cọc: <strong>100,000đ</strong></p>
+        
+        <% if (typeof error !== 'undefined' && error) { %>
+            <div class="alert alert-error"><%= error %></div>
+        <% } %>
+        
+        <form method="POST" action="/user/reservation" class="reservation-form" id="reservationForm">
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="branchId">Chọn Chi Nhánh *</label>
+                    <select id="branchId" name="branchId" required>
+                        <option value="">-- Chọn Chi Nhánh --</option>
+                        <% branches.forEach(branch => { %>
+                            <option value="<%= branch._id %>" 
+                                    data-tables="<%= branch.availableTables %>"
+                                    data-dishes="<%= branch.dishes.map(d => d._id.toString()).join(',') %>">
+                                <%= branch.name %> - <%= branch.address %> (Còn <%= branch.availableTables %> bàn)
+                            </option>
+                        <% }); %>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="guests">Số Khách *</label>
+                    <input type="number" id="guests" name="guests" min="1" max="20" placeholder="Số khách" required>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="date">Ngày Đặt *</label>
+                    <input type="date" id="date" name="date" min="<%= new Date().toISOString().split('T')[0] %>" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="time">Giờ Đặt *</label>
+                    <input type="time" id="time" name="time" required>
+                </div>
+            </div>
+
+            <div class="food-selection-section">
+                <h3>Đặt Món Trước (Tùy Chọn)</h3>
+                <p class="info-text" id="dishFilterNotice">Chọn chi nhánh trước để xem món ăn có sẵn tại chi nhánh đó</p>
+                
+                <!-- Add search and category filter for better UX -->
+                <div class="dish-filters">
+                    <div class="search-box">
+                        <input type="text" id="dishSearch" placeholder="🔍 Tìm món ăn..." class="search-input">
+                    </div>
+                    <div class="category-filters">
+                        <button type="button" class="filter-btn active" data-category="all">Tất cả</button>
+                        <button type="button" class="filter-btn" data-category="appetizer">Khai vị</button>
+                        <button type="button" class="filter-btn" data-category="main">Món chính</button>
+                        <button type="button" class="filter-btn" data-category="dessert">Tráng miệng</button>
+                        <button type="button" class="filter-btn" data-category="beverage">Đồ uống</button>
+                    </div>
+                </div>
+                
+                <div id="dishesContainer" class="reservation-dishes-grid">
+                    <% if (dishes && dishes.length > 0) { %>
+                        <% dishes.forEach(dish => { %>
+                            <div class="reservation-dish-card" 
+                                 data-dish-id="<%= dish._id %>"
+                                 data-dish-name="<%= dish.name.toLowerCase() %>"
+                                 data-category="<%= dish.category %>">
+                                <img src="<%= dish.image %>" alt="<%= dish.name %>" onerror="this.src='https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=120&h=120&fit=crop'">
+                                <div class="reservation-dish-info">
+                                    <h4><%= dish.name %></h4>
+                                    <span class="dish-category-badge"><%= dish.category %></span>
+                                    <p class="reservation-dish-price">
+                                        <% if (dish.discount > 0) { %>
+                                            <span class="original-price"><%= dish.price.toLocaleString('vi-VN') %>đ</span>
+                                            <span class="sale-price"><%= (dish.price * (1 - dish.discount / 100)).toLocaleString('vi-VN') %>đ</span>
+                                            <span class="mini-discount-badge">-<%= dish.discount %>%</span>
+                                        <% } else { %>
+                                            <%= dish.price.toLocaleString('vi-VN') %>đ
+                                        <% } %>
+                                    </p>
+                                    <div class="quantity-selector">
+                                        <button type="button" class="qty-btn minus" data-dish-id="<%= dish._id %>">-</button>
+                                        <input type="number" 
+                                               name="dishes[<%= dish._id %>][quantity]" 
+                                               id="qty-<%= dish._id %>"
+                                               class="qty-input" 
+                                               value="0" 
+                                               min="0" 
+                                               max="20"
+                                               data-dish-id="<%= dish._id %>"
+                                               data-dish-name="<%= dish.name %>"
+                                               data-price="<%= dish.price %>"
+                                               data-discount="<%= dish.discount || 0 %>">
+                                        <button type="button" class="qty-btn plus" data-dish-id="<%= dish._id %>">+</button>
+                                    </div>
+                                </div>
+                            </div>
+                        <% }); %>
+                    <% } else { %>
+                        <p class="no-dishes">Chưa có món ăn nào. Bạn có thể gọi món khi đến nhà hàng.</p>
+                    <% } %>
+                </div>
+            </div>
+
+            <div class="order-summary-box" id="orderSummary" style="display: none;">
+                <h3>Tóm Tắt Đơn Hàng</h3>
+                <div id="selectedItems"></div>
+                <div class="summary-totals">
+                    <p>Phí Đặt Cọc Bàn: <span>100,000đ</span></p>
+                    <p id="foodTotalRow" style="display: none;">Tổng Món Ăn: <span id="foodTotal">0đ</span></p>
+                    <p id="discountRow" style="display: none;" class="discount-text">Giảm Giá: <span id="totalDiscount">0đ</span></p>
+                    <h3 class="final-total">Tổng Thanh Toán: <span id="grandTotal">100,000đ</span></h3>
+                </div>
+            </div>
+
+            <div class="info-box">
+                <p>Bạn phải thanh toán trước bằng mã QR ngay sau khi đặt bàn</p>
+                <p>Tổng tiền bao gồm phí đặt cọc bàn (100,000đ) + tiền món ăn (nếu có)</p>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary btn-large">Tiếp Tục Thanh Toán</button>
+                <a href="/" class="btn btn-secondary">Hủy</a>
+            </div>
+        </form>
+    </div>
+</section>
+
+<script>
+const qtyInputs = document.querySelectorAll('.qty-input');
+const orderSummary = document.getElementById('orderSummary');
+const selectedItemsDiv = document.getElementById('selectedItems');
+const foodTotalSpan = document.getElementById('foodTotal');
+const totalDiscountSpan = document.getElementById('totalDiscount');
+const grandTotalSpan = document.getElementById('grandTotal');
+const foodTotalRow = document.getElementById('foodTotalRow');
+const discountRow = document.getElementById('discountRow');
+const branchSelect = document.getElementById('branchId');
+const dishesContainer = document.getElementById('dishesContainer');
+const dishCards = document.querySelectorAll('.reservation-dish-card');
+const dishFilterNotice = document.getElementById('dishFilterNotice');
+
+const DEPOSIT_FEE = 100000;
+
+branchSelect.addEventListener('change', function() {
+    const selectedOption = this.options[this.selectedIndex];
+    
+    if (this.value === '') {
+        dishFilterNotice.textContent = 'Chọn chi nhánh trước để xem món ăn có sẵn tại chi nhánh đó';
+        dishFilterNotice.style.color = '#666';
+        dishCards.forEach(card => {
+            card.style.opacity = '0.5';
+            card.style.pointerEvents = 'none';
+            const input = card.querySelector('.qty-input');
+            input.value = 0;
+            input.dispatchEvent(new Event('change'));
+        });
+        return;
+    }
+    
+    const branchDishes = selectedOption.dataset.dishes ? selectedOption.dataset.dishes.split(',') : [];
+    let visibleCount = 0;
+    
+    dishCards.forEach(card => {
+        const dishId = card.dataset.dishId;
+        if (branchDishes.includes(dishId)) {
+            card.style.display = 'flex';
+            card.style.opacity = '1';
+            card.style.pointerEvents = 'auto';
+            visibleCount++;
+        } else {
+            card.style.display = 'none';
+            const input = card.querySelector('.qty-input');
+            input.value = 0;
+            input.dispatchEvent(new Event('change'));
+        }
+    });
+    
+    if (visibleCount === 0) {
+        dishFilterNotice.textContent = 'Chi nhánh này chưa có món ăn nào';
+        dishFilterNotice.style.color = '#d32f2f';
+    } else {
+        dishFilterNotice.textContent = `Hiển thị ${visibleCount} món có sẵn tại chi nhánh này`;
+        dishFilterNotice.style.color = '#28a745';
+    }
+});
+
+const searchInput = document.getElementById('dishSearch');
+searchInput.addEventListener('input', filterDishes);
+
+const filterBtns = document.querySelectorAll('.filter-btn');
+let activeCategory = 'all';
+
+filterBtns.forEach(btn => {
+    btn.addEventListener('click', function() {
+        filterBtns.forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+        activeCategory = this.dataset.category;
+        filterDishes();
+    });
+});
+
+function filterDishes() {
+    const searchTerm = searchInput.value.toLowerCase();
+    const selectedBranch = branchSelect.value;
+    const branchDishes = selectedBranch ? branchSelect.options[branchSelect.selectedIndex].dataset.dishes.split(',') : [];
+    
+    let visibleCount = 0;
+    
+    dishCards.forEach(card => {
+        const dishName = card.dataset.dishName;
+        const dishCategory = card.dataset.category;
+        const dishId = card.dataset.dishId;
+        
+        const matchesSearch = dishName.includes(searchTerm);
+        const matchesCategory = activeCategory === 'all' || dishCategory === activeCategory;
+        const matchesBranch = !selectedBranch || branchDishes.includes(dishId);
+        
+        if (matchesSearch && matchesCategory && matchesBranch) {
+            card.style.display = 'flex';
+            visibleCount++;
+        } else {
+            card.style.display = 'none';
+        }
+    });
+}
+
+// Plus/Minus buttons
+document.querySelectorAll('.qty-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+        const dishId = this.dataset.dishId;
+        const input = document.getElementById(`qty-${dishId}`);
+        const currentVal = parseInt(input.value) || 0;
+        
+        if (this.classList.contains('plus')) {
+            input.value = Math.min(currentVal + 1, 20);
+        } else if (this.classList.contains('minus')) {
+            input.value = Math.max(currentVal - 1, 0);
+        }
+        
+        input.dispatchEvent(new Event('change'));
+    });
+});
+
+// Update order summary when quantity changes
+qtyInputs.forEach(input => {
+    input.addEventListener('change', updateOrderSummary);
+});
+
+function updateOrderSummary() {
+    let foodTotal = 0;
+    let totalDiscount = 0;
+    let selectedItems = [];
+    
+    qtyInputs.forEach(input => {
+        const qty = parseInt(input.value) || 0;
+        if (qty > 0) {
+            const price = parseInt(input.dataset.price);
+            const discount = parseInt(input.dataset.discount) || 0;
+            const name = input.dataset.dishName;
+            
+            const itemTotal = price * qty;
+            const itemDiscount = (discount / 100) * itemTotal;
+            
+            foodTotal += itemTotal;
+            totalDiscount += itemDiscount;
+            
+            selectedItems.push({
+                name,
+                qty,
+                price,
+                discount,
+                total: itemTotal - itemDiscount
+            });
+        }
+    });
+    
+    if (selectedItems.length > 0) {
+        orderSummary.style.display = 'block';
+        foodTotalRow.style.display = 'block';
+        
+        let itemsHtml = '<ul class="selected-items-list">';
+        selectedItems.forEach(item => {
+            itemsHtml += `<li>${item.name} x${item.qty} = ${item.total.toLocaleString('vi-VN')}đ</li>`;
+        });
+        itemsHtml += '</ul>';
+        selectedItemsDiv.innerHTML = itemsHtml;
+        
+        foodTotalSpan.textContent = foodTotal.toLocaleString('vi-VN') + 'đ';
+        
+        if (totalDiscount > 0) {
+            discountRow.style.display = 'block';
+            totalDiscountSpan.textContent = '-' + totalDiscount.toLocaleString('vi-VN') + 'đ';
+        } else {
+            discountRow.style.display = 'none';
+        }
+        
+        const grandTotal = DEPOSIT_FEE + (foodTotal - totalDiscount);
+        grandTotalSpan.textContent = grandTotal.toLocaleString('vi-VN') + 'đ';
+    } else {
+        orderSummary.style.display = 'none';
+        foodTotalRow.style.display = 'none';
+        discountRow.style.display = 'none';
+        grandTotalSpan.textContent = DEPOSIT_FEE.toLocaleString('vi-VN') + 'đ';
+    }
+}
+
+// Validate date/time before submit
+document.getElementById('reservationForm').addEventListener('submit', function(e) {
+    const date = document.getElementById('date').value;
+    const time = document.getElementById('time').value;
+    
+    if (!date || !time) {
+        e.preventDefault();
+        alert('Vui lòng chọn ngày và giờ đặt bàn');
+        return;
+    }
+    
+    const reservationDateTime = new Date(`${date}T${time}`);
+    const now = new Date();
+    
+    if (reservationDateTime <= now) {
+        e.preventDefault();
+        alert('Ngày giờ đặt bàn phải lớn hơn thời gian hiện tại');
+        return;
+    }
+});
+
+// Initial update
+updateOrderSummary();
+
+// Initial state - disable dishes until branch selected
+dishCards.forEach(card => {
+    card.style.opacity = '0.5';
+    card.style.pointerEvents = 'none';
+});
+</script>
+
+<style>
+.section-description {
+    text-align: center;
+    margin-bottom: 30px;
+    font-size: 16px;
+    color: #666;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.food-selection-section {
+    margin: 30px 0;
+    padding: 25px;
+    background: #f9f9f9;
+    border-radius: 10px;
+}
+
+.food-selection-section h3 {
+    color: #d4a574;
+    margin-bottom: 10px;
+}
+
+.info-text {
+    color: #666;
+    margin-bottom: 20px;
+    padding: 10px;
+    background: white;
+    border-radius: 5px;
+    text-align: center;
+    font-weight: 500;
+}
+
+/* New filter UI styles */
+.dish-filters {
+    margin-bottom: 20px;
+}
+
+.search-box {
+    margin-bottom: 15px;
+}
+
+.search-input {
+    width: 100%;
+    padding: 12px 15px;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 15px;
+    transition: border-color 0.3s ease;
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: #d4a574;
+}
+
+.category-filters {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.filter-btn {
+    padding: 8px 16px;
+    border: 2px solid #e0e0e0;
+    background: white;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.filter-btn:hover {
+    border-color: #d4a574;
+    color: #d4a574;
+}
+
+.filter-btn.active {
+    background: #d4a574;
+    color: white;
+    border-color: #d4a574;
+}
+
+.reservation-dishes-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 15px;
+    margin-top: 20px;
+    max-height: 500px;
+    overflow-y: auto;
+    padding: 10px;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    background: white;
+}
+
+.reservation-dish-card {
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    height: 300px;
+    border: 2px solid transparent;
+}
+
+.reservation-dish-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.12);
+    border-color: #d4a574;
+}
+
+.reservation-dish-card img {
+    width: 100%;
+    height: 120px;
+    object-fit: cover;
+}
+
+.reservation-dish-info {
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+.reservation-dish-info h4 {
+    margin: 0 0 6px 0;
+    font-size: 14px;
+    color: #333;
+    line-height: 1.3;
+    height: 36px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+}
+
+.dish-category-badge {
+    display: inline-block;
+    padding: 3px 8px;
+    background: #e8f4f8;
+    color: #0066cc;
+    border-radius: 4px;
+    font-size: 11px;
+    margin-bottom: 6px;
+    font-weight: 500;
+}
+
+.reservation-dish-price {
+    margin: 6px 0;
+    font-weight: bold;
+    color: #d4a574;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 4px;
+}
+
+.original-price {
+    text-decoration: line-through;
+    color: #999;
+    font-size: 12px;
+}
+
+.sale-price {
+    color: #d4a574;
+    font-size: 14px;
+}
+
+.mini-discount-badge {
+    background: #28a745;
+    color: white;
+    padding: 2px 5px;
+    border-radius: 3px;
+    font-size: 11px;
+}
+
+.quantity-selector {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-top: auto;
+}
+
+.qty-btn {
+    width: 28px;
+    height: 28px;
+    border: 1px solid #ddd;
+    background: white;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.qty-btn:hover {
+    background: #d4a574;
+    color: white;
+    border-color: #d4a574;
+}
+
+.qty-btn:active {
+    transform: scale(0.95);
+}
+
+.qty-input {
+    width: 45px;
+    height: 28px;
+    text-align: center;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 13px;
+}
+
+.order-summary-box {
+    background: #fff3cd;
+    padding: 20px;
+    border-radius: 10px;
+    margin: 25px 0;
+    border: 2px solid #d4a574;
+}
+
+.order-summary-box h3 {
+    color: #d4a574;
+    margin-bottom: 15px;
+}
+
+.selected-items-list {
+    list-style: none;
+    padding: 0;
+    margin: 10px 0;
+}
+
+.selected-items-list li {
+    padding: 8px 0;
+    border-bottom: 1px solid #ddd;
+}
+
+.summary-totals {
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 2px solid #d4a574;
+}
+
+.summary-totals p {
+    display: flex;
+    justify-content: space-between;
+    margin: 8px 0;
+    font-size: 15px;
+}
+
+.final-total {
+    display: flex;
+    justify-content: space-between;
+    color: #d4a574;
+    font-size: 20px;
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 2px solid #d4a574;
+}
+
+.discount-text {
+    color: #28a745;
+    font-weight: bold;
+}
+
+.info-box {
+    background: #e8f4f8;
+    padding: 15px;
+    border-radius: 8px;
+    margin: 20px 0;
+}
+
+.info-box p {
+    margin: 8px 0;
+    color: #0066cc;
+}
+
+.no-dishes {
+    text-align: center;
+    padding: 40px;
+    color: #999;
+    font-style: italic;
+}
+
+.btn-large {
+    padding: 15px 30px;
+    font-size: 18px;
+}
+
+@media (max-width: 1024px) {
+    .reservation-dishes-grid {
+        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    }
+}
+
+@media (max-width: 768px) {
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+    
+    .reservation-dishes-grid {
+        grid-template-columns: repeat(2, 1fr);
+        max-height: 400px;
+    }
+    
+    .reservation-dish-card {
+        height: 280px;
+    }
+    
+    .reservation-dish-card img {
+        height: 100px;
+    }
+    
+    .category-filters {
+        justify-content: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .reservation-dishes-grid {
+        grid-template-columns: 1fr;
+    }
+}
+</style>

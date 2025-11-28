@@ -1,0 +1,58 @@
+<section class="menu-section">
+    <div class="container">
+        <h1>Thực Đơn</h1>
+        
+        <!-- Added search functionality -->
+        <div class="search-bar">
+            <form method="GET" action="/menu" class="search-form">
+                <input type="text" name="search" placeholder="Tìm kiếm món ăn..." value="<%= search || '' %>">
+                <button type="submit" class="btn btn-primary">Tìm Kiếm</button>
+            </form>
+        </div>
+        
+        <div class="category-filter">
+            <a href="/menu?category=all" class="<%= category === 'all' ? 'active' : '' %>">Tất Cả</a>
+            <a href="/menu?category=appetizer" class="<%= category === 'appetizer' ? 'active' : '' %>">Khai Vị</a>
+            <a href="/menu?category=main" class="<%= category === 'main' ? 'active' : '' %>">Món Chính</a>
+            <a href="/menu?category=dessert" class="<%= category === 'dessert' ? 'active' : '' %>">Tráng Miệng</a>
+            <a href="/menu?category=beverage" class="<%= category === 'beverage' ? 'active' : '' %>">Đồ Uống</a>
+        </div>
+
+        <div class="dishes-grid">
+            <% if (dishes.length === 0) { %>
+                <div class="empty-message">
+                    <p>Không tìm thấy món ăn nào</p>
+                </div>
+            <% } else { %>
+                <% dishes.forEach(dish => { %>
+                    <div class="dish-card">
+                        <div class="dish-image-wrapper">
+                            <img src="<%= dish.image || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=300&h=250&fit=crop' %>" alt="<%= dish.name %>" onerror="this.src='https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=300&h=250&fit=crop'">
+                            <% if (dish.discount > 0) { %>
+                                <span class="discount-badge-card">-<%= dish.discount %>%</span>
+                            <% } %>
+                        </div>
+                        <div class="dish-card-content">
+                            <h3><%= dish.name %></h3>
+                            <p class="dish-category"><%= dish.category %></p>
+                            <p class="dish-description"><%= dish.description.substring(0, 60) %>...</p>
+                            <div class="dish-footer">
+                                <span class="price"><%= dish.price.toLocaleString('vi-VN') %>đ</span>
+                                <div class="dish-actions">
+                                    <a href="/dish/<%= dish._id %>" class="btn btn-small btn-secondary">Chi Tiết</a>
+                                    <% if (locals.isLoggedIn) { %>
+                                        <form action="/user/cart/add" method="POST" class="add-to-cart-form" style="display: inline-flex; align-items: center; gap: 0.5rem;">
+                                            <input type="hidden" name="dishId" value="<%= dish._id %>">
+                                            <input type="number" name="quantity" value="1" min="1" max="99" class="quantity-input" style="width: 50px; padding: 0.25rem; text-align: center; border: 1px solid #ddd; border-radius: 4px;">
+                                            <button type="submit" class="btn btn-small btn-primary">Thêm</button>
+                                        </form>
+                                    <% } %>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                <% }); %>
+            <% } %>
+        </div>
+    </div>
+</section>

@@ -1,0 +1,79 @@
+<section class="admin-section">
+    <div class="container">
+        <h1><%= dish ? 'Sửa Món Ăn' : 'Thêm Món Ăn Mới' %></h1>
+        
+        <!-- Added error message display -->
+        <% if (typeof error !== 'undefined' && error) { %>
+            <div class="alert alert-error"><%= error %></div>
+        <% } %>
+        
+        <!-- Fixed form action URL from /admin/dish to /admin/dishes -->
+        <form method="POST" action="<%= dish ? '/admin/dishes/' + dish._id : '/admin/dishes' %>" class="admin-form">
+            <div class="form-group">
+                <label for="name">Tên Món Ăn *</label>
+                <input type="text" id="name" name="name" value="<%= dish?.name || '' %>" placeholder="Nhập tên món ăn" required>
+            </div>
+
+            <div class="form-group">
+                <label for="description">Mô Tả *</label>
+                <textarea id="description" name="description" rows="4" placeholder="Nhập mô tả chi tiết" required><%= dish?.description || '' %></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="price">Giá (VNĐ) *</label>
+                <input type="number" id="price" name="price" value="<%= dish?.price || '' %>" placeholder="Nhập giá" min="0" required>
+            </div>
+
+            <!-- Improved image input with preview and better UX -->
+            <div class="form-group">
+                <label for="image">Hình Ảnh (URL) *</label>
+                <input type="url" id="image" name="image" value="<%= dish?.image || '' %>" placeholder="https://example.com/image.jpg" required>
+                <small>Nhập URL hình ảnh. Hình sẽ tự động hiển thị với kích thước phù hợp</small>
+                <% if (dish?.image) { %>
+                    <div class="image-preview">
+                        <img src="<%= dish.image %>" alt="<%= dish.name %>" onerror="this.src='https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=300&h=200&fit=crop'">
+                    </div>
+                <% } %>
+            </div>
+
+            <div class="form-group">
+                <label for="category">Danh Mục *</label>
+                <select id="category" name="category" required>
+                    <option value="">-- Chọn Danh Mục --</option>
+                    <option value="appetizer" <%= dish?.category === 'appetizer' ? 'selected' : '' %>>Khai Vị</option>
+                    <option value="main" <%= dish?.category === 'main' ? 'selected' : '' %>>Món Chính</option>
+                    <option value="dessert" <%= dish?.category === 'dessert' ? 'selected' : '' %>>Tráng Miệng</option>
+                    <option value="beverage" <%= dish?.category === 'beverage' ? 'selected' : '' %>>Đồ Uống</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="discount">Giảm Giá (%)</label>
+                <input type="number" id="discount" name="discount" value="<%= dish?.discount || 0 %>" placeholder="0" min="0" max="100">
+            </div>
+
+            <!-- Added event selection dropdown -->
+            <div class="form-group">
+                <label for="event">Sự Kiện Giảm Giá (Tùy chọn)</label>
+                <select id="event" name="event">
+                    <option value="">-- Không áp dụng sự kiện --</option>
+                    <% if (events && events.length > 0) { %>
+                        <% events.forEach(event => { %>
+                            <option value="<%= event._id %>" <%= dish?.event && dish.event._id.toString() === event._id.toString() ? 'selected' : '' %>>
+                                <%= event.title %> - <%= event.discountPercent %>% off
+                            </option>
+                        <% }) %>
+                    <% } %>
+                </select>
+                <small>Chọn sự kiện để áp dụng giảm giá. Nếu chọn, giá trị giảm giá trên sẽ bị ghi đè bởi giảm giá của sự kiện.</small>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">
+                    <%= dish ? '💾 Cập Nhật' : '➕ Thêm Mới' %>
+                </button>
+                <a href="/admin/dishes" class="btn btn-secondary">❌ Hủy</a>
+            </div>
+        </form>
+    </div>
+</section>

@@ -1,0 +1,18 @@
+const express = require("express");
+const router = express.Router();
+const contactController = require("../../controllers/contactController");
+
+// Middleware to check admin
+const checkAdmin = (req, res, next) => {
+  if (!req.session.user || req.session.user.role !== "admin") {
+    return res.redirect("/login");
+  }
+  next();
+};
+
+router.get("/", checkAdmin, contactController.getContacts);
+router.get("/:id", checkAdmin, contactController.getContactDetail);
+router.post("/:id/reply", checkAdmin, contactController.replyContact);
+router.get("/:id/delete", checkAdmin, contactController.deleteContact);
+
+module.exports = router;

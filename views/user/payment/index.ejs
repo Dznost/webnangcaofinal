@@ -1,0 +1,500 @@
+<section class="payment-section">
+    <div class="container">
+        <h1><%= title %></h1>
+
+        <div class="payment-container">
+            <% if (type === 'order' && order) { %>
+            <div class="order-summary">
+                <h2>Thông Tin Đơn Hàng</h2>
+                <div class="summary-item">
+                    <span>Mã Đơn:</span>
+                    <strong>#<%= order._id.toString().slice(-8).toUpperCase() %></strong>
+                </div>
+                <div class="summary-item">
+                    <span>Loại Đơn:</span>
+                    <strong><%= order.orderType === 'dine-in' ? 'Ăn Tại Quán' : 'Mang Về' %></strong>
+                </div>
+
+                <h3>Chi Tiết Món Ăn</h3>
+                <table class="order-items">
+                    <thead>
+                        <tr>
+                            <th>Tên Món</th>
+                            <th>SL</th>
+                            <th>Giá</th>
+                            <th>Tổng</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% order.items.forEach(item => { %>
+                            <% const itemTotal = item.price * item.quantity; %>
+                            <% const itemDiscount = (item.discount || 0) / 100 * itemTotal; %>
+                            <tr>
+                                <td><%= item.name %></td>
+                                <td><%= item.quantity %></td>
+                                <td><%= item.price.toLocaleString('vi-VN') %>đ</td>
+                                <td><%= (itemTotal - itemDiscount).toLocaleString('vi-VN') %>đ</td>
+                            </tr>
+                        <% }); %>
+                    </tbody>
+                </table>
+
+                <div class="price-breakdown">
+                    <h3 class="final-amount">Tổng Thanh Toán: <span><%= order.finalPrice.toLocaleString('vi-VN') %>đ</span></h3>
+                </div>
+            </div>
+            <% } else if (type === 'reservation' && reservation) { %>
+            <div class="order-summary">
+                <h2>Thông Tin Đặt Bàn</h2>
+                <div class="summary-item">
+                    <span>Mã Đặt Bàn:</span>
+                    <strong>#<%= reservation._id.toString().slice(-8).toUpperCase() %></strong>
+                </div>
+                <div class="summary-item">
+                    <span>Chi Nhánh:</span>
+                    <strong><%= reservation.branchId.name %></strong>
+                </div>
+                <div class="summary-item">
+                    <span>Ngày Giờ:</span>
+                    <strong><%= new Date(reservation.date).toLocaleDateString('vi-VN') %> <%= reservation.time %></strong>
+                </div>
+                <div class="summary-item">
+                    <span>Số Khách:</span>
+                    <strong><%= reservation.guests %> người</strong>
+                </div>
+
+                <% if (reservation.orderItems && reservation.orderItems.length > 0) { %>
+                <h3>Món Ăn Đã Đặt</h3>
+                <table class="order-items">
+                    <thead>
+                        <tr>
+                            <th>Tên Món</th>
+                            <th>SL</th>
+                            <th>Giá</th>
+                            <th>Tổng</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% reservation.orderItems.forEach(item => { %>
+                            <% const itemTotal = item.price * item.quantity; %>
+                            <% const itemDiscount = (item.discount || 0) / 100 * itemTotal; %>
+                            <tr>
+                                <td><%= item.name %></td>
+                                <td><%= item.quantity %></td>
+                                <td><%= item.price.toLocaleString('vi-VN') %>đ</td>
+                                <td><%= (itemTotal - itemDiscount).toLocaleString('vi-VN') %>đ</td>
+                            </tr>
+                        <% }); %>
+                    </tbody>
+                </table>
+                <% } %>
+
+                <div class="price-breakdown">
+                    <h3 class="final-amount">Tổng Thanh Toán: <span><%= reservation.totalAmount.toLocaleString('vi-VN') %>đ</span></h3>
+                </div>
+            </div>
+            <% } %>
+
+            <div class="payment-form">
+                <h2>Chọn Phương Thức Thanh Toán</h2>
+                
+                <!-- Simplified form with clear method selection -->
+                <form method="POST" action="<%= type === 'order' ? `/user/payment/order/${order._id}/confirm` : `/user/payment/reservation/${reservation._id}/confirm` %>" id="paymentForm">
+                    <div class="payment-methods">
+                        <label class="payment-option">
+                            <input type="radio" name="paymentMethod" value="bank" required>
+                            <span class="payment-label">
+                                <span class="method-icon">🏦</span>
+                                <span class="method-text">Chuyển Khoản Ngân Hàng</span>
+                            </span>
+                        </label>
+
+                        <!-- Hide COD option if order > 10M -->
+                        <% if (type === 'order' && order.orderType === 'takeaway' && order.finalPrice <= 10000000) { %>
+                        <label class="payment-option">
+                            <input type="radio" name="paymentMethod" value="cash" required>
+                            <span class="payment-label">
+                                <span class="method-icon">💵</span>
+                                <span class="method-text">Thanh Toán Khi Nhận Hàng (COD)</span>
+                            </span>
+                        </label>
+                        <% } %>
+                        
+                        <!-- Show restriction message for orders > 10M -->
+                        <% if (type === 'order' && order.finalPrice > 10000000) { %>
+                        <div class="payment-restriction">
+                            <p style="color: #d9534f; font-weight: 600; margin-top: 10px; padding: 15px; background: #fff3cd; border-radius: 8px;">
+                                ⚠️ Đơn hàng trên 10 triệu đồng chỉ được thanh toán bằng chuyển khoản ngân hàng
+                            </p>
+                        </div>
+                        <% } %>
+                    </div>
+
+                    <!-- QR Code section for bank transfer -->
+                    <div id="bankSection" style="display: none;" class="payment-details">
+                        <h3>Quét Mã QR Để Thanh Toán</h3>
+                        <div class="qr-container">
+                            <img id="qrImage" alt="QR Code" />
+                            <p class="qr-note">Vui lòng quét mã QR và chuyển khoản đúng số tiền</p>
+                            <div class="payment-info">
+                                <p><strong>Số tiền:</strong> <span class="amount-highlight">
+                                    <%= type === 'order' ? order.finalPrice.toLocaleString('vi-VN') : reservation.totalAmount.toLocaleString('vi-VN') %>đ
+                                </span></p>
+                                <p><strong>Nội dung:</strong> <span id="transferContent"></span></p>
+                            </div>
+                        </div>
+                        
+                        <div class="confirm-section">
+                            <label class="confirm-checkbox">
+                                <input type="checkbox" id="bankCheckbox">
+                                <span>Tôi đã chuyển khoản và xác nhận thanh toán</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- COD section for cash payment -->
+                    <div id="cashSection" style="display: none;" class="payment-details">
+                        <div class="info-box">
+                            <h3>Thanh Toán Khi Nhận Hàng</h3>
+                            <p>Bạn sẽ thanh toán bằng tiền mặt khi nhận hàng.</p>
+                            <p class="amount-highlight">Số tiền: <%= type === 'order' ? order.finalPrice.toLocaleString('vi-VN') : '0' %>đ</p>
+                            <p class="note-text">Vui lòng chuẩn bị đủ tiền mặt khi nhận hàng.</p>
+                        </div>
+                        
+                        <div class="confirm-section">
+                            <label class="confirm-checkbox">
+                                <input type="checkbox" id="cashCheckbox">
+                                <span>Tôi xác nhận thanh toán khi nhận hàng</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="payment-actions">
+                        <button type="submit" class="btn btn-primary btn-large" id="submitBtn" disabled>Xác Nhận Thanh Toán</button>
+                        <a href="/user/profile" class="btn btn-secondary">Quay Lại</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+const form = document.getElementById('paymentForm');
+const submitBtn = document.getElementById('submitBtn');
+const bankSection = document.getElementById('bankSection');
+const cashSection = document.getElementById('cashSection');
+const qrImage = document.getElementById('qrImage');
+const transferContent = document.getElementById('transferContent');
+const bankCheckbox = document.getElementById('bankCheckbox');
+const cashCheckbox = document.getElementById('cashCheckbox');
+
+const paymentData = {
+    <% if (type === 'order') { %>
+        id: '<%= order._id %>',
+        amount: <%= order.finalPrice %>,
+        type: 'ORDER'
+    <% } else { %>
+        id: '<%= reservation._id %>',
+        amount: <%= reservation.totalAmount %>,
+        type: 'RES'
+    <% } %>
+};
+
+console.log('[restaurant] Payment page initialized', paymentData);
+
+// Listen to payment method changes
+document.querySelectorAll('input[name="paymentMethod"]').forEach(radio => {
+    radio.addEventListener('change', function() {
+        const method = this.value;
+        console.log('[restaurant] Payment method changed:', method);
+        
+        // Reset sections and checkboxes
+        bankSection.style.display = 'none';
+        cashSection.style.display = 'none';
+        bankCheckbox.checked = false;
+        cashCheckbox.checked = false;
+        submitBtn.disabled = true;
+        
+        // Show appropriate section
+        if (method === 'bank') {
+            bankSection.style.display = 'block';
+            generateQR();
+        } else if (method === 'cash') {
+            cashSection.style.display = 'block';
+        }
+    });
+});
+
+// Enable submit when bank checkbox is checked
+if (bankCheckbox) {
+    bankCheckbox.addEventListener('change', function() {
+        console.log('[restaurant] Bank checkbox changed:', this.checked);
+        submitBtn.disabled = !this.checked;
+    });
+}
+
+// Enable submit when cash checkbox is checked
+if (cashCheckbox) {
+    cashCheckbox.addEventListener('change', function() {
+        console.log('[restaurant] Cash checkbox changed:', this.checked);
+        submitBtn.disabled = !this.checked;
+    });
+}
+
+// Form submission validation
+form.addEventListener('submit', function(e) {
+    const selectedMethod = document.querySelector('input[name="paymentMethod"]:checked');
+    
+    if (!selectedMethod) {
+        e.preventDefault();
+        alert('Vui lòng chọn phương thức thanh toán');
+        return false;
+    }
+    
+    const method = selectedMethod.value;
+    console.log('[restaurant] Form submitting with method:', method);
+    
+    if (method === 'bank' && !bankCheckbox.checked) {
+        e.preventDefault();
+        alert('Vui lòng xác nhận đã chuyển khoản');
+        return false;
+    }
+    
+    if (method === 'cash' && !cashCheckbox.checked) {
+        e.preventDefault();
+        alert('Vui lòng xác nhận thanh toán khi nhận hàng');
+        return false;
+    }
+    
+    console.log('[restaurant] Form validation passed, submitting...');
+    return true;
+});
+
+function generateQR() {
+    const refCode = `${paymentData.type}${paymentData.id.slice(-8).toUpperCase()}`;
+    transferContent.textContent = refCode;
+    
+    const bankId = '970422';
+    const accountNo = '0123456789';
+    const accountName = 'RESTAURANT';
+    const qrUrl = `https://img.vietqr.io/image/${bankId}-${accountNo}-compact2.jpg?amount=${paymentData.amount}&addInfo=${refCode}&accountName=${accountName}`;
+    
+    console.log('[restaurant] Generated QR URL:', qrUrl);
+    qrImage.src = qrUrl;
+}
+
+console.log('[restaurant] Payment script loaded successfully');
+</script>
+
+<style>
+.payment-section {
+    padding: 40px 0;
+    background: #f5f5f5;
+}
+
+.payment-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+    margin-top: 30px;
+}
+
+.order-summary, .payment-form {
+    background: white;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.summary-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 12px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.order-items {
+    width: 100%;
+    margin: 20px 0;
+    border-collapse: collapse;
+}
+
+.order-items th, .order-items td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+}
+
+.order-items th {
+    background: #f9f9f9;
+    font-weight: 600;
+}
+
+.price-breakdown {
+    margin-top: 20px;
+    padding: 20px;
+    background: #f9f9f9;
+    border-radius: 8px;
+}
+
+.final-amount {
+    display: flex;
+    justify-content: space-between;
+    color: #d4a574;
+    font-size: 24px;
+    margin: 0;
+}
+
+.payment-methods {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin: 20px 0;
+}
+
+.payment-option {
+    display: flex;
+    align-items: center;
+    padding: 20px;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.payment-option:hover {
+    border-color: #d4a574;
+    background: #fafaf8;
+}
+
+.payment-option input[type="radio"] {
+    margin-right: 15px;
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+}
+
+.payment-option input[type="radio"]:checked ~ .payment-label {
+    color: #d4a574;
+    font-weight: 600;
+}
+
+.payment-label {
+    display: flex;
+    align-items: center;
+    font-size: 16px;
+}
+
+.method-icon {
+    font-size: 28px;
+    margin-right: 12px;
+}
+
+.payment-details {
+    margin: 30px 0;
+    padding: 25px;
+    background: #f9f9f9;
+    border-radius: 10px;
+}
+
+.qr-container {
+    background: white;
+    padding: 25px;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.qr-container img {
+    max-width: 300px;
+    width: 100%;
+    margin: 20px 0;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+}
+
+.qr-note {
+    color: #666;
+    margin: 10px 0;
+}
+
+.payment-info {
+    margin-top: 20px;
+    padding: 15px;
+    background: #fff3cd;
+    border-radius: 8px;
+    text-align: left;
+}
+
+.amount-highlight {
+    color: #d4a574;
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.info-box {
+    background: white;
+    padding: 25px;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.info-box h3 {
+    color: #d4a574;
+    margin-bottom: 15px;
+}
+
+.note-text {
+    color: #0066cc;
+    font-size: 14px;
+    margin-top: 10px;
+}
+
+.confirm-section {
+    margin-top: 25px;
+    padding: 20px;
+    background: white;
+    border: 2px dashed #d4a574;
+    border-radius: 8px;
+}
+
+.confirm-checkbox {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.confirm-checkbox input[type="checkbox"] {
+    width: 22px;
+    height: 22px;
+    margin-right: 12px;
+    cursor: pointer;
+}
+
+.payment-actions {
+    display: flex;
+    gap: 15px;
+    margin-top: 30px;
+}
+
+.btn-large {
+    flex: 1;
+    padding: 18px;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.btn-primary:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+@media (max-width: 768px) {
+    .payment-container {
+        grid-template-columns: 1fr;
+    }
+}
+</style>

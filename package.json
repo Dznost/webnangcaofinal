@@ -1,0 +1,38 @@
+{
+  "name": "restaurant-website",
+  "version": "1.0.0",
+  "description": "Restaurant management website",
+  "main": "server.js",
+  "scripts": {
+    "dev": "nodemon server.js",
+    "seed": "node scripts/seed-data.js",
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "bcryptjs": "latest",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "dotenv": "^16.0.3",
+    "ejs": "^3.1.8",
+    "express": "latest",
+    "express-ejs-layouts": "latest",
+    "express-session": "latest",
+    "lucide-react": "^0.454.0",
+    "mongoose": "latest",
+    "next": "16.0.4",
+    "path": "latest",
+    "react": "19.2.0",
+    "react-dom": "19.2.0",
+    "tailwind-merge": "^2.5.5",
+    "tailwindcss-animate": "^1.0.7"
+  },
+  "devDependencies": {
+    "@types/node": "^22",
+    "@types/react": "19.2.7",
+    "@types/react-dom": "19.2.3",
+    "nodemon": "^2.0.20",
+    "postcss": "^8.5",
+    "tailwindcss": "4.1.17",
+    "typescript": "^5"
+  }
+}

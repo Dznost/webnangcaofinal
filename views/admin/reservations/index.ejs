@@ -1,0 +1,73 @@
+<section class="admin-section">
+    <div class="container">
+        <div class="section-header">
+            <h1>🪑 Quản Lý Đặt Bàn</h1>
+        </div>
+
+        <% if (reservations && reservations.length > 0) { %>
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>Mã</th>
+                    <th>Khách Hàng</th>
+                    <th>Chi Nhánh</th>
+                    <th>Ngày & Giờ</th>
+                    <th>Số Khách</th>
+                    <th>Món Ăn</th>
+                    <th>Tổng Tiền</th>
+                    <th>Trạng Thái</th>
+                    <th>Hành Động</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% reservations.forEach(res => { %>
+                <tr>
+                    <td>#<%= res._id.toString().slice(-6) %></td>
+                    <td>
+                        <div><strong><%= res.user?.name || 'N/A' %></strong></div>
+                        <div style="font-size: 0.85em; color: #666;"><%= res.user?.email || 'N/A' %></div>
+                        <div style="font-size: 0.85em; color: #666;">📞 <%= res.user?.phone || res.phone || 'N/A' %></div>
+                    </td>
+                    <td>
+                        <div><strong><%= res.branch?.name || 'N/A' %></strong></div>
+                        <div style="font-size: 0.85em; color: #666;"><%= res.branch?.address || '' %></div>
+                    </td>
+                    <td>
+                        <div>📅 <%= new Date(res.date).toLocaleDateString('vi-VN') %></div>
+                        <div>🕒 <%= res.time %></div>
+                    </td>
+                    <td><strong><%= res.guests %></strong> người</td>
+                    <td>
+                        <% if (res.orderItems && res.orderItems.length > 0) { %>
+                            <div style="font-size: 0.85em;">
+                                🍽️ <%= res.orderItems.length %> món
+                            </div>
+                        <% } else { %>
+                            <span style="color: #999;">Không đặt món</span>
+                        <% } %>
+                    </td>
+                    <td>
+                        <div><strong><%= res.totalAmount?.toLocaleString('vi-VN') || 0 %> đ</strong></div>
+                        <% if (res.depositAmount) { %>
+                            <div style="font-size: 0.85em; color: #666;">Đặt cọc: <%= res.depositAmount?.toLocaleString('vi-VN') %> đ</div>
+                        <% } %>
+                    </td>
+                    <td>
+                        <span class="status-badge status-<%= res.status %>">
+                            <%= res.status === 'pending' ? '⏳ Chờ xác nhận' : res.status === 'confirmed' ? '✅ Đã xác nhận' : '❌ Đã hủy' %>
+                        </span>
+                    </td>
+                    <td>
+                        <a href="/admin/reservations/<%= res._id %>" class="btn btn-small btn-primary">Chi Tiết</a>
+                    </td>
+                </tr>
+                <% }) %>
+            </tbody>
+        </table>
+        <% } else { %>
+        <div class="alert alert-info">
+            <p>📭 Chưa có đặt bàn nào.</p>
+        </div>
+        <% } %>
+    </div>
+</section>

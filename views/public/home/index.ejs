@@ -1,0 +1,123 @@
+<!-- Completely rewritten dishes section using blog-style cards -->
+<section class="featured-dishes">
+    <div class="container">
+        <h1>Các Món Ăn Nổi Bật</h1>
+        <p class="section-subtitle">Khám phá những món ăn đặc biệt của chúng tôi</p>
+        
+        <% if (dishes && dishes.length > 0) { %>
+            <div class="dishes-grid">
+                <% dishes.forEach(dish => { %>
+                    <div class="dish-card">
+                        <div class="dish-image-wrapper">
+                            <img src="<%= dish.image || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&h=300&fit=crop' %>" 
+                                 alt="<%= dish.name %>" 
+                                 onerror="this.src='https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&h=300&fit=crop'">
+                            <% if (dish.discount > 0) { %>
+                                <span class="discount-badge-card">-<%= dish.discount %>%</span>
+                            <% } %>
+                        </div>
+                        <div class="dish-card-content">
+                            <h3><%= dish.name %></h3>
+                            <p class="dish-category">🍽️ <%= dish.category %></p>
+                            <a href="/dish/<%= dish._id %>" class="btn btn-small">Xem Chi Tiết</a>
+                        </div>
+                    </div>
+                <% }); %>
+            </div>
+            
+            <div class="view-all-section">
+                <a href="/menu" class="btn btn-secondary">
+                    Xem Toàn Bộ Thực Đơn
+                </a>
+            </div>
+        <% } else { %>
+            <div class="empty-message">
+                <p>Hiện chưa có món ăn nào. Vui lòng quay lại sau.</p>
+            </div>
+        <% } %>
+    </div>
+</section>
+
+<!-- Completely rewritten booking section using event-style cards -->
+<section class="book-seat-section">
+    <div class="container">
+        <h1>Đặt Bàn Tại Chi Nhánh</h1>
+        <p class="section-subtitle">Chọn chi nhánh và đặt bàn trước để được phục vụ tốt nhất</p>
+        
+        <% if (branches && branches.length > 0) { %>
+            <div class="branches-grid">
+                <% branches.forEach(branch => { %>
+                    <div class="branch-card">
+                        <div class="branch-image-wrapper">
+                            <img src="<%= branch.image || 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=400&h=300&fit=crop' %>" 
+                                 alt="<%= branch.name %>"
+                                 onerror="this.src='https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=400&h=300&fit=crop'">
+                        </div>
+                        <div class="branch-card-content">
+                            <h3><%= branch.name %></h3>
+                            <p class="branch-address">📍 <%= branch.address %></p>
+                            <p class="branch-phone">📞 <%= branch.phone %></p>
+                            <p class="branch-availability">
+                                <strong>Bàn trống:</strong> 
+                                <span class="<%= branch.availableTables > 5 ? 'text-success' : 'text-warning' %>">
+                                    <%= branch.availableTables %>/<%= branch.totalTables %>
+                                </span>
+                            </p>
+                            <a href="/branch/<%= branch._id %>" class="btn btn-small">Xem Chi Tiết</a>
+                        </div>
+                    </div>
+                <% }); %>
+            </div>
+            
+            <div class="view-all-section">
+                <a href="/branches" class="btn btn-secondary">
+                    Xem Tất Cả Chi Nhánh
+                </a>
+            </div>
+        <% } else { %>
+            <div class="empty-message">
+                <p>Hiện chưa có chi nhánh nào. Vui lòng quay lại sau.</p>
+            </div>
+        <% } %>
+    </div>
+</section>
+
+<!-- Events section using existing event-card style -->
+<section class="featured-events">
+    <div class="container">
+        <h1>Sự Kiện & Khuyến Mãi</h1>
+        <p class="section-subtitle">Đừng bỏ lỡ các chương trình ưu đãi hấp dẫn</p>
+        
+        <% if (events && events.length > 0) { %>
+            <div class="events-grid">
+                <% events.forEach(event => { %>
+                    <div class="event-card">
+                        <div class="event-image-wrapper">
+                            <img src="<%= event.image || 'https://images.unsplash.com/photo-1511795409834-ef04bbd61622?w=400&h=300&fit=crop' %>" 
+                                 alt="<%= event.title %>" 
+                                 onerror="this.src='https://images.unsplash.com/photo-1511795409834-ef04bbd61622?w=400&h=300&fit=crop'">
+                            <% if (event.discount > 0) { %>
+                                <span class="discount-badge-card">-<%= event.discount %>%</span>
+                            <% } %>
+                        </div>
+                        <div class="event-card-content">
+                            <h3><%= event.title %></h3>
+                            <p class="event-date">📅 <%= new Date(event.startDate).toLocaleDateString('vi-VN') %></p>
+                            <a href="/event/<%= event._id %>" class="btn btn-small">Xem Chi Tiết</a>
+                        </div>
+                    </div>
+                <% }); %>
+            </div>
+            
+            <div class="view-all-section">
+                <a href="/events" class="btn btn-secondary">
+                    Xem Tất Cả Sự Kiện
+                </a>
+            </div>
+        <% } else { %>
+            <div class="empty-message">
+                <p>Hiện chưa có sự kiện nào. Vui lòng quay lại sau.</p>
+            </div>
+        <% } %>
+    </div>
+</section>

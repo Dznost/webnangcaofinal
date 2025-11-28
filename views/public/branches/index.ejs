@@ -1,0 +1,21 @@
+<section class="branches-section">
+    <div class="container">
+        <h1>Chi Nhánh Của Chúng Tôi</h1>
+        <div class="branches-grid">
+            <% branches.forEach(branch => { %>
+                <div class="branch-card">
+                    <div class="branch-image-wrapper">
+                        <img src="<%= branch.image || 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=300&h=250&fit=crop' %>" alt="<%= branch.name %>" onerror="this.src='https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=300&h=250&fit=crop'">
+                    </div>
+                    <div class="branch-card-content">
+                        <h3><%= branch.name %></h3>
+                        <p class="branch-address"><i class="icon">📍</i> <%= branch.address %></p>
+                        <p class="branch-phone"><i class="icon">📞</i> <%= branch.phone %></p>
+                        <p class="branch-hours"><i class="icon">🕐</i> <%= branch.openingHours %></p>
+                        <a href="/branch/<%= branch._id %>" class="btn btn-small">Xem Chi Tiết</a>
+                    </div>
+                </div>
+            <% }); %>
+        </div>
+    </div>
+</section>

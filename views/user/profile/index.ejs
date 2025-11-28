@@ -1,0 +1,66 @@
+<section class="profile-section">
+    <div class="container">
+        <h1>👤 Hồ Sơ Cá Nhân</h1>
+        
+        <div class="profile-content">
+            <div class="profile-info">
+                <h2>Thông Tin Tài Khoản</h2>
+                <p><strong>👤 Tên:</strong> <%= user.name %></p>
+                <p><strong>📧 Email:</strong> <%= user.email %></p>
+                <p><strong>📅 Ngày Tạo:</strong> <%= new Date(user.createdAt).toLocaleDateString('vi-VN') %></p>
+            </div>
+
+            <div class="reservations">
+                <h2>📅 Đặt Bàn</h2>
+                <% if (reservations && reservations.length > 0) { %>
+                    <table class="cart-table">
+                        <tr>
+                            <th>Chi Nhánh</th>
+                            <th>Ngày</th>
+                            <th>Giờ</th>
+                            <th>Số Khách</th>
+                            <th>Trạng Thái</th>
+                        </tr>
+                        <% reservations.forEach(res => { %>
+                            <tr>
+                                <td><%= res.branchId ? res.branchId.name : 'N/A' %></td>
+                                <td><%= new Date(res.date).toLocaleDateString('vi-VN') %></td>
+                                <td><%= res.time %></td>
+                                <td><%= res.guests %></td>
+                                <td><span class="status-badge"><%= res.status %></span></td>
+                            </tr>
+                        <% }); %>
+                    </table>
+                <% } else { %>
+                    <p>Chưa có đặt bàn nào</p>
+                    <a href="/user/reservation" class="btn btn-primary">Đặt Bàn Ngay</a>
+                <% } %>
+            </div>
+
+            <div class="orders">
+                <h2>📦 Đơn Hàng</h2>
+                <% if (orders && orders.length > 0) { %>
+                    <table class="cart-table">
+                        <tr>
+                            <th>Mã Đơn</th>
+                            <th>Tổng Tiền</th>
+                            <th>Trạng Thái</th>
+                            <th>Ngày</th>
+                        </tr>
+                        <% orders.forEach(order => { %>
+                            <tr>
+                                <td><%= order._id.toString().substring(0, 8) %>...</td>
+                                <td><%= order.totalPrice.toLocaleString('vi-VN') %>đ</td>
+                                <td><span class="status-badge"><%= order.status %></span></td>
+                                <td><%= new Date(order.createdAt).toLocaleDateString('vi-VN') %></td>
+                            </tr>
+                        <% }); %>
+                    </table>
+                <% } else { %>
+                    <p>Chưa có đơn hàng nào</p>
+                    <a href="/menu" class="btn btn-primary">Đặt Hàng Ngay</a>
+                <% } %>
+            </div>
+        </div>
+    </div>
+</section>
