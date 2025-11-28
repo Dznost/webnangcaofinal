@@ -1,9 +1,150 @@
 <section class="about-section">
-    <div class="container">
-        <h1>Về Chúng Tôi</h1>
-        <div class="about-content">
-            <p>Nhà hàng sang trọng của chúng tôi được thành lập với mục đích mang đến trải nghiệm ẩm thực tuyệt vời cho khách hàng.</p>
-            <p>Với đội ngũ đầu bếp tài năng và dịch vụ chuyên nghiệp, chúng tôi cam kết cung cấp những món ăn ngon nhất.</p>
-        </div>
-    </div>
+	<div class="about-hero" style="background-image: url('https://phongcachmoc.vn/upload/images/thiet-ke-nha-hang-viet-nam-12.jpg');">
+		<div class="overlay"></div>
+		<div class="hero-content">
+			<h1>Về Chúng Tôi</h1>
+			<p>Hành trình của sự tinh tế trong từng hương vị.</p>
+		</div>
+	</div>
+
+	<div class="container about-body">
+		<div class="intro">
+			<h2>✨ Nơi Ẩm Thực Gặp Gỡ Nghệ Thuật</h2>
+			<p>
+				Nhà hàng của chúng tôi được ra đời từ niềm đam mê bất tận với ẩm thực Việt Nam — nơi mà mỗi món ăn không chỉ đơn thuần là hương vị, mà còn là một câu chuyện được kể qua từng nguyên liệu và cách trình bày tinh tế.
+			</p>
+			<p>
+				Chúng tôi tin rằng, một bữa ăn ngon không chỉ làm no bụng mà còn sưởi ấm tâm hồn. Chính vì vậy, từng chi tiết nhỏ trong không gian, từng nụ cười của nhân viên phục vụ, đều được chăm chút để mang lại trải nghiệm trọn vẹn nhất cho thực khách.
+			</p>
+		</div>
+
+		<div class="about-highlights">
+			<div class="highlight">
+					<h3>Ẩm Thực Tinh Tế</h3>
+					<p>
+						Kết hợp giữa hương vị truyền thống Việt Nam và phong cách hiện đại, mỗi món ăn là một tác phẩm nghệ thuật được tạo nên từ những nguyên liệu tươi ngon nhất.
+					</p>
+				</div>
+			<div class="highlight">
+					<h3>Không Gian Sang Trọng</h3>
+					<p>
+						Lấy cảm hứng từ vẻ đẹp Việt cổ, hòa quyện cùng nét tinh giản đương đại, không gian mang lại cảm giác thư thái nhưng vẫn đậm chất quý phái.
+					</p>
+				</div>
+			<div class="highlight">
+					<h3>Dịch Vụ Tận Tâm</h3>
+					<p>
+						Đội ngũ nhân viên chuyên nghiệp luôn sẵn sàng phục vụ với nụ cười và sự chu đáo, để mỗi khoảnh khắc của bạn tại nhà hàng đều đáng nhớ.
+					</p>
+				</div>
+		</div>
+
+		<div class="cta">
+			<a href="/menu" class="btn btn-primary">Khám Phá Thực Đơn</a>
+		</div>
+	</div>
 </section>
+
+<style>
+	.about-hero {
+	position: relative;
+	height: 70vh;
+	background-size: cover;
+	background-position: center;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	color: white;
+	}
+	.about-hero .overlay {
+	position: absolute;
+	inset: 0;
+	background: rgba(0,0,0,0.55);
+	}
+	.hero-content {
+	position: relative;
+	text-align: center;
+	z-index: 1;
+	}
+	.hero-content h1 {
+	font-size: 3rem;
+	font-weight: 700;
+	letter-spacing: 2px;
+	}
+	.hero-content p {
+	font-size: 1.3rem;
+	margin-top: 0.5rem;
+	opacity: 0.9;
+	}
+
+	.about-body {
+	padding: 4rem 2rem;
+	max-width: 1200px;
+	margin: 0 auto;
+	}
+	.about-body .intro {
+	text-align: center;
+	margin-bottom: 3rem;
+	}
+	.about-body .intro h2 {
+	color: #8B6F47;
+	font-size: 2rem;
+	margin-bottom: 1rem;
+	}
+	.about-body .intro p {
+	font-size: 1.1rem;
+	color: #333;
+	line-height: 1.8;
+	margin-bottom: 1rem;
+	}
+
+	.about-highlights {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+	gap: 2rem;
+	}
+	.highlight {
+	background: #fff;
+	border-radius: 10px;
+	box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+	text-align: center;
+	padding: 1.5rem;
+	transition: transform 0.3s ease;
+	}
+	.highlight:hover {
+	transform: translateY(-5px);
+	}
+	.highlight img {
+	width: 100%;
+	height: 200px;
+	object-fit: cover;
+	border-radius: 8px;
+	margin-bottom: 1rem;
+	}
+	.highlight h3 {
+	color: #8B6F47;
+	font-size: 1.3rem;
+	margin-bottom: 0.5rem;
+	}
+	.highlight p {
+	color: #444;
+	font-size: 1rem;
+	}
+
+	.cta {
+	text-align: center;
+	margin-top: 3rem;
+	}
+	.btn-primary {
+	background: #8B6F47;
+	color: white;
+	padding: 12px 30px;
+	border-radius: 6px;
+	font-weight: bold;
+	text-decoration: none;
+	transition: background 0.3s;
+	}
+	.btn-primary:hover {
+	background: #735736;
+	}
+</style>
