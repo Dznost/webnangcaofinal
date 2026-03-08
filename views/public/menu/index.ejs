@@ -1,0 +1,722 @@
+<!-- Menu Page - Modern Restaurant Design -->
+<section class="menu-hero-section">
+    <div class="menu-hero-overlay"></div>
+    <div class="menu-hero-content">
+        <span class="menu-hero-subtitle">Kham Pha Am Thuc</span>
+        <h1 class="menu-hero-title">Thuc Don</h1>
+        <p class="menu-hero-desc">Nhung mon an duoc che bien tu nguyen lieu tuoi ngon nhat, mang den trai nghiem am thuc tinh te</p>
+    </div>
+</section>
+
+<section class="menu-main-section">
+    <div class="container">
+        <!-- Search and Filter Bar -->
+        <div class="menu-controls">
+            <form method="GET" action="/menu" class="menu-search-form">
+                <div class="search-input-wrapper">
+                    <svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>
+                    </svg>
+                    <input type="text" name="search" placeholder="Tim kiem mon an..." value="<%= search || '' %>" class="menu-search-input">
+                </div>
+                <button type="submit" class="btn btn-primary">Tim Kiem</button>
+            </form>
+        </div>
+        
+        <!-- Category Filter -->
+        <div class="menu-category-filter">
+            <a href="/menu?category=all" class="category-pill <%= category === 'all' ? 'active' : '' %>">
+                <span class="category-icon">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+                </span>
+                Tat Ca
+            </a>
+            <a href="/menu?category=appetizer" class="category-pill <%= category === 'appetizer' ? 'active' : '' %>">
+                <span class="category-icon">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+                </span>
+                Khai Vi
+            </a>
+            <a href="/menu?category=main" class="category-pill <%= category === 'main' ? 'active' : '' %>">
+                <span class="category-icon">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg>
+                </span>
+                Mon Chinh
+            </a>
+            <a href="/menu?category=dessert" class="category-pill <%= category === 'dessert' ? 'active' : '' %>">
+                <span class="category-icon">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a10 10 0 1 0 10 10 4 4 0 0 1-5-5 4 4 0 0 1-5-5"/><path d="M8.5 8.5v.01"/><path d="M16 15.5v.01"/><path d="M12 12v.01"/><path d="M11 17v.01"/><path d="M7 14v.01"/></svg>
+                </span>
+                Trang Mieng
+            </a>
+            <a href="/menu?category=beverage" class="category-pill <%= category === 'beverage' ? 'active' : '' %>">
+                <span class="category-icon">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 2h8l-1.5 16H9.5L8 2z"/><path d="M4 22h16"/><path d="M12 18v4"/></svg>
+                </span>
+                Do Uong
+            </a>
+        </div>
+
+        <!-- Results Info -->
+        <div class="menu-results-info">
+            <% if (dishes.length > 0) { %>
+                <p class="results-count">Hien thi <strong><%= dishes.length %></strong> mon an</p>
+            <% } %>
+        </div>
+
+        <!-- Dishes Grid -->
+        <div class="menu-dishes-grid">
+            <% if (dishes.length === 0) { %>
+                <div class="menu-empty-state">
+                    <div class="empty-icon">
+                        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>
+                        </svg>
+                    </div>
+                    <h3>Khong Tim Thay Mon An</h3>
+                    <p>Hay thu tim kiem voi tu khoa khac hoac chon danh muc khac</p>
+                    <a href="/menu" class="btn btn-secondary">Xem Tat Ca Mon</a>
+                </div>
+            <% } else { %>
+                <% dishes.forEach(dish => { %>
+                    <article class="menu-dish-card">
+                        <div class="dish-card-image">
+                            <img src="<%= dish.image || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&h=300&fit=crop' %>" 
+                                 alt="<%= dish.name %>" 
+                                 loading="lazy"
+                                 onerror="this.src='https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&h=300&fit=crop'">
+                            <% if (dish.discount > 0) { %>
+                                <span class="dish-discount-tag">-<%= dish.discount %>%</span>
+                            <% } %>
+                            <div class="dish-card-overlay">
+                                <a href="/dish/<%= dish._id %>" class="dish-view-btn">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
+                                    </svg>
+                                    Xem Chi Tiet
+                                </a>
+                            </div>
+                        </div>
+                        <div class="dish-card-body">
+                            <div class="dish-card-category">
+                                <% 
+                                    const categoryMap = {
+                                        'appetizer': 'Khai Vi',
+                                        'main': 'Mon Chinh',
+                                        'dessert': 'Trang Mieng',
+                                        'beverage': 'Do Uong'
+                                    };
+                                    const categoryName = categoryMap[dish.category] || dish.category;
+                                %>
+                                <%= categoryName %>
+                            </div>
+                            <h3 class="dish-card-title"><%= dish.name %></h3>
+                            <p class="dish-card-desc"><%= dish.description ? dish.description.substring(0, 80) + '...' : 'Mon an dac sac tai La Maison' %></p>
+                            
+                            <div class="dish-card-footer">
+                                <div class="dish-price-group">
+                                    <% if (dish.discount > 0) { %>
+                                        <span class="dish-price-original"><%= dish.price.toLocaleString('vi-VN') %>d</span>
+                                        <span class="dish-price-sale"><%= Math.round(dish.price * (1 - dish.discount/100)).toLocaleString('vi-VN') %>d</span>
+                                    <% } else { %>
+                                        <span class="dish-price"><%= dish.price.toLocaleString('vi-VN') %>d</span>
+                                    <% } %>
+                                </div>
+
+                                <% if (locals.isLoggedIn) { %>
+                                    <form action="/user/cart/add" method="POST" class="dish-add-form">
+                                        <input type="hidden" name="dishId" value="<%= dish._id %>">
+                                        <input type="hidden" name="quantity" value="1">
+                                        <button type="submit" class="dish-add-btn" title="Them vao gio hang">
+                                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
+                                                <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+                                            </svg>
+                                        </button>
+                                    </form>
+                                <% } %>
+                            </div>
+                        </div>
+                    </article>
+                <% }) %>
+            <% } %>
+        </div>
+
+        <% if (!locals.isLoggedIn && dishes.length > 0) { %>
+            <div class="menu-login-prompt">
+                <div class="login-prompt-content">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
+                        <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+                    </svg>
+                    <div class="login-prompt-text">
+                        <h4>Dat Mon Ngay</h4>
+                        <p><a href="/login">Dang nhap</a> hoac <a href="/register">dang ky</a> de them mon an vao gio hang</p>
+                    </div>
+                </div>
+            </div>
+        <% } %>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="menu-cta-section">
+    <div class="container">
+        <div class="cta-content">
+            <h2>Dat Ban Ngay Hom Nay</h2>
+            <p>Trai nghiem am thuc tuyet voi tai La Maison voi khong gian sang trong va dich vu chu dao</p>
+            <div class="cta-buttons">
+                <a href="/branches" class="btn btn-primary btn-lg">Tim Chi Nhanh</a>
+                <a href="/contact" class="btn btn-secondary btn-lg">Lien He</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+/* Menu Hero Section */
+.menu-hero-section {
+    position: relative;
+    background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+    padding: 100px 24px 80px;
+    text-align: center;
+    overflow: hidden;
+}
+
+.menu-hero-section::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: url('https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=1920&h=600&fit=crop') center/cover;
+    opacity: 0.15;
+}
+
+.menu-hero-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(26,26,26,0.3) 0%, rgba(26,26,26,0.8) 100%);
+}
+
+.menu-hero-content {
+    position: relative;
+    z-index: 1;
+    max-width: 700px;
+    margin: 0 auto;
+}
+
+.menu-hero-subtitle {
+    display: inline-block;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    color: #c9a96e;
+    margin-bottom: 16px;
+}
+
+.menu-hero-title {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 3.5rem;
+    font-weight: 700;
+    color: #fff;
+    margin: 0 0 20px;
+    letter-spacing: 1px;
+}
+
+.menu-hero-desc {
+    font-size: 1.1rem;
+    color: rgba(255,255,255,0.75);
+    line-height: 1.7;
+    margin: 0;
+}
+
+/* Menu Main Section */
+.menu-main-section {
+    padding: 60px 0 80px;
+    background: #faf9f7;
+}
+
+/* Menu Controls */
+.menu-controls {
+    margin-bottom: 32px;
+}
+
+.menu-search-form {
+    display: flex;
+    gap: 12px;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.search-input-wrapper {
+    flex: 1;
+    position: relative;
+}
+
+.search-icon {
+    position: absolute;
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #999;
+}
+
+.menu-search-input {
+    width: 100%;
+    padding: 14px 16px 14px 48px;
+    border: 2px solid #e8e3db;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-family: inherit;
+    background: #fff;
+    transition: all 0.25s;
+}
+
+.menu-search-input:focus {
+    outline: none;
+    border-color: #8B6F47;
+    box-shadow: 0 0 0 4px rgba(139,111,71,0.1);
+}
+
+.menu-search-form .btn {
+    padding: 14px 28px;
+    white-space: nowrap;
+}
+
+/* Category Filter */
+.menu-category-filter {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 40px;
+}
+
+.category-pill {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 20px;
+    background: #fff;
+    color: #1a1a1a;
+    border: 2px solid #e8e3db;
+    border-radius: 50px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    text-decoration: none;
+    transition: all 0.25s;
+}
+
+.category-pill:hover {
+    border-color: #8B6F47;
+    color: #8B6F47;
+}
+
+.category-pill.active {
+    background: #8B6F47;
+    border-color: #8B6F47;
+    color: #fff;
+}
+
+.category-pill.active .category-icon svg {
+    stroke: #fff;
+}
+
+.category-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.category-icon svg {
+    stroke: #6b6b6b;
+    transition: stroke 0.25s;
+}
+
+.category-pill:hover .category-icon svg {
+    stroke: #8B6F47;
+}
+
+/* Results Info */
+.menu-results-info {
+    text-align: center;
+    margin-bottom: 32px;
+}
+
+.results-count {
+    color: #6b6b6b;
+    font-size: 0.95rem;
+}
+
+.results-count strong {
+    color: #1a1a1a;
+}
+
+/* Dishes Grid */
+.menu-dishes-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 28px;
+}
+
+/* Dish Card */
+.menu-dish-card {
+    background: #fff;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    transition: all 0.35s;
+    border: 1px solid #f0ece5;
+}
+
+.menu-dish-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 12px 32px rgba(0,0,0,0.12);
+}
+
+.dish-card-image {
+    position: relative;
+    height: 220px;
+    overflow: hidden;
+    background: #f5f3ef;
+}
+
+.dish-card-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s;
+}
+
+.menu-dish-card:hover .dish-card-image img {
+    transform: scale(1.08);
+}
+
+.dish-discount-tag {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    background: linear-gradient(135deg, #c0392b 0%, #e74c3c 100%);
+    color: #fff;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    box-shadow: 0 4px 12px rgba(192,57,43,0.3);
+}
+
+.dish-card-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(26,26,26,0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.35s;
+}
+
+.menu-dish-card:hover .dish-card-overlay {
+    opacity: 1;
+}
+
+.dish-view-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 24px;
+    background: #fff;
+    color: #1a1a1a;
+    border-radius: 30px;
+    font-weight: 600;
+    text-decoration: none;
+    transform: translateY(10px);
+    transition: all 0.35s;
+}
+
+.menu-dish-card:hover .dish-view-btn {
+    transform: translateY(0);
+}
+
+.dish-view-btn:hover {
+    background: #8B6F47;
+    color: #fff;
+}
+
+.dish-view-btn:hover svg {
+    stroke: #fff;
+}
+
+/* Card Body */
+.dish-card-body {
+    padding: 24px;
+}
+
+.dish-card-category {
+    display: inline-block;
+    padding: 4px 12px;
+    background: #f5eed9;
+    color: #8B6F47;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 12px;
+}
+
+.dish-card-title {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #1a1a1a;
+    margin: 0 0 10px;
+    line-height: 1.3;
+}
+
+.dish-card-desc {
+    color: #6b6b6b;
+    font-size: 0.9rem;
+    line-height: 1.6;
+    margin: 0 0 20px;
+    min-height: 44px;
+}
+
+/* Card Footer */
+.dish-card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 16px;
+    border-top: 1px solid #f0ece5;
+}
+
+.dish-price-group {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+}
+
+.dish-price {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #8B6F47;
+}
+
+.dish-price-original {
+    font-size: 0.95rem;
+    color: #999;
+    text-decoration: line-through;
+}
+
+.dish-price-sale {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #c0392b;
+}
+
+.dish-add-form {
+    margin: 0;
+}
+
+.dish-add-btn {
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #8B6F47;
+    color: #fff;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.25s;
+}
+
+.dish-add-btn:hover {
+    background: #6b5536;
+    transform: scale(1.1);
+}
+
+.dish-add-btn svg {
+    stroke: #fff;
+}
+
+/* Empty State */
+.menu-empty-state {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 80px 24px;
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+}
+
+.empty-icon {
+    color: #c9a96e;
+    margin-bottom: 24px;
+}
+
+.menu-empty-state h3 {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 1.5rem;
+    color: #1a1a1a;
+    margin: 0 0 12px;
+}
+
+.menu-empty-state p {
+    color: #6b6b6b;
+    margin: 0 0 24px;
+}
+
+/* Login Prompt */
+.menu-login-prompt {
+    margin-top: 48px;
+    padding: 28px 32px;
+    background: linear-gradient(135deg, #fff 0%, #faf9f7 100%);
+    border-radius: 16px;
+    border: 2px dashed #e8e3db;
+}
+
+.login-prompt-content {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    justify-content: center;
+}
+
+.login-prompt-content svg {
+    color: #8B6F47;
+    flex-shrink: 0;
+}
+
+.login-prompt-text h4 {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 1.1rem;
+    color: #1a1a1a;
+    margin: 0 0 4px;
+}
+
+.login-prompt-text p {
+    color: #6b6b6b;
+    margin: 0;
+    font-size: 0.95rem;
+}
+
+.login-prompt-text a {
+    color: #8B6F47;
+    font-weight: 600;
+}
+
+.login-prompt-text a:hover {
+    color: #6b5536;
+    text-decoration: underline;
+}
+
+/* CTA Section */
+.menu-cta-section {
+    padding: 80px 24px;
+    background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+    text-align: center;
+}
+
+.cta-content h2 {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 2.2rem;
+    color: #fff;
+    margin: 0 0 16px;
+}
+
+.cta-content p {
+    color: rgba(255,255,255,0.7);
+    font-size: 1.05rem;
+    max-width: 600px;
+    margin: 0 auto 32px;
+    line-height: 1.7;
+}
+
+.cta-buttons {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .menu-hero-title {
+        font-size: 2.5rem;
+    }
+    
+    .menu-hero-section {
+        padding: 80px 20px 60px;
+    }
+    
+    .menu-search-form {
+        flex-direction: column;
+    }
+    
+    .menu-search-form .btn {
+        width: 100%;
+    }
+    
+    .menu-category-filter {
+        gap: 8px;
+    }
+    
+    .category-pill {
+        padding: 10px 16px;
+        font-size: 0.85rem;
+    }
+    
+    .category-pill .category-icon {
+        display: none;
+    }
+    
+    .menu-dishes-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+    
+    .login-prompt-content {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .cta-content h2 {
+        font-size: 1.8rem;
+    }
+    
+    .cta-buttons {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .cta-buttons .btn {
+        width: 100%;
+        max-width: 280px;
+    }
+}
+
+@media (max-width: 480px) {
+    .menu-hero-title {
+        font-size: 2rem;
+    }
+    
+    .menu-hero-desc {
+        font-size: 0.95rem;
+    }
+    
+    .dish-card-image {
+        height: 200px;
+    }
+    
+    .dish-card-body {
+        padding: 20px;
+    }
+    
+    .dish-card-title {
+        font-size: 1.1rem;
+    }
+}
+</style>

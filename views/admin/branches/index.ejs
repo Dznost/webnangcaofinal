@@ -1,0 +1,491 @@
+<section class="admin-section branches-admin">
+    <div class="container">
+        <div class="section-header">
+            <h1>Quan Ly Chi Nhanh</h1>
+            <a href="/admin/branches/new" class="btn btn-primary">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                Them Chi Nhanh
+            </a>
+        </div>
+
+        <% if (typeof success !== 'undefined' && success) { %>
+        <div class="alert alert-success"><%= success %></div>
+        <% } %>
+
+        <div class="search-bar-wrap">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" id="branchSearch" placeholder="Tim kiem theo ten hoac dia chi chi nhanh..." class="inline-search-input" oninput="filterBranches(this.value)">
+        </div>
+
+        <% if (branches && branches.length > 0) { %>
+        
+        <!-- Card Grid Layout for Better Visibility -->
+        <div class="branch-cards-grid" id="branchCardsGrid">
+            <% branches.forEach(function(branch) { %>
+            <div class="branch-admin-card" data-name="<%= (branch.name + ' ' + branch.address).toLowerCase() %>">
+                <!-- Card Header -->
+                <div class="branch-card-header">
+                    <div class="branch-image-thumb">
+                        <img src="<%= branch.image %>" alt="<%= branch.name %>"
+                             onerror="this.src='https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=120&h=90&fit=crop'">
+                    </div>
+                    <div class="branch-title-area">
+                        <h3 class="branch-name"><%= branch.name %></h3>
+                        <p class="branch-address"><%= branch.address %></p>
+                    </div>
+                    <div class="branch-actions">
+                        <a href="/admin/branches/<%= branch._id %>/edit" class="btn-icon btn-edit" title="Sua">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                        </a>
+                        <a href="/admin/branches/<%= branch._id %>/delete" class="btn-icon btn-delete" title="Xoa" onclick="return confirm('Ban chac chan muon xoa chi nhanh nay?')">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- Card Body -->
+                <div class="branch-card-body">
+                    <!-- Contact Info -->
+                    <div class="info-row">
+                        <div class="info-item">
+                            <span class="info-label">Dien thoai</span>
+                            <span class="info-value"><%= branch.phone %></span>
+                        </div>
+                        <% if (branch.email) { %>
+                        <div class="info-item">
+                            <span class="info-label">Email</span>
+                            <span class="info-value email"><%= branch.email %></span>
+                        </div>
+                        <% } %>
+                    </div>
+                    
+                    <!-- Tables Management -->
+                    <div class="tables-section">
+                        <div class="tables-header">
+                            <span class="tables-label">So ban trong</span>
+                            <span class="tables-badge <%= branch.availableTables === 0 ? 'full' : branch.availableTables <= 5 ? 'limited' : 'available' %>">
+                                <%= branch.availableTables %>/<%= branch.totalTables %>
+                            </span>
+                        </div>
+                        <div class="tables-controls">
+                            <button class="btn-tbl" onclick="changeTable('<%= branch._id %>', 'remove')" <%= branch.availableTables <= 0 ? 'disabled' : '' %>>
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                            </button>
+                            <span class="tables-count"><%= branch.availableTables %></span>
+                            <button class="btn-tbl" onclick="changeTable('<%= branch._id %>', 'add')" <%= branch.availableTables >= branch.totalTables ? 'disabled' : '' %>>
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Employees Section -->
+                    <div class="employees-section">
+                        <div class="emp-header">
+                            <span class="emp-label">Nhan vien</span>
+                            <span class="emp-total"><%= branch.totalEmployees || 0 %> nguoi</span>
+                        </div>
+                        <div class="emp-chips">
+                            <% if (branch.receptionists && branch.receptionists.length > 0) { %>
+                            <span class="emp-chip reception"><%= branch.receptionists.length %> Le tan</span>
+                            <% } %>
+                            <% if (branch.staffMembers && branch.staffMembers.length > 0) { %>
+                            <span class="emp-chip staff"><%= branch.staffMembers.length %> NV</span>
+                            <% } %>
+                            <% if (branch.shippers && branch.shippers.length > 0) { %>
+                            <span class="emp-chip shipper"><%= branch.shippers.length %> Shipper</span>
+                            <% } %>
+                            <% if ((!branch.receptionists || branch.receptionists.length === 0) && (!branch.staffMembers || branch.staffMembers.length === 0) && (!branch.shippers || branch.shippers.length === 0)) { %>
+                            <span class="emp-chip empty">Chua co</span>
+                            <% } %>
+                        </div>
+                        
+                        <!-- Collapsible Employee Details -->
+                        <div class="emp-details" id="empDetails_<%= branch._id %>">
+                            <% if (branch.receptionists && branch.receptionists.length > 0) { %>
+                            <div class="emp-group">
+                                <div class="emp-group-title reception">Le tan (<%= branch.receptionists.length %>)</div>
+                                <% branch.receptionists.forEach(function(r) { %>
+                                <div class="emp-row">
+                                    <div class="emp-avatar reception"><%= r.name.charAt(0).toUpperCase() %></div>
+                                    <div class="emp-info">
+                                        <span class="emp-name"><%= r.name %></span>
+                                        <% if (r.email) { %><span class="emp-email"><%= r.email %></span><% } %>
+                                    </div>
+                                    <a href="/admin/users/<%= r._id %>" class="emp-link">Chi tiet</a>
+                                </div>
+                                <% }); %>
+                            </div>
+                            <% } %>
+                            
+                            <% if (branch.staffMembers && branch.staffMembers.length > 0) { %>
+                            <div class="emp-group">
+                                <div class="emp-group-title staff">Nhan vien (<%= branch.staffMembers.length %>)</div>
+                                <% branch.staffMembers.forEach(function(s) { %>
+                                <div class="emp-row">
+                                    <div class="emp-avatar staff"><%= s.name.charAt(0).toUpperCase() %></div>
+                                    <div class="emp-info">
+                                        <span class="emp-name"><%= s.name %></span>
+                                        <% if (s.email) { %><span class="emp-email"><%= s.email %></span><% } %>
+                                    </div>
+                                    <a href="/admin/users/<%= s._id %>" class="emp-link">Chi tiet</a>
+                                </div>
+                                <% }); %>
+                            </div>
+                            <% } %>
+                            
+                            <% if (branch.shippers && branch.shippers.length > 0) { %>
+                            <div class="emp-group">
+                                <div class="emp-group-title shipper">Shipper (<%= branch.shippers.length %>)</div>
+                                <% branch.shippers.forEach(function(sh) { %>
+                                <div class="emp-row">
+                                    <div class="emp-avatar shipper"><%= sh.name.charAt(0).toUpperCase() %></div>
+                                    <div class="emp-info">
+                                        <span class="emp-name"><%= sh.name %></span>
+                                        <% if (sh.email) { %><span class="emp-email"><%= sh.email %></span><% } %>
+                                    </div>
+                                    <a href="/admin/users/<%= sh._id %>" class="emp-link">Chi tiet</a>
+                                </div>
+                                <% }); %>
+                            </div>
+                            <% } %>
+                        </div>
+                        
+                        <button class="emp-toggle" onclick="toggleEmpDetails('<%= branch._id %>')">
+                            <span class="toggle-text">Xem chi tiet</span>
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Card Footer - Stats -->
+                <div class="branch-card-footer">
+                    <div class="stat-item">
+                        <span class="stat-label">Don dang xu ly</span>
+                        <div class="stat-badges">
+                            <span class="stat-badge active"><%= branch.activeOrders || 0 %></span>
+                            <% if (branch.activeDeliveryOrders > 0) { %>
+                            <span class="stat-badge delivery"><%= branch.activeDeliveryOrders %></span>
+                            <% } %>
+                        </div>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Hoan thanh</span>
+                        <span class="stat-badge done"><%= branch.completedOrders || 0 %></span>
+                    </div>
+                    <div class="stat-item revenue-item" onclick="toggleBranchChart('<%= branch._id %>')">
+                        <span class="stat-label">Doanh thu</span>
+                        <span class="stat-value"><%= (branch.branchRevenue || 0).toLocaleString('vi-VN') %>d</span>
+                        <div class="revenue-breakdown">
+                            <span class="rev-type le-tan"><%= (branch.receptionRevenue || 0).toLocaleString('vi-VN') %>d</span>
+                            <span class="rev-type giao-hang"><%= (branch.deliveryRevenue || 0).toLocaleString('vi-VN') %>d</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Revenue Chart Panel -->
+                <div class="branch-chart-panel" id="branchChart_<%= branch._id %>">
+                    <div class="chart-header">
+                        <h4>Bieu Do Doanh Thu - <%= branch.name %></h4>
+                        <button type="button" class="btn-close-chart" onclick="document.getElementById('branchChart_<%= branch._id %>').classList.remove('show')">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                        </button>
+                    </div>
+                    <div class="chart-legend">
+                        <span class="legend-item"><span class="legend-color le-tan"></span>Le Tan</span>
+                        <span class="legend-item"><span class="legend-color giao-hang"></span>Giao Hang</span>
+                    </div>
+                    <div class="chart-bars">
+                        <% 
+                            var allVals = [];
+                            for (var mi = 0; mi < 12; mi++) {
+                                allVals.push((branch.monthlyReception[mi] || 0) + (branch.monthlyDelivery[mi] || 0));
+                            }
+                            var maxV = Math.max.apply(null, allVals.concat([1]));
+                        %>
+                        <% for (var ci = 0; ci < 12; ci++) { %>
+                            <% var rH = maxV > 0 ? ((branch.monthlyReception[ci] || 0) / maxV * 100) : 0; %>
+                            <% var dH = maxV > 0 ? ((branch.monthlyDelivery[ci] || 0) / maxV * 100) : 0; %>
+                            <div class="chart-bar-group">
+                                <div class="bar-stack">
+                                    <div class="bar le-tan" style="height:<%= rH %>%;"></div>
+                                    <div class="bar giao-hang" style="height:<%= dH %>%;"></div>
+                                </div>
+                                <span class="bar-label">T<%= ci + 1 %></span>
+                            </div>
+                        <% } %>
+                    </div>
+                    <div class="chart-summary">
+                        <div class="summary-item le-tan">
+                            <span class="sum-label">Le Tan</span>
+                            <span class="sum-value"><%= (branch.receptionRevenue || 0).toLocaleString('vi-VN') %>d</span>
+                        </div>
+                        <div class="summary-item giao-hang">
+                            <span class="sum-label">Giao Hang</span>
+                            <span class="sum-value"><%= (branch.deliveryRevenue || 0).toLocaleString('vi-VN') %>d</span>
+                        </div>
+                        <div class="summary-item total">
+                            <span class="sum-label">Tong</span>
+                            <span class="sum-value"><%= (branch.branchRevenue || 0).toLocaleString('vi-VN') %>d</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <% }); %>
+        </div>
+
+        <p class="result-count" id="branchCount"><%= branches.length %> chi nhanh</p>
+        <% } else { %>
+        <div class="empty-state">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+            <p>Chua co chi nhanh nao.</p>
+            <a href="/admin/branches/new" class="btn btn-primary">Them Chi Nhanh Dau Tien</a>
+        </div>
+        <% } %>
+    </div>
+</section>
+
+<style>
+/* Branch Admin Page - Modern Card Layout */
+.branches-admin { padding: 24px 0; }
+.branches-admin .container { max-width: 1400px; margin: 0 auto; padding: 0 20px; }
+
+.section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 16px; }
+.section-header h1 { font-family: 'Playfair Display', serif; font-size: 1.75rem; color: #2c2c2c; margin: 0; }
+.section-header .btn { display: flex; align-items: center; gap: 8px; }
+
+.search-bar-wrap { display: flex; align-items: center; gap: 10px; background: white; border: 1.5px solid #e0d8ce; border-radius: 10px; padding: 12px 16px; margin-bottom: 24px; max-width: 480px; }
+.search-bar-wrap svg { color: #999; flex-shrink: 0; }
+.inline-search-input { border: none; outline: none; font-size: 0.9rem; width: 100%; background: transparent; color: #333; }
+
+/* Card Grid */
+.branch-cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); gap: 24px; }
+
+.branch-admin-card { background: white; border-radius: 16px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); border: 1px solid #f0ebe3; overflow: hidden; transition: box-shadow 0.2s, transform 0.2s; }
+.branch-admin-card:hover { box-shadow: 0 8px 24px rgba(0,0,0,0.1); transform: translateY(-2px); }
+
+/* Card Header */
+.branch-card-header { display: flex; align-items: flex-start; gap: 14px; padding: 20px; background: linear-gradient(135deg, #faf8f5 0%, #fff 100%); border-bottom: 1px solid #f0ebe3; }
+.branch-image-thumb { width: 80px; height: 60px; border-radius: 10px; overflow: hidden; flex-shrink: 0; }
+.branch-image-thumb img { width: 100%; height: 100%; object-fit: cover; }
+
+.branch-title-area { flex: 1; min-width: 0; }
+.branch-name { font-size: 1.1rem; font-weight: 700; color: #2c2c2c; margin: 0 0 6px 0; line-height: 1.3; }
+.branch-address { font-size: 0.82rem; color: #777; margin: 0; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+
+.branch-actions { display: flex; gap: 8px; flex-shrink: 0; }
+.btn-icon { width: 34px; height: 34px; border-radius: 8px; display: flex; align-items: center; justify-content: center; transition: all 0.2s; border: none; cursor: pointer; }
+.btn-edit { background: #e8f4fd; color: #1976d2; }
+.btn-edit:hover { background: #1976d2; color: white; }
+.btn-delete { background: #fce4ec; color: #c62828; }
+.btn-delete:hover { background: #c62828; color: white; }
+
+/* Card Body */
+.branch-card-body { padding: 20px; }
+
+.info-row { display: flex; gap: 20px; margin-bottom: 16px; flex-wrap: wrap; }
+.info-item { flex: 1; min-width: 120px; }
+.info-label { display: block; font-size: 0.7rem; color: #999; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+.info-value { font-size: 0.88rem; color: #333; font-weight: 500; }
+.info-value.email { font-size: 0.8rem; color: #666; word-break: break-all; }
+
+/* Tables Section */
+.tables-section { background: #f9f7f4; border-radius: 10px; padding: 14px; margin-bottom: 16px; }
+.tables-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+.tables-label { font-size: 0.8rem; color: #666; font-weight: 500; }
+.tables-badge { padding: 4px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: 700; }
+.tables-badge.available { background: #e8f5e9; color: #2e7d32; }
+.tables-badge.limited { background: #fff8e1; color: #f57c00; }
+.tables-badge.full { background: #fce4ec; color: #c62828; }
+
+.tables-controls { display: flex; align-items: center; gap: 12px; justify-content: center; }
+.btn-tbl { width: 36px; height: 36px; border-radius: 50%; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; background: #8B6F47; color: white; transition: all 0.2s; }
+.btn-tbl:hover:not(:disabled) { background: #6d573a; transform: scale(1.1); }
+.btn-tbl:disabled { background: #ddd; color: #aaa; cursor: not-allowed; }
+.tables-count { font-size: 1.5rem; font-weight: 700; color: #2c2c2c; min-width: 40px; text-align: center; }
+
+/* Employees Section */
+.employees-section { border: 1px solid #f0ebe3; border-radius: 10px; padding: 14px; }
+.emp-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+.emp-label { font-size: 0.8rem; color: #666; font-weight: 500; }
+.emp-total { font-size: 0.9rem; font-weight: 700; color: #3e3328; }
+
+.emp-chips { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }
+.emp-chip { font-size: 0.72rem; font-weight: 600; padding: 4px 10px; border-radius: 20px; }
+.emp-chip.reception { background: #e0f2f1; color: #00695c; }
+.emp-chip.staff { background: #f3e5f5; color: #7b1fa2; }
+.emp-chip.shipper { background: #fff3e0; color: #e65100; }
+.emp-chip.empty { background: #f5f5f5; color: #999; }
+
+.emp-details { display: none; margin-top: 12px; padding-top: 12px; border-top: 1px solid #f0ebe3; }
+.emp-details.show { display: block; }
+
+.emp-group { margin-bottom: 12px; }
+.emp-group:last-child { margin-bottom: 0; }
+.emp-group-title { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; padding: 4px 10px; border-radius: 6px; display: inline-block; margin-bottom: 8px; }
+.emp-group-title.reception { background: #e0f2f1; color: #00695c; }
+.emp-group-title.staff { background: #f3e5f5; color: #7b1fa2; }
+.emp-group-title.shipper { background: #fff3e0; color: #e65100; }
+
+.emp-row { display: flex; align-items: center; gap: 10px; padding: 8px; background: rgba(255,255,255,0.8); border-radius: 8px; margin-bottom: 6px; }
+.emp-row:last-child { margin-bottom: 0; }
+.emp-avatar { width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 700; color: white; flex-shrink: 0; }
+.emp-avatar.reception { background: #00897b; }
+.emp-avatar.staff { background: #8e24aa; }
+.emp-avatar.shipper { background: #ef6c00; }
+
+.emp-info { flex: 1; min-width: 0; }
+.emp-name { display: block; font-size: 0.85rem; font-weight: 500; color: #333; }
+.emp-email { display: block; font-size: 0.72rem; color: #999; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.emp-link { font-size: 0.72rem; color: #8B6F47; font-weight: 600; text-decoration: none; padding: 4px 8px; border: 1px solid #e0d8ce; border-radius: 6px; white-space: nowrap; }
+.emp-link:hover { background: #8B6F47; color: white; border-color: #8B6F47; }
+
+.emp-toggle { display: flex; align-items: center; gap: 6px; background: none; border: none; color: #8B6F47; font-size: 0.78rem; font-weight: 600; cursor: pointer; padding: 6px 0; margin-top: 8px; }
+.emp-toggle:hover { color: #6d573a; }
+.emp-toggle svg { transition: transform 0.2s; }
+.emp-toggle.open svg { transform: rotate(180deg); }
+
+/* Card Footer */
+.branch-card-footer { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; border-top: 1px solid #f0ebe3; background: #faf8f5; }
+.stat-item { padding: 14px; text-align: center; border-right: 1px solid #f0ebe3; }
+.stat-item:last-child { border-right: none; }
+.stat-label { display: block; font-size: 0.68rem; color: #999; text-transform: uppercase; letter-spacing: 0.3px; margin-bottom: 6px; }
+
+.stat-badges { display: flex; gap: 6px; justify-content: center; }
+.stat-badge { padding: 4px 10px; border-radius: 20px; font-size: 0.85rem; font-weight: 700; }
+.stat-badge.active { background: #fff3e0; color: #e65100; }
+.stat-badge.delivery { background: #e3f2fd; color: #1565c0; }
+.stat-badge.done { background: #e8f5e9; color: #2e7d32; }
+
+.revenue-item { cursor: pointer; transition: background 0.2s; }
+.revenue-item:hover { background: #f5f0e8; }
+.stat-value { display: block; font-size: 1rem; font-weight: 700; color: #8B6F47; }
+.revenue-breakdown { display: flex; gap: 8px; justify-content: center; margin-top: 6px; }
+.rev-type { font-size: 0.68rem; padding: 2px 6px; border-radius: 4px; }
+.rev-type.le-tan { background: #e8f5e9; color: #2e7d32; }
+.rev-type.giao-hang { background: #e3f2fd; color: #1565c0; }
+
+/* Chart Panel */
+.branch-chart-panel { display: none; padding: 20px; background: #fff; border-top: 1px solid #f0ebe3; }
+.branch-chart-panel.show { display: block; }
+
+.chart-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+.chart-header h4 { font-size: 0.95rem; font-weight: 600; color: #2c2c2c; margin: 0; }
+.btn-close-chart { background: #f5f5f5; border: none; border-radius: 6px; padding: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+.btn-close-chart:hover { background: #e0e0e0; }
+
+.chart-legend { display: flex; gap: 16px; margin-bottom: 14px; }
+.legend-item { display: flex; align-items: center; gap: 6px; font-size: 0.75rem; color: #666; }
+.legend-color { width: 12px; height: 12px; border-radius: 3px; }
+.legend-color.le-tan { background: #2e7d32; }
+.legend-color.giao-hang { background: #1565c0; }
+
+.chart-bars { display: flex; align-items: flex-end; gap: 6px; height: 140px; padding-bottom: 24px; border-bottom: 2px solid #eee; margin-bottom: 16px; }
+.chart-bar-group { flex: 1; display: flex; flex-direction: column; align-items: center; height: 100%; }
+.bar-stack { flex: 1; width: 100%; display: flex; flex-direction: column; justify-content: flex-end; }
+.bar { width: 100%; min-height: 2px; }
+.bar.le-tan { background: #2e7d32; border-radius: 2px 2px 0 0; }
+.bar.giao-hang { background: #1565c0; border-radius: 0 0 2px 2px; }
+.bar-label { font-size: 0.65rem; color: #999; margin-top: 6px; }
+
+.chart-summary { display: flex; gap: 12px; }
+.summary-item { flex: 1; text-align: center; padding: 12px; border-radius: 8px; }
+.summary-item.le-tan { background: #e8f5e9; }
+.summary-item.giao-hang { background: #e3f2fd; }
+.summary-item.total { background: #faf8f5; border: 1px solid #e0d8ce; }
+.sum-label { display: block; font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.3px; margin-bottom: 4px; }
+.summary-item.le-tan .sum-label { color: #2e7d32; }
+.summary-item.giao-hang .sum-label { color: #1565c0; }
+.summary-item.total .sum-label { color: #8B6F47; }
+.sum-value { font-size: 0.95rem; font-weight: 700; }
+.summary-item.le-tan .sum-value { color: #2e7d32; }
+.summary-item.giao-hang .sum-value { color: #1565c0; }
+.summary-item.total .sum-value { color: #8B6F47; }
+
+/* Result Count */
+.result-count { text-align: center; color: #888; font-size: 0.85rem; margin-top: 24px; }
+
+/* Empty State */
+.empty-state { text-align: center; padding: 60px 20px; background: white; border-radius: 16px; border: 2px dashed #e0d8ce; }
+.empty-state svg { color: #ccc; margin-bottom: 16px; }
+.empty-state p { color: #888; font-size: 1rem; margin: 0 0 20px 0; }
+
+/* Responsive */
+@media (max-width: 768px) {
+    .branch-cards-grid { grid-template-columns: 1fr; }
+    .branch-card-header { flex-wrap: wrap; }
+    .branch-title-area { width: 100%; order: 2; margin-top: 12px; }
+    .branch-actions { order: 1; margin-left: auto; }
+    .branch-card-footer { grid-template-columns: 1fr; }
+    .stat-item { border-right: none; border-bottom: 1px solid #f0ebe3; }
+    .stat-item:last-child { border-bottom: none; }
+    .chart-summary { flex-direction: column; }
+}
+</style>
+
+<script>
+function filterBranches(query) {
+    var cards = document.querySelectorAll('.branch-admin-card');
+    var count = 0;
+    var q = query.toLowerCase().trim();
+    
+    cards.forEach(function(card) {
+        var name = card.getAttribute('data-name') || '';
+        if (name.indexOf(q) !== -1) {
+            card.style.display = '';
+            count++;
+        } else {
+            card.style.display = 'none';
+        }
+    });
+    
+    document.getElementById('branchCount').textContent = count + ' chi nhanh';
+}
+
+function toggleEmpDetails(branchId) {
+    var details = document.getElementById('empDetails_' + branchId);
+    var btn = details.previousElementSibling.nextElementSibling;
+    
+    if (details.classList.contains('show')) {
+        details.classList.remove('show');
+        btn.classList.remove('open');
+        btn.querySelector('.toggle-text').textContent = 'Xem chi tiet';
+    } else {
+        details.classList.add('show');
+        btn.classList.add('open');
+        btn.querySelector('.toggle-text').textContent = 'An bot';
+    }
+}
+
+function toggleBranchChart(branchId) {
+    var chart = document.getElementById('branchChart_' + branchId);
+    if (chart.classList.contains('show')) {
+        chart.classList.remove('show');
+    } else {
+        // Close all other charts first
+        document.querySelectorAll('.branch-chart-panel').forEach(function(c) {
+            c.classList.remove('show');
+        });
+        chart.classList.add('show');
+    }
+}
+
+function changeTable(branchId, action) {
+    fetch('/admin/branches/' + branchId + '/tables', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: action })
+    })
+    .then(function(response) { return response.json(); })
+    .then(function(data) {
+        if (data.success) {
+            location.reload();
+        } else {
+            alert(data.message || 'Co loi xay ra');
+        }
+    })
+    .catch(function(err) {
+        console.error('Error:', err);
+        alert('Loi ket noi');
+    });
+}
+</script>

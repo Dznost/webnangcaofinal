@@ -1,0 +1,446 @@
+<style>
+  .admin-dash { padding: 32px 0; background: #f8f6f3; min-height: 100vh; }
+  .admin-dash .container { max-width: 1400px; margin: 0 auto; padding: 0 20px; }
+  .dash-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 28px; flex-wrap: wrap; gap: 16px; }
+  .dash-header h1 { font-size: 1.8rem; color: #3e3328; margin: 0; }
+  .dash-header .live-indicator { display: flex; align-items: center; gap: 8px; font-size: 0.85rem; color: #2e7d32; background: #e8f5e9; padding: 6px 14px; border-radius: 20px; }
+  .dash-header .live-indicator::before { content: ''; width: 8px; height: 8px; background: #2e7d32; border-radius: 50%; animation: pulse 1.5s infinite; }
+  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+  /* Stats grid */
+  .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 14px; margin-bottom: 24px; }
+  .stat-box { background: #fff; border-radius: 10px; padding: 18px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.04); border: 1px solid #ebe6df; }
+  .stat-box .icon { width: 42px; height: 42px; border-radius: 10px; display: flex; align-items: center; justify-content: center; margin: 0 auto 10px; }
+  .stat-box h4 { margin: 0 0 4px; font-size: 0.78rem; color: #888; font-weight: 500; text-transform: uppercase; letter-spacing: 0.3px; }
+  .stat-box .num { font-size: 1.5rem; font-weight: 700; color: #3e3328; }
+  .stat-box a { font-size: 0.75rem; color: #8B6F47; text-decoration: none; }
+  .stat-box a:hover { text-decoration: underline; }
+
+  /* Alert strip */
+  .alert-strip { display: flex; gap: 14px; margin-bottom: 24px; flex-wrap: wrap; }
+  .alert-item { display: flex; align-items: center; gap: 10px; background: #fff3e0; border-left: 4px solid #e65100; padding: 12px 18px; border-radius: 8px; flex: 1; min-width: 200px; }
+  .alert-item.danger { background: #fce4ec; border-color: #c62828; }
+  .alert-item .count { font-size: 1.4rem; font-weight: 700; color: #e65100; }
+  .alert-item.danger .count { color: #c62828; }
+  .alert-item .label { font-size: 0.85rem; color: #5d4e37; }
+  .alert-item a { margin-left: auto; font-size: 0.78rem; color: #8B6F47; text-decoration: none; font-weight: 600; }
+
+  /* Staff summary */
+  .staff-summary { background: #fff; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); border: 1px solid #ebe6df; }
+  .staff-summary h3 { margin: 0 0 16px; font-size: 1rem; color: #3e3328; }
+  .staff-list { display: flex; flex-direction: column; gap: 10px; }
+  .staff-item { display: flex; align-items: center; justify-content: space-between; padding: 12px 14px; background: #faf8f5; border-radius: 8px; }
+  .staff-item .role { font-weight: 500; color: #5d4e37; }
+  .staff-item .count { font-size: 1.3rem; font-weight: 700; color: #8B6F47; }
+
+  /* Top performers */
+  .top-performers { margin-top: 16px; padding-top: 16px; border-top: 1px solid #ebe6df; }
+  .top-performers h4 { margin: 0 0 12px; font-size: 0.85rem; color: #888; font-weight: 500; }
+  .perf-item { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid #f0ebe4; }
+  .perf-item:last-child { border-bottom: none; }
+  .perf-item .rank { width: 22px; height: 22px; background: #8B6F47; color: #fff; border-radius: 50%; font-size: 0.75rem; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+  .perf-item .name { flex: 1; font-size: 0.88rem; color: #3e3328; }
+  .perf-item .amt { font-weight: 600; color: #2e7d32; font-size: 0.88rem; }
+
+  /* Activity feed */
+  .activity-feed { background: #fff; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); border: 1px solid #ebe6df; margin-bottom: 24px; }
+  .activity-feed h3 { margin: 0 0 16px; font-size: 1rem; color: #3e3328; }
+  .feed-tabs { display: flex; gap: 8px; margin-bottom: 16px; }
+  .feed-tab { padding: 6px 14px; font-size: 0.82rem; border-radius: 20px; border: 1px solid #e0d8ce; background: #fff; color: #5d4e37; cursor: pointer; }
+  .feed-tab.active { background: #8B6F47; color: #fff; border-color: #8B6F47; }
+  .feed-list { max-height: 400px; overflow-y: auto; }
+  .feed-item { display: flex; align-items: flex-start; gap: 12px; padding: 12px 0; border-bottom: 1px solid #f0ebe4; }
+  .feed-item:last-child { border-bottom: none; }
+  .feed-item .type-icon { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .feed-item .type-icon.order { background: #fce4ec; color: #c62828; }
+  .feed-item .type-icon.reservation { background: #e0f2f1; color: #00695c; }
+  .feed-item .content { flex: 1; }
+  .feed-item .content .title { font-weight: 600; font-size: 0.88rem; color: #3e3328; margin-bottom: 2px; }
+  .feed-item .content .meta { font-size: 0.78rem; color: #888; }
+  .feed-item .status { padding: 3px 10px; border-radius: 12px; font-size: 0.72rem; font-weight: 600; text-transform: uppercase; }
+  .feed-item .status.pending { background: #fff3e0; color: #e65100; }
+  .feed-item .status.confirmed { background: #e3f2fd; color: #1565c0; }
+  .feed-item .status.processing { background: #f3e5f5; color: #7b1fa2; }
+  .feed-item .status.shipping { background: #e8f5e9; color: #2e7d32; }
+  .feed-item .status.completed { background: #e8f5e9; color: #1b5e20; }
+  .feed-item .status.cancelled { background: #fce4ec; color: #c62828; }
+  .feed-item .time { font-size: 0.75rem; color: #aaa; white-space: nowrap; }
+
+  /* Notifications panel */
+  .notif-panel { background: #fff; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); border: 1px solid #ebe6df; }
+  .notif-panel h3 { margin: 0 0 16px; font-size: 1rem; color: #3e3328; display: flex; align-items: center; gap: 8px; }
+  .notif-panel h3 .badge { background: #c62828; color: #fff; font-size: 0.72rem; padding: 2px 8px; border-radius: 10px; }
+  .notif-list { display: flex; flex-direction: column; gap: 10px; max-height: 300px; overflow-y: auto; }
+  .notif-item { padding: 12px; background: #fff8f0; border-left: 3px solid #e65100; border-radius: 6px; }
+  .notif-item .msg { font-size: 0.85rem; color: #3e3328; margin-bottom: 6px; }
+  .notif-item .time { font-size: 0.75rem; color: #888; }
+  .notif-item .actions { margin-top: 8px; display: flex; gap: 8px; }
+  .notif-item .actions a, .notif-item .actions button { font-size: 0.75rem; padding: 4px 10px; border-radius: 4px; text-decoration: none; border: none; cursor: pointer; }
+  .notif-item .actions a { background: #8B6F47; color: #fff; }
+  .notif-item .actions button { background: #e0d8ce; color: #5d4e37; }
+
+  /* Quick nav */
+  .quick-nav { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-top: 24px; }
+  .quick-nav a { display: flex; align-items: center; gap: 10px; padding: 14px 18px; background: #fff; border-radius: 10px; text-decoration: none; color: #3e3328; font-weight: 500; font-size: 0.9rem; border: 1px solid #ebe6df; transition: all 0.2s; }
+  .quick-nav a:hover { border-color: #8B6F47; background: #faf8f5; }
+  .quick-nav a svg { color: #8B6F47; }
+
+  /* ========== OPTIMIZED SECTION ORGANIZATION ========== */
+  .stats-section { margin-bottom: 32px; background: #faf8f5; padding: 24px; border-radius: 12px; border-left: 5px solid #8B6F47; }
+  .stats-section-title { font-size: 1.1rem; font-weight: 600; color: #3e3328; margin: 0 0 16px 0; text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 10px; }
+  .stats-section-title::before { content: ''; width: 4px; height: 20px; background: #8B6F47; border-radius: 2px; }
+  
+  @media (max-width: 768px) {
+    .stats-section { margin-bottom: 20px; padding: 16px; }
+    .stats-section-title { font-size: 0.95rem; }
+    .stats-grid { grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)) !important; gap: 10px !important; }
+  }
+</style>
+
+<section class="admin-dash">
+  <div class="container">
+    <!-- Header -->
+    <div class="dash-header">
+      <h1>Trung Tam Quan Tri</h1>
+      <div class="live-indicator">He thong dang hoat dong</div>
+    </div>
+
+    <!-- Alert strip -->
+    <% var totalAlerts = pendingOrders + pendingReservations + shipperApplications + staffApplications + branchChangeRequests + pendingContacts; %>
+    <% if (totalAlerts > 0) { %>
+    <div class="alert-strip">
+      <% if (pendingOrders > 0) { %>
+      <div class="alert-item danger">
+        <span class="count"><%= pendingOrders %></span>
+        <span class="label">Don hang cho xu ly</span>
+        <a href="/admin/orders?status=pending">Xem</a>
+      </div>
+      <% } %>
+      <% if (pendingReservations > 0) { %>
+      <div class="alert-item">
+        <span class="count"><%= pendingReservations %></span>
+        <span class="label">Dat ban cho duyet</span>
+        <a href="/admin/reservations?status=pending">Xem</a>
+      </div>
+      <% } %>
+      <% if (shipperApplications + staffApplications > 0) { %>
+      <div class="alert-item">
+        <span class="count"><%= shipperApplications + staffApplications %></span>
+        <span class="label">Don dang ky nhan vien</span>
+        <a href="/admin/contacts?type=shipper_application">Xem</a>
+      </div>
+      <% } %>
+      <% if (branchChangeRequests > 0) { %>
+      <div class="alert-item">
+        <span class="count"><%= branchChangeRequests %></span>
+        <span class="label">Yeu cau doi chi nhanh</span>
+        <a href="/admin/users?role=shipper">Xem</a>
+      </div>
+      <% } %>
+      <% if (pendingContacts > 0) { %>
+      <div class="alert-item">
+        <span class="count"><%= pendingContacts %></span>
+        <span class="label">Phan hoi moi</span>
+        <a href="/admin/contacts">Xem</a>
+      </div>
+      <% } %>
+    </div>
+    <% } %>
+
+    <!-- ORGANIZED STATS GRID - Grouped by Category -->
+    
+    <!-- Business Operations Section -->
+    <div class="stats-section">
+      <h3 class="stats-section-title">Quan Ly Kinh Doanh</h3>
+      <div class="stats-grid">
+        <div class="stat-box">
+          <div class="icon" style="background:#fce4ec;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#c62828" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/></svg></div>
+          <h4>Don Hom Nay</h4>
+          <div class="num"><%= todayOrders %></div>
+          <a href="/admin/orders">Xem tat ca</a>
+        </div>
+        <div class="stat-box">
+          <div class="icon" style="background:#e0f2f1;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#00695c" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/></svg></div>
+          <h4>Dat Ban Hom Nay</h4>
+          <div class="num"><%= todayReservations %></div>
+          <a href="/admin/reservations">Xem tat ca</a>
+        </div>
+        <div class="stat-box">
+          <div class="icon" style="background:#fff3e0;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#e65100" stroke-width="2"><path d="M5 12.55a11 11 0 0114.08 0"/><path d="M8.53 16.11a6 6 0 016.95 0"/><circle cx="12" cy="20" r="1"/></svg></div>
+          <h4>Dang Van Chuyen</h4>
+          <div class="num"><%= shippingOrders %></div>
+          <a href="/admin/orders?status=shipping">Xem</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Product & Venue Section -->
+    <div class="stats-section">
+      <h3 class="stats-section-title">Quan Ly San Pham & Chi Nhanh</h3>
+      <div class="stats-grid">
+        <div class="stat-box">
+          <div class="icon" style="background:#fef3e0;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#e65100" stroke-width="2"><path d="M18 8h1a4 4 0 010 8h-1"/><path d="M2 8h16v9a4 4 0 01-4 4H6a4 4 0 01-4-4V8z"/></svg></div>
+          <h4>Mon An</h4>
+          <div class="num"><%= dishCount %></div>
+          <a href="/admin/dishes">Quan ly</a>
+        </div>
+        <div class="stat-box">
+          <div class="icon" style="background:#e3f2fd;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1565c0" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg></div>
+          <h4>Chi Nhanh</h4>
+          <div class="num"><%= branchCount %></div>
+          <a href="/admin/branches">Quan ly</a>
+        </div>
+        <div class="stat-box">
+          <div class="icon" style="background:#e8f5e9;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2e7d32" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/></svg></div>
+          <h4>Su Kien</h4>
+          <div class="num"><%= eventCount %></div>
+          <a href="/admin/events">Quan ly</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Users & Staff Section -->
+    <div class="stats-section">
+      <h3 class="stats-section-title">Quan Ly Nguoi Dung & Nhan Su</h3>
+      <div class="stats-grid">
+        <div class="stat-box">
+          <div class="icon" style="background:#f3e5f5;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#7b1fa2" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4-4v2"/><circle cx="9" cy="7" r="4"/></svg></div>
+          <h4>Nguoi Dung</h4>
+          <div class="num"><%= userCount %></div>
+          <a href="/admin/users">Quan ly</a>
+        </div>
+        <div class="stat-box">
+          <div class="icon" style="background:#e8eaf6;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3949ab" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/></svg></div>
+          <h4>Blog</h4>
+          <div class="num"><%= blogCount %></div>
+          <a href="/admin/blogs">Quan ly</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Staff summary -->
+    <div class="staff-summary" style="margin-bottom:24px;">
+      <h3>Nhan Su</h3>
+      <div class="staff-list">
+        <div class="staff-item">
+          <span class="role">Shipper</span>
+          <span class="count"><%= totalShippers %></span>
+        </div>
+        <div class="staff-item">
+          <span class="role">Nhan vien</span>
+          <span class="count"><%= totalStaff %></span>
+        </div>
+        <div class="staff-item">
+          <span class="role">Le tan</span>
+          <span class="count"><%= totalReception %></span>
+        </div>
+        <div class="staff-item">
+          <span class="role">Dang giao hang</span>
+          <span class="count" style="color:#e65100;"><%= activeDeliveries %></span>
+        </div>
+      </div>
+
+      <% if (topShippers && topShippers.length > 0) { %>
+      <div class="top-performers">
+        <h4>Top Shipper Thang Nay</h4>
+        <% for (var ti = 0; ti < topShippers.length; ti++) { var s = topShippers[ti]; var i = ti; %>
+        <div class="perf-item">
+          <span class="rank"><%= i + 1 %></span>
+          <span class="name"><%= s.name || 'Khong xac dinh' %></span>
+          <span class="amt"><%= s.total.toLocaleString('vi-VN') %>d</span>
+        </div>
+        <% } %>
+      </div>
+      <% } %>
+    </div>
+
+    <!-- Activity feed -->
+    <div class="activity-feed">
+      <h3>Hoat Dong Gan Day</h3>
+      <div class="feed-list">
+        <% for (var oi = 0; oi < recentOrders.length; oi++) { var order = recentOrders[oi]; %>
+        <div class="feed-item">
+          <div class="type-icon order">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/></svg>
+          </div>
+          <div class="content">
+            <div class="title">Don #<%= order._id.toString().slice(-6).toUpperCase() %> - <%= order.orderType === 'dine-in' ? 'An tai quan' : 'Giao hang' %></div>
+            <div class="meta"><%= order.userId?.name || order.fullName || 'Khach' %> - <%= order.branchId?.name || '' %> - <%= (order.finalPrice || order.totalPrice || 0).toLocaleString('vi-VN') %>d</div>
+          </div>
+          <span class="status <%= order.status %>"><%= order.status %></span>
+          <span class="time"><%= new Date(order.createdAt).toLocaleTimeString('vi-VN', {hour:'2-digit', minute:'2-digit'}) %></span>
+        </div>
+        <% } %>
+        <% for (var ri = 0; ri < recentReservations.length; ri++) { var r = recentReservations[ri]; %>
+        <div class="feed-item">
+          <div class="type-icon reservation">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/></svg>
+          </div>
+          <div class="content">
+            <div class="title">Dat ban #<%= r._id.toString().slice(-6).toUpperCase() %></div>
+            <div class="meta"><%= r.userId?.name || r.guestName || 'Khach' %> - <%= r.branchId?.name || '' %> - <%= r.guests %> khach</div>
+          </div>
+          <span class="status <%= r.status %>"><%= r.status %></span>
+          <span class="time"><%= new Date(r.createdAt).toLocaleTimeString('vi-VN', {hour:'2-digit', minute:'2-digit'}) %></span>
+        </div>
+        <% } %>
+        <% if (recentOrders.length === 0 && recentReservations.length === 0) { %>
+        <p style="color:#888;font-size:0.88rem;text-align:center;padding:30px 0;">Chua co hoat dong nao.</p>
+        <% } %>
+      </div>
+    </div>
+
+    <!-- Enhanced Notifications Panel - Always visible -->
+    <div class="notif-panel-enhanced">
+      <div class="notif-header">
+        <h3>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#8B6F47" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+          Thong Bao Hoat Dong <span class="badge"><%= (typeof notifications !== 'undefined' && notifications ? notifications.length : 0) %></span>
+        </h3>
+        <div class="notif-filter-tabs">
+          <button class="tab-btn active" onclick="filterNotifs('all')">Tat ca</button>
+          <button class="tab-btn" onclick="filterNotifs('order')">Don hang</button>
+          <button class="tab-btn" onclick="filterNotifs('reservation')">Dat ban</button>
+          <button class="tab-btn" onclick="filterNotifs('user')">Nguoi dung</button>
+          <button class="tab-btn" onclick="filterNotifs('payment')">Thanh toan</button>
+        </div>
+      </div>
+      <div class="notif-list-enhanced" id="notifList">
+        <% if (typeof notifications !== 'undefined' && notifications && notifications.length > 0) { %>
+          <% for (var ni = 0; ni < notifications.length; ni++) { var notif = notifications[ni];
+            var category = notif.category || 'system';
+            var priority = notif.priority || 'normal';
+            var iconColor = '#8B6F47';
+            var bgColor = '#fff8f0';
+            var borderColor = '#e65100';
+            if (notif.type && notif.type.indexOf('order') !== -1) { category = 'order'; iconColor = '#c62828'; bgColor = '#fce4ec'; borderColor = '#c62828'; }
+            else if (notif.type && notif.type.indexOf('reservation') !== -1) { category = 'reservation'; iconColor = '#00695c'; bgColor = '#e0f2f1'; borderColor = '#00695c'; }
+            else if (notif.type && (notif.type.indexOf('shipper') !== -1 || notif.type.indexOf('staff') !== -1 || notif.type.indexOf('reception') !== -1 || notif.type.indexOf('branch_change') !== -1 || notif.type.indexOf('user') !== -1)) { category = 'user'; iconColor = '#1565c0'; bgColor = '#e3f2fd'; borderColor = '#1565c0'; }
+            else if (notif.type && notif.type.indexOf('payment') !== -1) { category = 'payment'; iconColor = '#2e7d32'; bgColor = '#e8f5e9'; borderColor = '#2e7d32'; }
+            var priorityLabel = '';
+            if (priority === 'urgent') { priorityLabel = 'Khan cap'; }
+            else if (priority === 'high') { priorityLabel = 'Quan trong'; }
+          %>
+          <div class="notif-item-enhanced" data-category="<%= category %>" data-priority="<%= priority %>" style="background:<%= bgColor %>;border-left:4px solid <%= borderColor %>;">
+            <div class="notif-icon" style="color:<%= iconColor %>;">
+              <% if (category === 'order') { %>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/></svg>
+              <% } else if (category === 'reservation') { %>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/></svg>
+              <% } else if (category === 'user') { %>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+              <% } else if (category === 'payment') { %>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+              <% } else { %>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+              <% } %>
+            </div>
+            <div class="notif-content">
+              <div class="notif-type-row">
+                <span class="notif-type-badge"><%= notif.type ? notif.type.replace(/_/g, ' ') : 'general' %></span>
+                <% if (priorityLabel) { %>
+                <span class="notif-priority-badge priority-<%= priority %>"><%= priorityLabel %></span>
+                <% } %>
+              </div>
+              <div class="notif-msg"><%= notif.message %></div>
+              <% if (notif.details) { %><div class="notif-details"><%= notif.details %></div><% } %>
+              <% if (notif.userId && notif.userId.name) { %>
+              <div class="notif-user-info">Nguoi dung: <strong><%= notif.userId.name %></strong> (<%= notif.userId.email || '' %>)</div>
+              <% } %>
+              <div class="notif-meta">
+                <span class="notif-time"><%= new Date(notif.createdAt).toLocaleString('vi-VN') %></span>
+                <% if (notif.amount && notif.amount > 0) { %>
+                <span class="notif-amount"><%= notif.amount.toLocaleString('vi-VN') %>d</span>
+                <% } %>
+                <span class="notif-status-badge">Chua doc</span>
+              </div>
+            </div>
+            <div class="notif-actions">
+              <% if (notif.orderId) { %>
+              <a href="/admin/orders/<%= notif.orderId._id || notif.orderId %>" class="notif-link">Xem don hang</a>
+              <% } %>
+              <% if (notif.reservationId) { %>
+              <a href="/admin/reservations/<%= notif.reservationId._id || notif.reservationId %>" class="notif-link">Xem dat ban</a>
+              <% } %>
+              <% if (notif.targetUserId) { %>
+              <a href="/admin/users/<%= notif.targetUserId._id || notif.targetUserId %>" class="notif-link">Xem nguoi dung</a>
+              <% } %>
+              <form action="/admin/notifications/<%= notif._id %>/read" method="POST" style="display:inline;">
+                <button type="submit" class="notif-btn-read">Danh dau da doc</button>
+              </form>
+            </div>
+          </div>
+          <% } %>
+        <% } else { %>
+          <div class="notif-empty">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#ccc" stroke-width="1.5"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+            <p>Khong co thong bao moi nao.</p>
+          </div>
+        <% } %>
+      </div>
+    </div>
+    
+    <style>
+      .notif-panel-enhanced { background: #fff; border-radius: 12px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); border: 1px solid #ebe6df; margin-bottom: 24px; }
+      .notif-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; flex-wrap: wrap; gap: 12px; }
+      .notif-header h3 { margin: 0; font-size: 1.05rem; color: #3e3328; display: flex; align-items: center; gap: 8px; }
+      .notif-header .badge { background: #c62828; color: #fff; font-size: 0.72rem; padding: 3px 10px; border-radius: 10px; font-weight: 700; }
+      .notif-filter-tabs { display: flex; gap: 6px; flex-wrap: wrap; }
+      .tab-btn { padding: 6px 14px; font-size: 0.78rem; border-radius: 16px; border: 1px solid #e0d8ce; background: #fff; color: #5d4e37; cursor: pointer; transition: all 0.2s; }
+      .tab-btn.active, .tab-btn:hover { background: #8B6F47; color: #fff; border-color: #8B6F47; }
+      .notif-list-enhanced { display: flex; flex-direction: column; gap: 10px; max-height: 500px; overflow-y: auto; padding-right: 4px; }
+      .notif-item-enhanced { display: flex; align-items: flex-start; gap: 14px; padding: 16px; border-radius: 10px; transition: all 0.2s; }
+      .notif-item-enhanced:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+      .notif-item-enhanced.hidden { display: none; }
+      .notif-icon { width: 40px; height: 40px; border-radius: 10px; background: rgba(255,255,255,0.8); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+      .notif-content { flex: 1; min-width: 0; }
+      .notif-type-row { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+      .notif-type-badge { display: inline-block; font-size: 0.68rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; color: #888; background: rgba(255,255,255,0.6); padding: 2px 8px; border-radius: 4px; }
+      .notif-priority-badge { display: inline-block; font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.3px; padding: 2px 8px; border-radius: 4px; }
+      .notif-priority-badge.priority-urgent { background: #c62828; color: #fff; }
+      .notif-priority-badge.priority-high { background: #e65100; color: #fff; }
+      .notif-msg { font-size: 0.9rem; color: #3e3328; font-weight: 600; margin-bottom: 4px; line-height: 1.4; }
+      .notif-details { font-size: 0.82rem; color: #666; margin-bottom: 6px; line-height: 1.4; background: rgba(255,255,255,0.5); padding: 6px 10px; border-radius: 6px; }
+      .notif-user-info { font-size: 0.8rem; color: #555; margin-bottom: 6px; }
+      .notif-meta { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+      .notif-time { font-size: 0.75rem; color: #888; }
+      .notif-amount { font-size: 0.82rem; font-weight: 700; color: #2e7d32; background: #e8f5e9; padding: 2px 8px; border-radius: 4px; }
+      .notif-status-badge { font-size: 0.68rem; font-weight: 600; color: #e65100; background: #fff3e0; padding: 2px 8px; border-radius: 4px; }
+      .notif-actions { display: flex; flex-direction: column; gap: 6px; align-items: flex-end; }
+      .notif-link { font-size: 0.78rem; color: #8B6F47; text-decoration: none; font-weight: 600; padding: 4px 10px; background: rgba(255,255,255,0.8); border-radius: 4px; }
+      .notif-link:hover { text-decoration: underline; background: #fff; }
+      .notif-btn-read { font-size: 0.75rem; padding: 6px 12px; border-radius: 6px; border: 1px solid #e0d8ce; background: rgba(255,255,255,0.9); color: #5d4e37; cursor: pointer; font-weight: 500; transition: all 0.2s; }
+      .notif-btn-read:hover { background: #fff; border-color: #8B6F47; color: #8B6F47; }
+      .notif-empty { text-align: center; padding: 40px 20px; color: #aaa; }
+      .notif-empty p { margin: 12px 0 0; font-size: 0.9rem; }
+    </style>
+    
+    <script>
+      function filterNotifs(category) {
+        var items = document.querySelectorAll('.notif-item-enhanced');
+        var tabs = document.querySelectorAll('.tab-btn');
+        tabs.forEach(function(t) { t.classList.remove('active'); });
+        event.target.classList.add('active');
+        items.forEach(function(item) {
+          if (category === 'all' || item.dataset.category === category) {
+            item.classList.remove('hidden');
+          } else {
+            item.classList.add('hidden');
+          }
+        });
+      }
+    </script>
+
+    <!-- Quick navigation -->
+    <div class="quick-nav">
+      <a href="/admin/dishes"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8h1a4 4 0 010 8h-1"/><path d="M2 8h16v9a4 4 0 01-4 4H6a4 4 0 01-4-4V8z"/></svg> Quan Ly Mon An</a>
+      <a href="/admin/branches"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg> Quan Ly Chi Nhanh</a>
+      <a href="/admin/orders"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/></svg> Quan Ly Don Hang</a>
+      <a href="/admin/reservations"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/></svg> Quan Ly Dat Ban</a>
+      <a href="/admin/users"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4-4v2"/><circle cx="9" cy="7" r="4"/></svg> Quan Ly Nguoi Dung</a>
+      <a href="/admin/revenue"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg> Thong Ke Doanh Thu</a>
+      <a href="/admin/events"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/></svg> Quan Ly Su Kien</a>
+      <a href="/admin/contacts"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/></svg> Quan Ly Phan Hoi</a>
+    </div>
+  </div>
+</section>

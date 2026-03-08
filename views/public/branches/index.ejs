@@ -1,0 +1,347 @@
+<!-- SEO Optimized Branches Page -->
+<section class="branches-hero" role="banner">
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+        <span class="hero-tag">He Thong Chi Nhanh</span>
+        <h1>Tim Chi Nhanh Gan Ban</h1>
+        <p class="hero-description">Trai nghiem am thuc dang cap tai bat ky chi nhanh nao cua La Maison</p>
+    </div>
+</section>
+
+<section class="branches-list-section" aria-labelledby="branches-heading">
+    <div class="container">
+        <% if (branches && branches.length > 0) { %>
+        <div class="branches-grid">
+            <% branches.forEach((branch, index) => { %>
+            <article class="branch-card" itemscope itemtype="https://schema.org/Restaurant">
+                <div class="branch-image">
+                    <img src="<%= branch.image || 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=400&h=300&fit=crop' %>" 
+                         alt="Chi nhanh <%= branch.name %>" 
+                         loading="lazy"
+                         onerror="this.src='https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=400&h=300&fit=crop'">
+                    <div class="branch-badge"><%= String(index + 1).padStart(2, '0') %></div>
+                    <% if (branch.availableTables > 0) { %>
+                    <span class="availability-tag available">Con ban trong</span>
+                    <% } else { %>
+                    <span class="availability-tag full">Het ban</span>
+                    <% } %>
+                </div>
+                <div class="branch-content">
+                    <h2 itemprop="name"><%= branch.name %></h2>
+                    <address itemprop="address" itemscope itemtype="https://schema.org/PostalAddress">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                        <span itemprop="streetAddress"><%= branch.address %></span>
+                    </address>
+                    
+                    <div class="branch-details">
+                        <div class="detail-row">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                            <a href="tel:<%= branch.phone %>" itemprop="telephone"><%= branch.phone %></a>
+                        </div>
+                        <% if (branch.openingHours) { %>
+                        <div class="detail-row">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                            <span itemprop="openingHours"><%= branch.openingHours %></span>
+                        </div>
+                        <% } %>
+                        <div class="detail-row tables">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/></svg>
+                            <span class="<%= branch.availableTables > 5 ? 'good' : branch.availableTables > 0 ? 'limited' : 'none' %>">
+                                <%= branch.availableTables %>/<%= branch.totalTables %> ban trong
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <div class="branch-actions">
+                        <a href="/branch/<%= branch._id %>" class="btn btn-primary">
+                            Xem Chi Tiet
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                        </a>
+                        <a href="/user/reservation?branch=<%= branch._id %>" class="btn btn-outline">
+                            Dat Ban Ngay
+                        </a>
+                    </div>
+                </div>
+            </article>
+            <% }) %>
+        </div>
+        <% } else { %>
+        <div class="empty-state">
+            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+            <h3>Hien chua co chi nhanh nao</h3>
+            <p>Vui long quay lai sau</p>
+        </div>
+        <% } %>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="branches-cta">
+    <div class="container">
+        <div class="cta-content">
+            <h2>San Sang Trai Nghiem Am Thuc Dang Cap?</h2>
+            <p>Dat ban ngay de co nhung trai nghiem tuyet voi nhat tai La Maison</p>
+            <a href="/user/reservation" class="btn btn-white btn-lg">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                Dat Ban Ngay
+            </a>
+        </div>
+    </div>
+</section>
+
+<style>
+/* Branches Page Styles */
+.branches-hero {
+    position: relative;
+    min-height: 50vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, rgba(62, 51, 40, 0.9) 0%, rgba(139, 111, 71, 0.85) 100%),
+                url('https://images.unsplash.com/photo-1466978913421-dad2ebd01d17?w=1600&h=800&fit=crop') center/cover no-repeat;
+    color: white;
+    text-align: center;
+    padding: 100px 20px;
+}
+
+.hero-overlay { position: absolute; inset: 0; background: rgba(0, 0, 0, 0.2); }
+
+.hero-content { position: relative; z-index: 2; max-width: 600px; }
+
+.hero-tag {
+    display: inline-block;
+    padding: 8px 20px;
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 30px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+}
+
+.branches-hero h1 {
+    font-size: clamp(2rem, 4vw, 3rem);
+    font-weight: 700;
+    margin: 0 0 16px 0;
+    font-family: 'Playfair Display', serif;
+    line-height: 1.2;
+}
+
+.hero-description { font-size: 1.125rem; opacity: 0.9; margin: 0; }
+
+/* Branches List */
+.branches-list-section {
+    padding: 80px 20px;
+    background: #faf9f7;
+}
+
+.branches-list-section .container { max-width: 1200px; margin: 0 auto; }
+
+.branches-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 32px;
+}
+
+.branch-card {
+    background: white;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+    transition: all 0.3s ease;
+    border: 1px solid #f0ebe3;
+}
+
+.branch-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.12);
+}
+
+.branch-image {
+    position: relative;
+    height: 220px;
+    overflow: hidden;
+}
+
+.branch-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+}
+
+.branch-card:hover .branch-image img { transform: scale(1.08); }
+
+.branch-badge {
+    position: absolute;
+    top: 16px;
+    left: 16px;
+    width: 40px;
+    height: 40px;
+    background: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #8B6F47;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.availability-tag {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.availability-tag.available { background: #d4edda; color: #155724; }
+.availability-tag.full { background: #f8d7da; color: #721c24; }
+
+.branch-content { padding: 28px; }
+
+.branch-content h2 {
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: #2c2c2c;
+    margin: 0 0 12px 0;
+    font-family: 'Playfair Display', serif;
+}
+
+.branch-content address {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    font-style: normal;
+    color: #666;
+    font-size: 0.9rem;
+    margin-bottom: 20px;
+    line-height: 1.5;
+}
+
+.branch-content address svg { flex-shrink: 0; margin-top: 2px; color: #8B6F47; }
+
+.branch-details { display: flex; flex-direction: column; gap: 12px; margin-bottom: 24px; }
+
+.detail-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.9rem;
+    color: #555;
+}
+
+.detail-row svg { color: #8B6F47; flex-shrink: 0; }
+.detail-row a { color: #8B6F47; text-decoration: none; font-weight: 500; }
+.detail-row a:hover { text-decoration: underline; }
+
+.detail-row.tables .good { color: #28a745; font-weight: 600; }
+.detail-row.tables .limited { color: #ffc107; font-weight: 600; }
+.detail-row.tables .none { color: #dc3545; font-weight: 600; }
+
+.branch-actions { display: flex; gap: 12px; flex-wrap: wrap; }
+
+.branch-actions .btn {
+    flex: 1;
+    min-width: 130px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 20px;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.2s;
+}
+
+.branch-actions .btn-primary {
+    background: #8B6F47;
+    color: white;
+}
+
+.branch-actions .btn-primary:hover { background: #6d573a; }
+
+.branch-actions .btn-outline {
+    background: transparent;
+    color: #8B6F47;
+    border: 2px solid #8B6F47;
+}
+
+.branch-actions .btn-outline:hover {
+    background: #8B6F47;
+    color: white;
+}
+
+/* Empty State */
+.empty-state {
+    text-align: center;
+    padding: 80px 20px;
+    color: #999;
+}
+
+.empty-state svg { margin-bottom: 20px; color: #ddd; }
+.empty-state h3 { font-size: 1.25rem; color: #666; margin: 0 0 8px 0; }
+.empty-state p { margin: 0; }
+
+/* CTA Section */
+.branches-cta {
+    padding: 80px 20px;
+    background: linear-gradient(135deg, #8B6F47 0%, #6b5438 100%);
+    text-align: center;
+}
+
+.branches-cta .container { max-width: 600px; margin: 0 auto; }
+
+.cta-content h2 {
+    font-size: clamp(1.75rem, 3vw, 2.25rem);
+    font-weight: 700;
+    color: white;
+    margin: 0 0 12px 0;
+    font-family: 'Playfair Display', serif;
+}
+
+.cta-content p {
+    font-size: 1rem;
+    color: rgba(255, 255, 255, 0.9);
+    margin: 0 0 28px 0;
+}
+
+.btn-white {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 16px 32px;
+    background: white;
+    color: #8B6F47;
+    border-radius: 10px;
+    font-size: 1rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.2s;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.btn-white:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .branches-hero { min-height: 40vh; padding: 80px 20px; }
+    .branches-list-section { padding: 60px 20px; }
+    .branches-grid { grid-template-columns: 1fr; }
+    .branch-image { height: 200px; }
+    .branch-actions { flex-direction: column; }
+    .branch-actions .btn { width: 100%; }
+    .branches-cta { padding: 60px 20px; }
+}
+</style>

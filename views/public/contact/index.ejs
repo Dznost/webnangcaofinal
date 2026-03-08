@@ -1,0 +1,162 @@
+<section class="contact-section">
+    <div class="container">
+        <h1>Lien He Voi Chung Toi</h1>
+        
+        <% if (typeof error !== 'undefined' && error) { %>
+            <div class="alert alert-error"><%= error %></div>
+        <% } %>
+
+        <% if (typeof success !== 'undefined' && success) { %>
+            <div class="alert alert-success"><%= success %></div>
+        <% } %>
+
+        <!-- Tabs -->
+        <div class="contact-tabs">
+            <button class="tab-btn active" onclick="switchTab('feedback')">Gui Phan Hoi</button>
+            <% if (isLoggedIn && !isAdmin && !(typeof isShipper !== 'undefined' && isShipper) && !(typeof isStaff !== 'undefined' && isStaff)) { %>
+            <button class="tab-btn" onclick="switchTab('shipper')">Dang Ky Lam Shipper</button>
+            <button class="tab-btn" onclick="switchTab('staff')">Dang Ky Lam Nhan Vien</button>
+            <% } %>
+        </div>
+
+        <!-- Feedback tab -->
+        <div class="tab-content" id="tab-feedback">
+            <div class="contact-content">
+                <div class="contact-info">
+                    <h3>Thong Tin Lien He</h3>
+                    <p>Dien thoai: 0123 456 789</p>
+                    <p>Email: info@restaurant.com</p>
+                    <p>Dia chi: 123 Duong Chinh, Thanh Pho</p>
+                    <p class="info-note">Luu y: Ban chi co the gui toi da 3 phan hoi trong 1 gio.</p>
+                </div>
+                <form class="contact-form" method="POST" action="/contact">
+                    <input type="text" name="name" placeholder="Ten cua ban" required>
+                    <input type="email" name="email" placeholder="Email cua ban" required>
+                    <textarea name="message" placeholder="Tin nhan cua ban" rows="5" required></textarea>
+                    <button type="submit" class="btn btn-primary">Gui Phan Hoi</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Shipper application tab (logged in users only) -->
+        <% if (isLoggedIn && !isAdmin && !(typeof isShipper !== 'undefined' && isShipper) && !(typeof isStaff !== 'undefined' && isStaff)) { %>
+        <div class="tab-content" id="tab-shipper" style="display:none">
+            <div class="shipper-apply-section">
+                <div class="apply-info">
+                    <h3>Tro Thanh Shipper</h3>
+                    <p>Ban muon tham gia doi ngu giao hang cua chung toi? Hay dien thong tin ben duoi va chung toi se lien he voi ban som nhat.</p>
+                    <ul class="apply-benefits">
+                        <li>Thu nhap linh hoat</li>
+                        <li>Tu chon gio lam viec</li>
+                        <li>Ho tro tu doi ngu quan ly</li>
+                    </ul>
+                </div>
+                <form class="contact-form" method="POST" action="/contact/shipper-application">
+                    <input type="text" name="name" placeholder="Ho va ten" value="<%= user ? user.name : '' %>" required>
+                    <input type="email" name="email" placeholder="Email" value="<%= user ? user.email : '' %>" required>
+                    <input type="tel" name="phone" placeholder="So dien thoai" value="<%= user ? (user.phone || '') : '' %>" required>
+                    <div class="form-group">
+                        <label for="branchId">Chon chi nhanh muon lam viec</label>
+                        <select name="branchId" id="branchId" required>
+                            <option value="">-- Chon chi nhanh --</option>
+                            <% if (typeof branches !== 'undefined' && branches) { %>
+                                <% branches.forEach(function(b) { %>
+                                <option value="<%= b._id %>"><%= b.name %> - <%= b.address %></option>
+                                <% }); %>
+                            <% } %>
+                        </select>
+                    </div>
+                    <textarea name="message" placeholder="Ly do ban muon lam shipper, khu vuc hoat dong..." rows="5" required></textarea>
+                    <button type="submit" class="btn btn-primary">Gui Don Dang Ky</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Staff application tab -->
+        <div class="tab-content" id="tab-staff" style="display:none">
+            <div class="shipper-apply-section">
+                <div class="apply-info">
+                    <h3>Tro Thanh Nhan Vien</h3>
+                    <p>Ban muon tham gia doi ngu nhan vien phuc vu tai nha hang cua chung toi? Hay dien thong tin ben duoi va chung toi se lien he voi ban som nhat.</p>
+                    <ul class="apply-benefits">
+                        <li>Thu nhap on dinh</li>
+                        <li>Moi truong lam viec chuyen nghiep</li>
+                        <li>Ho tro tu doi ngu quan ly</li>
+                        <li>Co hoi thang tien</li>
+                    </ul>
+                </div>
+                <form class="contact-form" method="POST" action="/contact/staff-application">
+                    <input type="text" name="name" placeholder="Ho va ten" value="<%= user ? user.name : '' %>" required>
+                    <input type="email" name="email" placeholder="Email" value="<%= user ? user.email : '' %>" required>
+                    <input type="tel" name="phone" placeholder="So dien thoai" value="<%= user ? (user.phone || '') : '' %>" required>
+                    <div class="form-group">
+                        <label for="staffBranchId">Chon chi nhanh muon lam viec</label>
+                        <select name="branchId" id="staffBranchId" required>
+                            <option value="">-- Chon chi nhanh --</option>
+                            <% if (typeof branches !== 'undefined' && branches) { %>
+                                <% branches.forEach(function(b) { %>
+                                <option value="<%= b._id %>"><%= b.name %> - <%= b.address %></option>
+                                <% }); %>
+                            <% } %>
+                        </select>
+                    </div>
+                    <textarea name="message" placeholder="Ly do ban muon lam nhan vien, kinh nghiem cua ban..." rows="5" required></textarea>
+                    <button type="submit" class="btn btn-primary">Gui Don Dang Ky Nhan Vien</button>
+                </form>
+            </div>
+        </div>
+        <% } %>
+    </div>
+</section>
+
+<style>
+    .alert { padding: 1rem; margin-bottom: 1rem; border-radius: 4px; }
+    .alert-success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+    .alert-error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+    .info-note { font-size: 0.9rem; color: #666; font-style: italic; margin-top: 1rem; }
+
+    .contact-tabs { display: flex; gap: 8px; margin-bottom: 24px; }
+    .tab-btn {
+        padding: 10px 24px;
+        border: 2px solid #e0d8ce;
+        background: white;
+        border-radius: 8px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: #555;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    .tab-btn:hover { border-color: #8B6F47; color: #8B6F47; }
+    .tab-btn.active { background: #8B6F47; color: white; border-color: #8B6F47; }
+
+    .shipper-apply-section { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: start; }
+    .apply-info h3 { font-family: 'Playfair Display', serif; font-size: 1.3rem; color: #2c2c2c; margin-bottom: 12px; }
+    .apply-info p { color: #666; line-height: 1.6; margin-bottom: 16px; }
+    .apply-benefits { list-style: none; padding: 0; }
+    .apply-benefits li { padding: 8px 0; padding-left: 24px; position: relative; color: #555; }
+    .apply-benefits li::before { content: ''; position: absolute; left: 0; top: 14px; width: 8px; height: 8px; background: #8B6F47; border-radius: 50%; }
+
+    .contact-form .form-group { margin-bottom: 12px; }
+    .contact-form .form-group label { display: block; font-size: 0.9rem; font-weight: 600; color: #555; margin-bottom: 6px; }
+    .contact-form select {
+        width: 100%; padding: 12px 14px; border: 1px solid #e0d8ce; border-radius: 6px; font-size: 0.9rem; 
+        background: white; color: #333; box-sizing: border-box;
+    }
+    .contact-form select:focus { outline: none; border-color: #8B6F47; box-shadow: 0 0 0 3px rgba(139,111,71,0.1); }
+
+    @media (max-width: 768px) {
+        .shipper-apply-section { grid-template-columns: 1fr; }
+    }
+</style>
+
+<script>
+function switchTab(tab) {
+    var tabs = document.querySelectorAll('.tab-content');
+    var btns = document.querySelectorAll('.tab-btn');
+    for (var i = 0; i < tabs.length; i++) { tabs[i].style.display = 'none'; }
+    for (var i = 0; i < btns.length; i++) { btns[i].classList.remove('active'); }
+    document.getElementById('tab-' + tab).style.display = 'block';
+    event.target.classList.add('active');
+}
+</script>

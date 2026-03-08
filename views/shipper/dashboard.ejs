@@ -1,0 +1,111 @@
+<section class="shipper-dashboard">
+    <div class="container">
+        <h1>Trang Shipper</h1>
+        <p class="shipper-welcome">Xin chao, <strong><%= user.name %></strong></p>
+
+        <div class="shipper-stats">
+            <div class="stat-card stat-processing">
+                <div class="stat-icon">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+                </div>
+                <div class="stat-info">
+                    <span class="stat-number"><%= processingCount %></span>
+                    <span class="stat-label">Dang Xu Ly</span>
+                </div>
+            </div>
+            <div class="stat-card stat-completed">
+                <div class="stat-icon">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                </div>
+                <div class="stat-info">
+                    <span class="stat-number"><%= completedCount %></span>
+                    <span class="stat-label">Hoan Thanh</span>
+                </div>
+            </div>
+        </div>
+
+        <% if (activeOrders && activeOrders.length > 0) { %>
+        <div class="shipper-section">
+            <div class="section-header">
+                <h2>Don Hang Dang Xu Ly</h2>
+                <a href="/shipper/orders" class="btn btn-small">Xem Tat Ca</a>
+            </div>
+            <div class="shipper-orders-list">
+                <% activeOrders.forEach(function(order) { %>
+                <div class="shipper-order-card">
+                    <div class="order-top">
+                        <span class="order-code">#<%= order._id.toString().slice(-6).toUpperCase() %></span>
+                        <span class="status-tag status-processing">Dang xu ly</span>
+                    </div>
+                    <div class="order-customer">
+                        <strong><%= order.fullName || (order.userId ? order.userId.name : 'N/A') %></strong>
+                        <span><%= order.phone || (order.userId ? order.userId.phone : '') %></span>
+                    </div>
+                    <div class="order-address">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                        <%= order.deliveryAddress || 'Chua co dia chi' %>
+                    </div>
+                    <div class="order-bottom">
+                        <span class="order-total"><%= order.finalPrice ? order.finalPrice.toLocaleString('vi-VN') : order.totalPrice.toLocaleString('vi-VN') %>d</span>
+                        <a href="/shipper/orders/<%= order._id %>" class="btn btn-primary btn-small">Chi Tiet</a>
+                    </div>
+                </div>
+                <% }); %>
+            </div>
+        </div>
+        <% } else { %>
+        <div class="shipper-empty">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#ccc" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+            <p>Hien tai khong co don hang nao can xu ly</p>
+        </div>
+        <% } %>
+
+        <div class="shipper-nav">
+            <a href="/shipper/orders" class="nav-card">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                <span>Tat Ca Don Hang</span>
+            </a>
+            <a href="/shipper/profile" class="nav-card">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                <span>Ho So Ca Nhan</span>
+            </a>
+        </div>
+    </div>
+</section>
+
+<style>
+.shipper-dashboard { padding: 40px 0; background: #f8f6f3; min-height: 80vh; }
+.shipper-dashboard h1 { font-family: 'Playfair Display', serif; font-size: 1.8rem; color: #2c2c2c; margin-bottom: 4px; }
+.shipper-welcome { color: #888; margin-bottom: 24px; }
+.shipper-stats { display: flex; gap: 16px; margin-bottom: 32px; }
+.shipper-stats .stat-card { flex: 1; display: flex; align-items: center; gap: 16px; background: white; border-radius: 10px; padding: 20px 24px; box-shadow: 0 1px 8px rgba(0,0,0,0.06); }
+.stat-processing .stat-icon { color: #e65100; }
+.stat-completed .stat-icon { color: #2e7d32; }
+.stat-info { display: flex; flex-direction: column; }
+.stat-info .stat-number { font-size: 1.8rem; font-weight: 700; color: #2c2c2c; line-height: 1; }
+.stat-info .stat-label { font-size: 0.85rem; color: #888; margin-top: 2px; }
+.shipper-section { margin-bottom: 32px; }
+.section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+.section-header h2 { font-family: 'Playfair Display', serif; font-size: 1.2rem; color: #2c2c2c; }
+.shipper-orders-list { display: flex; flex-direction: column; gap: 12px; }
+.shipper-order-card { background: white; border-radius: 10px; padding: 18px 20px; box-shadow: 0 1px 6px rgba(0,0,0,0.05); }
+.order-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+.order-code { font-weight: 700; color: #2c2c2c; font-size: 0.95rem; }
+.order-customer { display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 0.9rem; color: #555; }
+.order-address { display: flex; align-items: center; gap: 6px; font-size: 0.85rem; color: #888; margin-bottom: 12px; }
+.order-bottom { display: flex; justify-content: space-between; align-items: center; padding-top: 12px; border-top: 1px solid #f0ebe4; }
+.order-total { font-weight: 700; color: #8B6F47; font-size: 1rem; }
+.shipper-empty { text-align: center; padding: 60px 20px; background: white; border-radius: 10px; box-shadow: 0 1px 8px rgba(0,0,0,0.06); margin-bottom: 32px; }
+.shipper-empty p { color: #999; margin-top: 12px; }
+.shipper-nav { display: flex; gap: 16px; }
+.nav-card { flex: 1; display: flex; align-items: center; gap: 12px; padding: 18px 20px; background: white; border-radius: 10px; box-shadow: 0 1px 6px rgba(0,0,0,0.05); color: #2c2c2c; text-decoration: none; font-weight: 600; transition: all 0.2s; }
+.nav-card:hover { background: #f3efe8; transform: translateY(-1px); }
+.status-tag { padding: 3px 10px; border-radius: 10px; font-size: 0.78rem; font-weight: 600; }
+.status-processing { background: #fff3e0; color: #e65100; }
+.status-completed { background: #d4edda; color: #155724; }
+.btn { display: inline-block; padding: 8px 18px; border-radius: 6px; text-decoration: none; font-size: 0.85rem; font-weight: 600; border: none; cursor: pointer; transition: all 0.2s; }
+.btn-primary { background: #8B6F47; color: white; }
+.btn-primary:hover { background: #7a5f3a; }
+.btn-small { padding: 6px 14px; font-size: 0.82rem; }
+@media (max-width: 768px) { .shipper-stats { flex-direction: column; } .shipper-nav { flex-direction: column; } }
+</style>

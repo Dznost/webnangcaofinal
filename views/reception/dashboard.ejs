@@ -1,0 +1,213 @@
+<section class="reception-dashboard">
+    <div class="container">
+        <div class="dashboard-header">
+            <div>
+                <h1>Trang Le Tan</h1>
+                <p class="welcome-text">Xin chao, <strong><%= user.name %></strong></p>
+            </div>
+            <% if (!noBranch && branch) { %>
+            <div class="branch-badge">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                <span><%= branch.name %></span>
+            </div>
+            <% } %>
+        </div>
+
+        <% if (noBranch) { %>
+        <div class="no-branch-alert">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            <div>
+                <h3>Ban chua duoc gan chi nhanh</h3>
+                <p>Vui long lien he admin hoac gui yeu cau cap nhat chi nhanh tu trang ho so cua ban.</p>
+                <a href="/reception/profile" class="btn btn-teal">Toi Ho So</a>
+            </div>
+        </div>
+        <% } else { %>
+
+        <div class="stats-grid">
+            <div class="stat-card stat-active">
+                <div class="stat-icon">
+                    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                </div>
+                <div class="stat-info">
+                    <span class="stat-number"><%= processingOrders %></span>
+                    <span class="stat-label">Don Dang Xu Ly</span>
+                </div>
+            </div>
+            <div class="stat-card stat-done">
+                <div class="stat-icon">
+                    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                </div>
+                <div class="stat-info">
+                    <span class="stat-number"><%= completedOrders %></span>
+                    <span class="stat-label">Don Hoan Thanh</span>
+                </div>
+            </div>
+            <div class="stat-card stat-reservations">
+                <div class="stat-icon">
+                    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                </div>
+                <div class="stat-info">
+                    <span class="stat-number"><%= processingReservations %></span>
+                    <span class="stat-label">Dat Ban Cho Xu Ly</span>
+                </div>
+            </div>
+            <div class="stat-card stat-revenue">
+                <div class="stat-icon">
+                    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                </div>
+                <div class="stat-info">
+                    <span class="stat-number revenue-num"><%= branchRevenue.toLocaleString('vi-VN') %>d</span>
+                    <span class="stat-label">Doanh Thu Chi Nhanh</span>
+                </div>
+            </div>
+        </div>
+
+        <% if (activeOrders && activeOrders.length > 0) { %>
+        <div class="dashboard-section">
+            <div class="section-header">
+                <h2>Don An Tai Quan Can Xu Ly</h2>
+                <a href="/reception/orders?status=processing" class="btn btn-teal-outline">Xem Tat Ca</a>
+            </div>
+            <div class="orders-grid">
+                <% activeOrders.forEach(function(order) { %>
+                <div class="order-card">
+                    <div class="order-card-top">
+                        <span class="order-code">#<%= order._id.toString().slice(-6).toUpperCase() %></span>
+                        <span class="status-pill status-processing">Dang xu ly</span>
+                    </div>
+                    <div class="order-customer">
+                        <strong><%= order.fullName || (order.userId ? order.userId.name : 'N/A') %></strong>
+                        <span class="order-phone"><%= order.phone || (order.userId ? order.userId.phone : '') %></span>
+                    </div>
+                    <div class="order-footer">
+                        <span class="order-amount"><%= order.finalPrice ? order.finalPrice.toLocaleString('vi-VN') : order.totalPrice.toLocaleString('vi-VN') %>d</span>
+                        <a href="/reception/orders/<%= order._id %>" class="btn btn-teal btn-sm">Chi Tiet</a>
+                    </div>
+                </div>
+                <% }); %>
+            </div>
+        </div>
+        <% } %>
+
+        <% if ((!activeOrders || activeOrders.length === 0) && (!activeReservations || activeReservations.length === 0)) { %>
+        <div class="empty-state">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#b2dfdb" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            <p>Hien tai khong co don hang nao can xu ly tai chi nhanh nay</p>
+        </div>
+        <% } %>
+
+        <% if (branch) { %>
+        <div class="branch-info-card">
+            <h3>Thong Tin Chi Nhanh</h3>
+            <div class="branch-details">
+                <div class="branch-detail-item">
+                    <span class="bd-label">Chi nhanh</span>
+                    <span class="bd-value"><%= branch.name %></span>
+                </div>
+                <% if (branch.address) { %>
+                <div class="branch-detail-item">
+                    <span class="bd-label">Dia chi</span>
+                    <span class="bd-value"><%= branch.address %></span>
+                </div>
+                <% } %>
+                <div class="branch-detail-item">
+                    <span class="bd-label">Ban trong</span>
+                    <span class="bd-value"><%= branch.availableTables || 0 %> / <%= branch.totalTables || 0 %> ban</span>
+                </div>
+            </div>
+        </div>
+        <% } %>
+
+        <% } %>
+
+        <div class="nav-cards">
+            <a href="/reception/orders/create" class="nav-card nav-card-primary">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                <span>Tao Don Hang Moi</span>
+            </a>
+            <a href="/reception/orders" class="nav-card">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                <span>Quan Ly Don Hang</span>
+            </a>
+            <a href="/reception/profile" class="nav-card">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                <span>Ho So Ca Nhan</span>
+            </a>
+        </div>
+    </div>
+</section>
+
+<style>
+.reception-dashboard { padding: 40px 0; background: #f0faf8; min-height: 80vh; }
+.dashboard-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 28px; }
+.reception-dashboard h1 { font-family: 'Playfair Display', serif; font-size: 1.8rem; color: #1a3c34; margin-bottom: 4px; }
+.welcome-text { color: #607d8b; }
+.branch-badge { display: flex; align-items: center; gap: 8px; background: #e0f2f1; color: #00695c; font-weight: 600; padding: 8px 16px; border-radius: 20px; font-size: 0.88rem; }
+
+.no-branch-alert { display: flex; align-items: flex-start; gap: 20px; background: white; border: 2px solid #b2dfdb; border-radius: 12px; padding: 28px; margin-bottom: 32px; }
+.no-branch-alert svg { color: #00897b; flex-shrink: 0; margin-top: 4px; }
+.no-branch-alert h3 { font-family: 'Playfair Display', serif; color: #1a3c34; margin-bottom: 6px; }
+.no-branch-alert p { color: #607d8b; font-size: 0.9rem; margin-bottom: 16px; }
+
+.stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 32px; }
+.stat-card { display: flex; align-items: center; gap: 16px; background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 10px rgba(0,105,92,0.07); border-left: 4px solid transparent; }
+.stat-active { border-left-color: #00897b; }
+.stat-active .stat-icon { color: #00897b; }
+.stat-done { border-left-color: #26a69a; }
+.stat-done .stat-icon { color: #26a69a; }
+.stat-reservations { border-left-color: #4db6ac; }
+.stat-reservations .stat-icon { color: #4db6ac; }
+.stat-revenue { border-left-color: #00695c; }
+.stat-revenue .stat-icon { color: #00695c; }
+.stat-info { display: flex; flex-direction: column; min-width: 0; }
+.stat-number { font-size: 1.55rem; font-weight: 700; color: #1a3c34; line-height: 1; }
+.revenue-num { font-size: 1.1rem; }
+.stat-label { font-size: 0.78rem; color: #7f9e98; margin-top: 3px; }
+
+.dashboard-section { margin-bottom: 32px; }
+.section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+.section-header h2 { font-family: 'Playfair Display', serif; font-size: 1.15rem; color: #1a3c34; }
+
+.orders-grid { display: flex; flex-direction: column; gap: 10px; }
+.order-card { background: white; border-radius: 10px; padding: 16px 20px; box-shadow: 0 1px 6px rgba(0,105,92,0.06); border-left: 3px solid #b2dfdb; }
+.order-card-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.order-code { font-weight: 700; color: #1a3c34; font-size: 0.95rem; font-family: 'Playfair Display', serif; }
+.order-customer { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; font-size: 0.9rem; }
+.order-customer strong { color: #333; }
+.order-phone { color: #888; font-size: 0.85rem; }
+.order-footer { display: flex; justify-content: space-between; align-items: center; padding-top: 10px; border-top: 1px solid #e0f2f1; }
+.order-amount { font-weight: 700; color: #00695c; }
+
+.empty-state { text-align: center; padding: 60px 20px; background: white; border-radius: 12px; box-shadow: 0 1px 8px rgba(0,105,92,0.06); margin-bottom: 28px; }
+.empty-state p { color: #7f9e98; margin-top: 14px; font-size: 0.9rem; }
+
+.branch-info-card { background: white; border-radius: 12px; padding: 24px; box-shadow: 0 1px 8px rgba(0,105,92,0.06); margin-bottom: 28px; }
+.branch-info-card h3 { font-family: 'Playfair Display', serif; font-size: 1rem; color: #1a3c34; margin-bottom: 14px; padding-bottom: 10px; border-bottom: 1px solid #e0f2f1; }
+.branch-details { display: flex; flex-direction: column; gap: 10px; }
+.branch-detail-item { display: flex; justify-content: space-between; font-size: 0.88rem; }
+.bd-label { color: #7f9e98; }
+.bd-value { font-weight: 600; color: #1a3c34; }
+
+.nav-cards { display: flex; gap: 14px; }
+.nav-card { flex: 1; display: flex; align-items: center; gap: 12px; padding: 18px 22px; background: white; border-radius: 12px; box-shadow: 0 1px 6px rgba(0,105,92,0.06); color: #1a3c34; text-decoration: none; font-weight: 600; font-size: 0.9rem; transition: all 0.2s; border: 1px solid #e0f2f1; }
+.nav-card:hover { background: #e0f2f1; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,105,92,0.12); }
+.nav-card-primary { background: #00897b; color: white; border-color: #00695c; }
+.nav-card-primary:hover { background: #00695c; color: white; }
+.nav-card-primary svg { color: white; }
+.nav-card svg { color: #00897b; flex-shrink: 0; }
+
+.status-pill { display: inline-block; padding: 3px 10px; border-radius: 10px; font-size: 0.75rem; font-weight: 600; }
+.status-processing { background: #e0f2f1; color: #00695c; }
+.status-completed { background: #d4edda; color: #155724; }
+
+.btn { display: inline-block; padding: 8px 18px; border-radius: 6px; text-decoration: none; font-size: 0.85rem; font-weight: 600; border: none; cursor: pointer; transition: all 0.2s; }
+.btn-teal { background: #00897b; color: white; }
+.btn-teal:hover { background: #00695c; }
+.btn-teal-outline { background: transparent; color: #00897b; border: 1.5px solid #00897b; }
+.btn-teal-outline:hover { background: #e0f2f1; }
+.btn-sm { padding: 5px 13px; font-size: 0.8rem; }
+
+@media (max-width: 900px) { .stats-grid { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 600px) { .stats-grid { grid-template-columns: 1fr; } .nav-cards { flex-direction: column; } .dashboard-header { flex-direction: column; gap: 12px; } }
+</style>

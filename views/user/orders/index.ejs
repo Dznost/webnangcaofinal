@@ -1,0 +1,709 @@
+<div class="orders-page">
+  <div class="container">
+    <h1><%= title || 'Don Hang Cua Toi' %></h1>
+
+    <% if (message) { %>
+      <div class="alert alert-<%= message.type %>">
+        <%= message.text %>
+      </div>
+    <% } %>
+
+    <!-- Status filter tabs -->
+    <div class="order-filters">
+      <button type="button" class="filter-tab active" onclick="filterOrders('all', this)">Tat Ca (<%= orders ? orders.length : 0 %>)</button>
+      <button type="button" class="filter-tab" onclick="filterOrders('active', this)">Dang Xu Ly</button>
+      <button type="button" class="filter-tab" onclick="filterOrders('shipping', this)">Dang Giao</button>
+      <button type="button" class="filter-tab" onclick="filterOrders('completed', this)">Hoan Thanh</button>
+      <button type="button" class="filter-tab" onclick="filterOrders('cancelled', this)">Da Huy</button>
+    </div>
+
+    <% if (orders && orders.length > 0) { %>
+      <div class="orders-list">
+        <% orders.forEach(function(order) { %>
+          <%
+            var statusGroup = 'active';
+            if (order.status === 'completed' || order.status === 'delivered') statusGroup = 'completed';
+            else if (order.status === 'cancelled') statusGroup = 'cancelled';
+            else if (order.status === 'shipping') statusGroup = 'shipping';
+          %>
+          <div class="order-card" data-status-group="<%= statusGroup %>">
+            <div class="order-header">
+              <div class="order-id">
+                <strong>Ma don:</strong> #<%= order._id.toString().slice(-8).toUpperCase() %>
+              </div>
+              <div class="order-status">
+                <span class="status-badge status-<%= order.status %>">
+                  <%= order.status === 'pending' ? 'Cho xu ly' :
+                      order.status === 'approved' ? 'Da duyet' :
+                      order.status === 'confirmed' ? 'Da xac nhan' :
+                      order.status === 'paid' ? 'Da thanh toan' :
+                      order.status === 'processing' ? 'Dang chuan bi' :
+                      order.status === 'shipping' ? 'Dang giao hang' :
+                      order.status === 'delivered' ? 'Da giao hang' :
+                      order.status === 'completed' ? 'Hoan thanh' : 'Da huy' %>
+                </span>
+              </div>
+            </div>
+
+            <!-- Order tracking timeline -->
+            <%
+              var steps = [];
+              if (order.orderType === 'dine-in') {
+                steps = [
+                  { key: 'pending', label: 'Dat mon' },
+                  { key: 'processing', label: 'Dang chuan bi' },
+                  { key: 'completed', label: 'Hoan thanh' }
+                ];
+              } else {
+                steps = [
+                  { key: 'pending', label: 'Dat hang' },
+                  { key: 'processing', label: 'Chuan bi' },
+                  { key: 'shipping', label: 'Dang giao' },
+                  { key: 'delivered', label: 'Da giao' },
+                  { key: 'completed', label: 'Hoan thanh' }
+                ];
+              }
+              var statusOrder = ['pending','approved','paid','processing','shipping','delivered','completed'];
+              var currentIdx = statusOrder.indexOf(order.status);
+              if (order.status === 'cancelled') currentIdx = -1;
+            %>
+            <div class="tracking-timeline">
+              <% steps.forEach(function(step, si) { %>
+                <% var stepIdx = statusOrder.indexOf(step.key); %>
+                <% var isDone = currentIdx >= stepIdx && order.status !== 'cancelled'; %>
+                <% var isCurrent = step.key === order.status || (step.key === 'pending' && ['pending','approved','paid'].indexOf(order.status) !== -1); %>
+                <div class="track-step <%= isDone ? 'done' : '' %> <%= isCurrent ? 'current' : '' %>">
+                  <div class="track-dot"></div>
+                  <span class="track-label"><%= step.label %></span>
+                </div>
+                <% if (si < steps.length - 1) { %>
+                <div class="track-line <%= isDone && currentIdx > stepIdx ? 'filled' : '' %>"></div>
+                <% } %>
+              <% }); %>
+            </div>
+
+            <div class="order-details">
+              <div class="order-info">
+                <p><strong>Loai don:</strong> <%= order.orderType === 'dine-in' ? 'An tai quan' : 'Mang ve' %></p>
+                <% if (order.branchId) { %>
+                  <p><strong>Chi nhanh:</strong> <%= order.branchId.name %></p>
+                <% } %>
+                <% if (order.deliveryAddress) { %>
+                  <p><strong>Dia chi:</strong> <%= order.deliveryAddress %></p>
+                <% } %>
+                <p><strong>Ngay dat:</strong> <%= new Date(order.createdAt).toLocaleDateString('vi-VN') %></p>
+              </div>
+
+              <div class="order-items">
+                <h3>Mon da dat:</h3>
+                <ul>
+                  <% order.items.forEach(function(item) { %>
+                    <li>
+                      <span class="item-name"><%= item.name %></span>
+                      <span class="item-quantity">x<%= item.quantity %></span>
+                      <span class="item-price"><%= (item.price * item.quantity).toLocaleString('vi-VN') %>d</span>
+                    </li>
+                  <% }); %>
+                </ul>
+              </div>
+
+              <div class="order-total">
+                <div class="total-row">
+                  <span>Tong cong:</span>
+                  <strong><%= (order.finalPrice || order.totalPrice || 0).toLocaleString('vi-VN') %>d</strong>
+                </div>
+              </div>
+            </div>
+
+            <!-- Handler info section -->
+            <% if (order.shipperId || order.staffId) { %>
+            <div class="handler-section handler-section-<%= order.shipperId ? 'shipper' : 'staff' %>">
+              <div class="handler-section-header">
+                <span class="handler-icon"><%= order.shipperId ? '&#128666;' : '&#128100;' %></span>
+                <h4><%= order.shipperId ? 'Shipper Phu Trach' : 'Nhan Vien Phu Trach' %></h4>
+                <span class="handler-role-badge handler-role-<%= order.shipperId ? 'shipper' : 'staff' %>">
+                  <%= order.shipperId ? 'Shipper' : 'Nhan vien' %>
+                </span>
+              </div>
+              <% var handler = order.shipperId || order.staffId; %>
+              <div class="handler-details">
+                <div class="handler-detail-item">
+                  <span class="handler-label">Ten:</span>
+                  <span class="handler-value"><%= handler.name %></span>
+                </div>
+                <div class="handler-detail-item">
+                  <span class="handler-label">SDT:</span>
+                  <span class="handler-value"><%= handler.phone || 'N/A' %></span>
+                </div>
+              </div>
+              <% if (order.confirmedBy && order.confirmedAt) { %>
+              <div class="confirmed-badge">
+                <span class="confirmed-icon">&#10003;</span>
+                <span>Da xac nhan boi <%= order.confirmedBy.name %> luc <%= new Date(order.confirmedAt).toLocaleString('vi-VN') %></span>
+              </div>
+              <% } %>
+            </div>
+            <% } %>
+
+            <!-- Rating section -->
+            <% if (order.status === 'completed' || order.status === 'delivered') { %>
+              <% if (order.rating) { %>
+              <!-- Already rated - show rating -->
+              <div class="rating-display-section">
+                <h4>Danh Gia Cua Ban</h4>
+                <div class="rating-stars-display">
+                  <% for (var i = 1; i <= 5; i++) { %>
+                  <span class="star-display <%= i <= order.rating ? 'star-filled' : 'star-empty' %>">&#9733;</span>
+                  <% } %>
+                  <span class="rating-num"><%= order.rating %>/5</span>
+                </div>
+                <% if (order.ratingComment) { %>
+                <div class="rating-comment-display">
+                  <p>"<%= order.ratingComment %>"</p>
+                </div>
+                <% } %>
+                <% if (order.ratedAt) { %>
+                <p class="rating-date">Danh gia luc: <%= new Date(order.ratedAt).toLocaleString('vi-VN') %></p>
+                <% } %>
+              </div>
+              <% } else { %>
+              <!-- Rating form -->
+              <div class="rating-form-section">
+                <h4>Danh Gia Don Hang</h4>
+                <form method="POST" action="/user/orders/<%= order._id %>/rate" class="rating-form">
+                  <div class="star-rating" id="star-rating-<%= order._id %>">
+                    <input type="hidden" name="rating" id="rating-input-<%= order._id %>" value="" required>
+                    <% for (var s = 1; s <= 5; s++) { %>
+                    <span class="star-btn" data-order="<%= order._id %>" data-value="<%= s %>">&#9733;</span>
+                    <% } %>
+                    <span class="rating-text" id="rating-text-<%= order._id %>">Chon so sao</span>
+                  </div>
+                  <textarea name="ratingComment" class="rating-textarea" placeholder="Nhan xet cua ban (khong bat buoc)..." rows="3" maxlength="500"></textarea>
+                  <button type="submit" class="btn btn-rate" id="btn-rate-<%= order._id %>" disabled>Gui Danh Gia</button>
+                </form>
+              </div>
+              <% } %>
+            <% } %>
+
+          </div>
+        <% }) %>
+      </div>
+    <% } else { %>
+      <div class="empty-state">
+        <p>Ban chua co don hang nao</p>
+        <a href="/menu" class="btn btn-primary">Dat Mon Ngay</a>
+      </div>
+    <% } %>
+
+    <a href="/user/profile" class="btn btn-secondary">Quay Lai Trang Ca Nhan</a>
+  </div>
+</div>
+
+<style>
+.orders-page {
+  padding: 40px 0;
+  background: #f8f9fa;
+  min-height: 100vh;
+}
+
+.orders-page h1 {
+  font-size: 2rem;
+  color: #8b4513;
+  margin-bottom: 20px;
+}
+
+/* Filter tabs */
+.order-filters { display: flex; gap: 8px; margin-bottom: 24px; flex-wrap: wrap; }
+.filter-tab { padding: 7px 18px; border-radius: 20px; font-size: 0.82rem; font-weight: 600; border: 1.5px solid #d6ccc2; background: white; color: #8b6f47; cursor: pointer; transition: all 0.2s; }
+.filter-tab:hover { background: #f5f0eb; }
+.filter-tab.active { background: #8b6f47; color: white; border-color: #6d5636; }
+
+/* Tracking timeline */
+.tracking-timeline { display: flex; align-items: center; padding: 16px 20px; margin-bottom: 16px; background: #faf8f5; border-radius: 10px; gap: 0; overflow-x: auto; }
+.track-step { display: flex; flex-direction: column; align-items: center; gap: 6px; min-width: 60px; position: relative; }
+.track-dot { width: 16px; height: 16px; border-radius: 50%; background: #e0d8ce; border: 2px solid #e0d8ce; transition: all 0.3s; flex-shrink: 0; }
+.track-step.done .track-dot { background: #2e7d32; border-color: #2e7d32; }
+.track-step.current .track-dot { background: white; border-color: #8b6f47; box-shadow: 0 0 0 4px rgba(139,111,71,0.15); }
+.track-step.current.done .track-dot { background: #8b6f47; border-color: #8b6f47; box-shadow: 0 0 0 4px rgba(139,111,71,0.15); }
+.track-label { font-size: 0.7rem; color: #999; font-weight: 500; text-align: center; white-space: nowrap; }
+.track-step.done .track-label { color: #2e7d32; font-weight: 600; }
+.track-step.current .track-label { color: #8b6f47; font-weight: 700; }
+.track-line { flex: 1; height: 3px; background: #e0d8ce; min-width: 20px; border-radius: 2px; }
+.track-line.filled { background: #2e7d32; }
+
+.orders-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.order-card {
+  background: white;
+  border-radius: 12px;
+  padding: 25px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.order-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 2px solid #f0f0f0;
+}
+
+.order-id {
+  font-size: 1.1rem;
+  color: #333;
+}
+
+.status-badge {
+  padding: 6px 16px;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.status-pending {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.status-confirmed {
+  background: #d1ecf1;
+  color: #0c5460;
+}
+
+.status-preparing {
+  background: #d4edda;
+  color: #155724;
+}
+
+.status-completed {
+  background: #c3e6cb;
+  color: #155724;
+}
+
+.status-cancelled {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+.status-shipping {
+  background: #fff3e0;
+  color: #e65100;
+}
+
+.status-delivered {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+
+.status-approved, .status-paid, .status-processing {
+  background: #d1ecf1;
+  color: #0c5460;
+}
+
+.order-details {
+  margin-bottom: 20px;
+}
+
+.order-info {
+  margin-bottom: 20px;
+}
+
+.order-info p {
+  margin: 8px 0;
+  color: #666;
+}
+
+.order-items h3 {
+  font-size: 1.1rem;
+  color: #333;
+  margin-bottom: 10px;
+}
+
+.order-items ul {
+  list-style: none;
+  padding: 0;
+}
+
+.order-items li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.item-name {
+  flex: 1;
+  color: #333;
+}
+
+.item-quantity {
+  margin: 0 20px;
+  color: #666;
+}
+
+.item-price {
+  font-weight: 600;
+  color: #8b4513;
+}
+
+.order-total {
+  margin-top: 20px;
+  padding-top: 15px;
+  border-top: 2px solid #f0f0f0;
+}
+
+.total-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 1.2rem;
+}
+
+.total-row strong {
+  color: #8b4513;
+}
+
+/* Handler section */
+.handler-section {
+  margin-top: 20px;
+  padding: 18px 20px;
+  border-radius: 10px;
+  border-left: 4px solid #888;
+}
+.handler-section-shipper {
+  background: #fff7ed;
+  border-left-color: #ea580c;
+}
+.handler-section-staff {
+  background: #eff6ff;
+  border-left-color: #2563eb;
+}
+.handler-section-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+.handler-section-header h4 {
+  margin: 0;
+  font-size: 1rem;
+  color: #333;
+  flex: 1;
+}
+.handler-icon {
+  font-size: 1.3rem;
+}
+.handler-role-badge {
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+.handler-role-shipper {
+  background: #ffedd5;
+  color: #ea580c;
+}
+.handler-role-staff {
+  background: #dbeafe;
+  color: #2563eb;
+}
+.handler-details {
+  display: flex;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+.handler-detail-item {
+  display: flex;
+  gap: 6px;
+  font-size: 0.9rem;
+}
+.handler-label {
+  font-weight: 600;
+  color: #666;
+}
+.handler-value {
+  color: #333;
+}
+.confirmed-badge {
+  margin-top: 12px;
+  padding: 8px 14px;
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.84rem;
+  color: #16a34a;
+  font-weight: 500;
+}
+.confirmed-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  background: #16a34a;
+  color: white;
+  border-radius: 50%;
+  font-size: 0.7rem;
+}
+
+/* Rating display */
+.rating-display-section {
+  margin-top: 20px;
+  padding: 18px 20px;
+  border-radius: 10px;
+  background: #fffbeb;
+  border-left: 4px solid #eab308;
+}
+.rating-display-section h4 {
+  margin: 0 0 12px 0;
+  font-size: 1rem;
+  color: #333;
+}
+.rating-stars-display {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 10px;
+}
+.star-display {
+  font-size: 1.5rem;
+  line-height: 1;
+}
+.star-filled {
+  color: #eab308;
+}
+.star-empty {
+  color: #d4d4d8;
+}
+.rating-num {
+  margin-left: 8px;
+  font-weight: 700;
+  font-size: 1rem;
+  color: #333;
+}
+.rating-comment-display {
+  background: #fefce8;
+  border-left: 3px solid #eab308;
+  padding: 10px 14px;
+  border-radius: 0 6px 6px 0;
+  margin-bottom: 8px;
+}
+.rating-comment-display p {
+  margin: 0;
+  font-style: italic;
+  color: #555;
+  font-size: 0.9rem;
+}
+.rating-date {
+  font-size: 0.8rem;
+  color: #999;
+  margin: 4px 0 0 0;
+}
+
+/* Rating form */
+.rating-form-section {
+  margin-top: 20px;
+  padding: 20px;
+  border-radius: 10px;
+  background: #fafaf9;
+  border: 2px dashed #d6d3d1;
+}
+.rating-form-section h4 {
+  margin: 0 0 14px 0;
+  font-size: 1rem;
+  color: #333;
+}
+.rating-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.star-rating {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.star-btn {
+  font-size: 2rem;
+  color: #d4d4d8;
+  cursor: pointer;
+  transition: color 0.15s, transform 0.15s;
+  line-height: 1;
+  user-select: none;
+}
+.star-btn:hover {
+  transform: scale(1.15);
+}
+.star-btn.active {
+  color: #eab308;
+}
+.rating-text {
+  margin-left: 10px;
+  font-size: 0.88rem;
+  color: #888;
+  font-weight: 500;
+}
+.rating-textarea {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid #e0d8ce;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  resize: vertical;
+  font-family: inherit;
+  box-sizing: border-box;
+}
+.rating-textarea:focus {
+  outline: none;
+  border-color: #eab308;
+  box-shadow: 0 0 0 3px rgba(234,179,8,0.15);
+}
+.btn-rate {
+  align-self: flex-start;
+  padding: 10px 24px;
+  background: #eab308;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.92rem;
+  cursor: pointer;
+  transition: background 0.2s, opacity 0.2s;
+}
+.btn-rate:hover:not(:disabled) {
+  background: #ca8a04;
+}
+.btn-rate:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  background: white;
+  border-radius: 12px;
+  margin-bottom: 30px;
+}
+
+.empty-state p {
+  font-size: 1.2rem;
+  color: #666;
+  margin-bottom: 20px;
+}
+
+.alert {
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+.alert-success {
+  background: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.alert-error {
+  background: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
+@media (max-width: 768px) {
+  .order-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  
+  .order-items li {
+    flex-wrap: wrap;
+  }
+  
+  .item-quantity {
+    margin: 0 10px;
+  }
+
+  .handler-details {
+    flex-direction: column;
+    gap: 6px;
+  }
+}
+</style>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  // Filter orders by status group
+  window.filterOrders = function(group, btn) {
+    document.querySelectorAll('.filter-tab').forEach(function(t) { t.classList.remove('active'); });
+    btn.classList.add('active');
+    document.querySelectorAll('.order-card').forEach(function(card) {
+      if (group === 'all') { card.style.display = ''; }
+      else { card.style.display = card.getAttribute('data-status-group') === group ? '' : 'none'; }
+    });
+  };
+
+  var ratingLabels = ["", "Rat te", "Khong tot", "Binh thuong", "Tot", "Tuyet voi"];
+  
+  document.querySelectorAll(".star-btn").forEach(function(star) {
+    star.addEventListener("click", function() {
+      var orderId = this.getAttribute("data-order");
+      var value = parseInt(this.getAttribute("data-value"));
+      var input = document.getElementById("rating-input-" + orderId);
+      var text = document.getElementById("rating-text-" + orderId);
+      var btn = document.getElementById("btn-rate-" + orderId);
+      
+      input.value = value;
+      btn.disabled = false;
+      text.textContent = value + " sao - " + ratingLabels[value];
+      
+      var container = document.getElementById("star-rating-" + orderId);
+      container.querySelectorAll(".star-btn").forEach(function(s, idx) {
+        if (idx < value) {
+          s.classList.add("active");
+        } else {
+          s.classList.remove("active");
+        }
+      });
+    });
+    
+    star.addEventListener("mouseenter", function() {
+      var orderId = this.getAttribute("data-order");
+      var value = parseInt(this.getAttribute("data-value"));
+      var container = document.getElementById("star-rating-" + orderId);
+      container.querySelectorAll(".star-btn").forEach(function(s, idx) {
+        if (idx < value) {
+          s.classList.add("active");
+        } else {
+          s.classList.remove("active");
+        }
+      });
+    });
+    
+    star.addEventListener("mouseleave", function() {
+      var orderId = this.getAttribute("data-order");
+      var input = document.getElementById("rating-input-" + orderId);
+      var selected = parseInt(input.value) || 0;
+      var container = document.getElementById("star-rating-" + orderId);
+      container.querySelectorAll(".star-btn").forEach(function(s, idx) {
+        if (idx < selected) {
+          s.classList.add("active");
+        } else {
+          s.classList.remove("active");
+        }
+      });
+    });
+  });
+});
+</script>

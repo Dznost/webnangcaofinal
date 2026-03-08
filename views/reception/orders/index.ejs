@@ -1,0 +1,124 @@
+<section class="reception-orders">
+    <div class="container">
+        <div class="page-header">
+            <h1>Don Hang Tai Chi Nhanh</h1>
+            <div style="display:flex;gap:8px;">
+                <a href="/reception/orders/create" class="btn btn-teal btn-sm">+ Tao Don Moi</a>
+                <a href="/reception" class="btn btn-secondary btn-sm">Quay Lai</a>
+            </div>
+        </div>
+
+        <% if (noBranch) { %>
+        <div class="no-branch-alert">
+            <p>Ban chua duoc gan chi nhanh. Vui long lien he admin.</p>
+        </div>
+        <% } else { %>
+
+        <!-- Search + Filter bar -->
+        <form method="GET" action="/reception/orders" class="search-filter-bar">
+            <div class="search-wrap">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                <input type="text" name="q" value="<%= searchQuery %>" placeholder="Tim theo ten, so dien thoai..." class="search-input">
+            </div>
+            <div class="filter-group">
+                <a href="/reception/orders?status=all" class="filter-pill <%= statusFilter === 'all' || !statusFilter ? 'active' : '' %>">Tat Ca</a>
+                <a href="/reception/orders?status=processing<%= searchQuery ? '&q=' + encodeURIComponent(searchQuery) : '' %>" class="filter-pill <%= statusFilter === 'processing' ? 'active' : '' %>">Dang Xu Ly</a>
+                <a href="/reception/orders?status=completed<%= searchQuery ? '&q=' + encodeURIComponent(searchQuery) : '' %>" class="filter-pill <%= statusFilter === 'completed' ? 'active' : '' %>">Hoan Thanh</a>
+            </div>
+            <button type="submit" class="btn btn-teal btn-sm">Tim Kiem</button>
+        </form>
+
+        <% if (searchQuery) { %>
+        <p class="search-result-note">Ket qua tim kiem cho "<strong><%= searchQuery %></strong>": <strong><%= orders.length %></strong> don hang</p>
+        <% } %>
+
+        <% if (orders && orders.length > 0) { %>
+        <div class="table-wrap">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Ma Don</th>
+                        <th>Khach Hang</th>
+                        <th>SDT</th>
+                        <th>Chi Nhanh</th>
+                        <th>Tong Tien</th>
+                        <th>Trang Thai</th>
+                        <th>Ngay Dat</th>
+                        <th>Hanh Dong</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% orders.forEach(function(order) { %>
+                    <tr>
+                        <td><strong class="order-code">#<%= order._id.toString().slice(-6).toUpperCase() %></strong></td>
+                        <td><%= order.fullName || (order.userId ? order.userId.name : 'N/A') %></td>
+                        <td><%= order.phone || (order.userId ? order.userId.phone : 'N/A') %></td>
+                        <td><%= order.branchId ? order.branchId.name : 'N/A' %></td>
+                        <td class="amount-cell"><%= order.finalPrice ? order.finalPrice.toLocaleString('vi-VN') : order.totalPrice.toLocaleString('vi-VN') %>d</td>
+                        <td>
+                            <span class="status-pill status-<%= order.status %>">
+                                <%= order.status === 'processing' ? 'Dang xu ly' : 'Hoan thanh' %>
+                            </span>
+                        </td>
+                        <td class="date-cell"><%= new Date(order.createdAt).toLocaleDateString('vi-VN') %></td>
+                        <td><a href="/reception/orders/<%= order._id %>" class="btn btn-teal btn-sm">Chi Tiet</a></td>
+                    </tr>
+                    <% }); %>
+                </tbody>
+            </table>
+        </div>
+        <% } else { %>
+        <div class="empty-state">
+            <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#b2dfdb" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            <p>Khong co don hang nao<%= searchQuery ? ' phu hop voi tim kiem' : '' %></p>
+        </div>
+        <% } %>
+
+        <% } %>
+    </div>
+</section>
+
+<style>
+.reception-orders { padding: 40px 0; background: #f0faf8; min-height: 80vh; }
+.reception-orders h1 { font-family: 'Playfair Display', serif; font-size: 1.7rem; color: #1a3c34; }
+.page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+
+.no-branch-alert { background: #fff8e1; border: 1px solid #ffe082; border-radius: 10px; padding: 18px 22px; color: #f57f17; font-size: 0.9rem; }
+
+.search-filter-bar { display: flex; gap: 12px; align-items: center; background: white; padding: 16px 20px; border-radius: 12px; box-shadow: 0 1px 8px rgba(0,105,92,0.06); margin-bottom: 20px; flex-wrap: wrap; }
+.search-wrap { display: flex; align-items: center; gap: 10px; flex: 1; min-width: 220px; border: 1.5px solid #b2dfdb; border-radius: 8px; padding: 8px 14px; background: #f9fefe; }
+.search-wrap svg { color: #80cbc4; flex-shrink: 0; }
+.search-input { border: none; outline: none; background: transparent; font-size: 0.88rem; color: #333; width: 100%; }
+.search-input::placeholder { color: #a5c9c5; }
+.filter-group { display: flex; gap: 6px; flex-wrap: wrap; }
+.filter-pill { padding: 7px 16px; border-radius: 20px; font-size: 0.82rem; font-weight: 600; text-decoration: none; color: #007d70; background: #e0f2f1; border: 1.5px solid transparent; transition: all 0.2s; }
+.filter-pill:hover { background: #b2dfdb; }
+.filter-pill.active { background: #00897b; color: white; border-color: #00695c; }
+
+.search-result-note { font-size: 0.88rem; color: #607d8b; margin-bottom: 14px; }
+
+.table-wrap { overflow-x: auto; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,105,92,0.07); }
+.data-table { width: 100%; border-collapse: collapse; background: white; }
+.data-table thead { background: #00897b; color: white; }
+.data-table th { padding: 13px 16px; text-align: left; font-size: 0.85rem; font-weight: 600; letter-spacing: 0.02em; }
+.data-table td { padding: 12px 16px; border-bottom: 1px solid #f0faf8; font-size: 0.88rem; color: #444; }
+.data-table tbody tr:hover { background: #f9fefe; }
+.order-code { color: #1a3c34; font-family: 'Playfair Display', serif; }
+.amount-cell { font-weight: 700; color: #00695c; }
+.date-cell { color: #7f9e98; font-size: 0.83rem; }
+.status-pill { display: inline-block; padding: 3px 10px; border-radius: 10px; font-size: 0.75rem; font-weight: 600; }
+.status-processing { background: #e0f2f1; color: #00695c; }
+.status-completed { background: #d4edda; color: #155724; }
+
+.empty-state { text-align: center; padding: 60px 20px; background: white; border-radius: 12px; box-shadow: 0 1px 8px rgba(0,105,92,0.06); }
+.empty-state p { color: #7f9e98; margin-top: 14px; font-size: 0.9rem; }
+
+.btn { display: inline-block; padding: 8px 18px; border-radius: 6px; text-decoration: none; font-size: 0.85rem; font-weight: 600; border: none; cursor: pointer; transition: all 0.2s; }
+.btn-teal { background: #00897b; color: white; }
+.btn-teal:hover { background: #00695c; }
+.btn-secondary { background: #e0f2f1; color: #007d70; }
+.btn-secondary:hover { background: #b2dfdb; }
+.btn-sm { padding: 6px 14px; font-size: 0.8rem; }
+
+@media (max-width: 768px) { .data-table th, .data-table td { padding: 9px 10px; font-size: 0.82rem; } }
+</style>

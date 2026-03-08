@@ -1,0 +1,279 @@
+<section class="reception-order-detail">
+    <div class="container">
+        <div class="page-header">
+            <h1>Chi Tiet Don Hang <span class="order-id">#<%= order._id.toString().slice(-6).toUpperCase() %></span></h1>
+            <a href="/reception/orders" class="btn btn-secondary btn-sm">Quay Lai</a>
+        </div>
+
+        <% if (success === 'walkin') { %>
+        <div class="alert alert-success">Tao don hang tai quan thanh cong! In ma QR cho khach hang thanh toan va danh gia.</div>
+        <% } else if (success === 'completed') { %>
+        <div class="alert alert-success">Da xac nhan hoan thanh don hang thanh cong!</div>
+        <% } else if (success === 'false') { %>
+        <div class="alert alert-error">Ma xac nhan khong dung. Vui long thu lai.</div>
+        <% } %>
+
+        <div class="detail-grid">
+            <div class="detail-main">
+                <div class="detail-card">
+                    <h3>Thong Tin Khach Hang</h3>
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <span class="info-label">Ho ten</span>
+                            <span class="info-value"><%= order.fullName || (order.userId ? order.userId.name : 'N/A') %></span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">SDT</span>
+                            <span class="info-value"><%= order.phone || (order.userId ? order.userId.phone : 'N/A') %></span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Email</span>
+                            <span class="info-value"><%= order.email || (order.userId ? order.userId.email : 'N/A') %></span>
+                        </div>
+                        <% if (order.branchId) { %>
+                        <div class="info-item">
+                            <span class="info-label">Chi nhanh</span>
+                            <span class="info-value teal-highlight"><%= order.branchId.name %></span>
+                        </div>
+                        <% } %>
+                        <% if (order.guests) { %>
+                        <div class="info-item">
+                            <span class="info-label">So khach</span>
+                            <span class="info-value"><%= order.guests %> nguoi</span>
+                        </div>
+                        <% } %>
+                        <% if (order.specialRequests) { %>
+                        <div class="info-item full-width">
+                            <span class="info-label">Ghi chu</span>
+                            <span class="info-value"><%= order.specialRequests %></span>
+                        </div>
+                        <% } %>
+                    </div>
+                </div>
+
+                <div class="detail-card">
+                    <h3>Mon An (<%= order.items.length %> mon)</h3>
+                    <div class="items-list">
+                        <% order.items.forEach(function(item) { %>
+                        <div class="item-row">
+                            <div class="item-info">
+                                <span class="item-name"><%= item.name %></span>
+                                <span class="item-qty">x<%= item.quantity %></span>
+                            </div>
+                            <span class="item-price"><%= (item.price * item.quantity).toLocaleString('vi-VN') %>d</span>
+                        </div>
+                        <% }); %>
+                    </div>
+                    <div class="total-section">
+                        <% if (order.discount > 0) { %>
+                        <div class="total-row">
+                            <span>Tam tinh</span>
+                            <span><%= order.totalPrice.toLocaleString('vi-VN') %>d</span>
+                        </div>
+                        <div class="total-row">
+                            <span>Giam gia</span>
+                            <span class="discount-val">-<%= order.discount.toLocaleString('vi-VN') %>d</span>
+                        </div>
+                        <% } %>
+                        <div class="total-row total-final">
+                            <span>Tong cong</span>
+                            <strong><%= order.finalPrice ? order.finalPrice.toLocaleString('vi-VN') : order.totalPrice.toLocaleString('vi-VN') %>d</strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="detail-sidebar">
+                <div class="detail-card">
+                    <h3>Trang Thai Don Hang</h3>
+                    <div class="status-display">
+                        <span class="status-badge status-<%= order.status %>">
+                            <%= order.status === 'processing' ? 'Dang Xu Ly' : order.status === 'completed' ? 'Hoan Thanh' : order.status %>
+                        </span>
+                    </div>
+                    <div class="meta-list">
+                        <div class="meta-row">
+                            <span class="meta-key">Loai don</span>
+                            <span class="meta-val teal-highlight">An tai quan</span>
+                        </div>
+                        <div class="meta-row">
+                            <span class="meta-key">Thanh toan</span>
+                            <span class="<%= order.paymentStatus === 'paid' ? 'paid-yes' : 'paid-no' %>">
+                                <%= order.paymentStatus === 'paid' ? 'Da thanh toan' : 'Chua thanh toan' %>
+                            </span>
+                        </div>
+                        <div class="meta-row">
+                            <span class="meta-key">Hinh thuc</span>
+                            <span class="meta-val"><%= order.paymentTiming === 'cod' ? 'Thanh toan tai quan' : 'Da tra truoc' %></span>
+                        </div>
+                        <div class="meta-row">
+                            <span class="meta-key">Ngay dat</span>
+                            <span class="meta-val"><%= new Date(order.createdAt).toLocaleString('vi-VN') %></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- QR Code for customer payment & review -->
+                <div class="detail-card qr-card">
+                    <h3>Ma QR Thanh Toan & Danh Gia</h3>
+                    <p style="font-size:0.82rem;color:#7f9e98;margin-bottom:12px;">Cho khach hang quet ma QR de thanh toan va danh gia.</p>
+                    <div class="qr-display" id="qrDisplay">
+                        <canvas id="qrCanvas"></canvas>
+                    </div>
+                    <div class="qr-info">
+                        <div class="qr-amount">
+                            <span>So tien:</span>
+                            <strong><%= order.finalPrice ? order.finalPrice.toLocaleString('vi-VN') : order.totalPrice.toLocaleString('vi-VN') %>d</strong>
+                        </div>
+                        <p class="qr-note">Khach quet ma de xem don hang va gui danh gia</p>
+                    </div>
+                    <button type="button" class="btn btn-teal btn-block btn-sm" onclick="printQR()" style="margin-top:10px;">In Ma QR</button>
+                </div>
+
+                <% if (order.status === 'processing') { %>
+                <div class="detail-card confirm-card">
+                    <h3>Xac Nhan Hoan Thanh</h3>
+                    <p class="confirm-note">Xac nhan khi khach hang da thanh toan xong va hoan tat don an. Hanh dong nay khong the hoan tac.</p>
+                    <button type="button" class="btn btn-teal btn-block" id="confirmBtn">
+                        Xac Nhan Hoan Thanh
+                    </button>
+                </div>
+                <% } %>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- QR Code Library -->
+<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.4/build/qrcode.min.js"></script>
+<script>
+(function() {
+  var canvas = document.getElementById('qrCanvas');
+  if (canvas) {
+    // Generate QR with review link + order amount info
+    var orderId = '<%= order._id %>';
+    var amount = '<%= order.finalPrice || order.totalPrice %>';
+    var qrUrl = window.location.origin + '/order-review/' + orderId;
+    if (typeof QRCode !== 'undefined') {
+      QRCode.toCanvas(canvas, qrUrl, {
+        width: 180,
+        margin: 2,
+        color: { dark: '#1a3c34', light: '#ffffff' }
+      });
+    }
+  }
+})();
+
+function printQR() {
+  var canvas = document.getElementById('qrCanvas');
+  if (!canvas) return;
+  var win = window.open('', '_blank');
+  var img = canvas.toDataURL('image/png');
+  win.document.write('<html><head><title>Ma QR Don Hang</title>' +
+    '<style>body{font-family:sans-serif;text-align:center;padding:40px;}' +
+    '.info{margin:16px 0;font-size:14px;color:#333;}' +
+    '.amount{font-size:24px;font-weight:bold;color:#00695c;margin:12px 0;}' +
+    '.note{font-size:12px;color:#888;margin-top:16px;}' +
+    '.order-id{font-size:16px;font-weight:bold;color:#1a3c34;}</style></head><body>' +
+    '<h2>La Maison Restaurant</h2>' +
+    '<p class="order-id">Don hang: #<%= order._id.toString().slice(-6).toUpperCase() %></p>' +
+    '<img src="' + img + '" style="max-width:200px;">' +
+    '<p class="amount"><%= (order.finalPrice || order.totalPrice).toLocaleString("vi-VN") %>d</p>' +
+    '<p class="info">Quet ma QR de xem chi tiet don hang va gui danh gia</p>' +
+    '<p class="note">Cam on quy khach!</p>' +
+    '</body></html>');
+  win.document.close();
+  setTimeout(function() { win.print(); }, 500);
+}
+</script>
+
+<% if (order.status === 'processing') { %>
+<div class="modal-overlay" id="confirmModal" style="display:none">
+    <div class="modal-box">
+        <h3>Xac Nhan Hoan Thanh Don Hang</h3>
+        <p>Ban co chac khach hang da hoan tat don an nay?</p>
+        <p class="modal-warn">Hanh dong nay se ghi nhan doanh thu cho chi nhanh va khong the hoan tac.</p>
+        <div class="modal-actions">
+            <button type="button" class="btn btn-secondary" id="cancelConfirm">Huy</button>
+            <form method="POST" action="/reception/orders/<%= order._id %>/confirm-completed" style="display:inline">
+                <input type="hidden" name="confirmCode" value="CONFIRMED">
+                <button type="submit" class="btn btn-teal">Xac Nhan</button>
+            </form>
+        </div>
+    </div>
+</div>
+<script>
+(function() {
+    var btn = document.getElementById('confirmBtn');
+    var modal = document.getElementById('confirmModal');
+    var cancel = document.getElementById('cancelConfirm');
+    if (btn && modal) {
+        btn.addEventListener('click', function() { modal.style.display = 'flex'; });
+        cancel.addEventListener('click', function() { modal.style.display = 'none'; });
+        modal.addEventListener('click', function(e) { if (e.target === modal) modal.style.display = 'none'; });
+    }
+})();
+</script>
+<% } %>
+
+<style>
+.reception-order-detail { padding: 40px 0; background: #f0faf8; min-height: 80vh; }
+.reception-order-detail h1 { font-family: 'Playfair Display', serif; font-size: 1.5rem; color: #1a3c34; }
+.order-id { color: #00897b; }
+.page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+.detail-grid { display: grid; grid-template-columns: 1fr 340px; gap: 24px; align-items: start; }
+.detail-card { background: white; border-radius: 12px; padding: 24px; box-shadow: 0 2px 10px rgba(0,105,92,0.07); margin-bottom: 20px; }
+.detail-card h3 { font-family: 'Playfair Display', serif; font-size: 1rem; color: #1a3c34; margin-bottom: 16px; padding-bottom: 10px; border-bottom: 1px solid #e0f2f1; }
+.info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.info-item.full-width { grid-column: 1 / -1; }
+.info-label { display: block; font-size: 0.78rem; color: #80cbc4; margin-bottom: 2px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; }
+.info-value { display: block; font-size: 0.92rem; color: #333; font-weight: 500; }
+.teal-highlight { color: #00695c; font-weight: 700; }
+.items-list { margin-bottom: 16px; }
+.item-row { display: flex; justify-content: space-between; align-items: center; padding: 9px 0; border-bottom: 1px solid #f0faf8; }
+.item-info { display: flex; align-items: center; gap: 10px; }
+.item-name { font-size: 0.88rem; color: #333; }
+.item-qty { font-size: 0.8rem; color: #80cbc4; background: #e0f2f1; padding: 2px 8px; border-radius: 8px; }
+.item-price { font-weight: 600; color: #00695c; font-size: 0.88rem; }
+.total-section { padding-top: 12px; border-top: 1px solid #e0f2f1; }
+.total-row { display: flex; justify-content: space-between; padding: 5px 0; font-size: 0.88rem; color: #666; }
+.discount-val { color: #e53935; }
+.total-final { padding-top: 10px; border-top: 2px solid #e0f2f1; font-size: 1rem; color: #1a3c34; font-weight: 600; }
+.total-final strong { color: #00695c; }
+.status-display { text-align: center; margin-bottom: 16px; }
+.status-badge { display: inline-block; padding: 8px 22px; border-radius: 20px; font-size: 0.88rem; font-weight: 700; }
+.status-processing { background: #e0f2f1; color: #00695c; }
+.status-completed { background: #d4edda; color: #155724; }
+.meta-list { border-top: 1px solid #e0f2f1; padding-top: 12px; display: flex; flex-direction: column; gap: 8px; }
+.meta-row { display: flex; justify-content: space-between; font-size: 0.84rem; }
+.meta-key { color: #80cbc4; }
+.meta-val { color: #333; font-weight: 500; }
+.paid-yes { color: #2e7d32; font-weight: 600; }
+.paid-no { color: #e65100; font-weight: 600; }
+.confirm-card { border: 2px solid #00897b; }
+.confirm-note { font-size: 0.84rem; color: #7f9e98; margin-bottom: 16px; line-height: 1.55; }
+.btn-block { display: block; width: 100%; text-align: center; }
+.btn { display: inline-block; padding: 8px 18px; border-radius: 6px; text-decoration: none; font-size: 0.85rem; font-weight: 600; border: none; cursor: pointer; transition: all 0.2s; }
+.btn-teal { background: #00897b; color: white; }
+.btn-teal:hover { background: #00695c; }
+.btn-secondary { background: #e0f2f1; color: #007d70; }
+.btn-sm { padding: 6px 14px; font-size: 0.8rem; }
+.alert { padding: 12px 18px; border-radius: 8px; margin-bottom: 20px; font-size: 0.9rem; }
+.alert-success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+.alert-error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+.modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.45); display: flex; align-items: center; justify-content: center; z-index: 1000; }
+.modal-box { background: white; border-radius: 14px; padding: 32px; max-width: 420px; width: 90%; box-shadow: 0 12px 40px rgba(0,0,0,0.18); }
+.modal-box h3 { font-family: 'Playfair Display', serif; font-size: 1.15rem; color: #1a3c34; margin-bottom: 12px; }
+.modal-box p { color: #555; font-size: 0.9rem; margin-bottom: 8px; }
+.modal-warn { color: #c62828; font-weight: 600; }
+.modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 22px; }
+/* QR card */
+.qr-card { border: 2px solid #e0f2f1; }
+.qr-display { display: flex; justify-content: center; align-items: center; padding: 16px; background: white; border-radius: 10px; border: 1px solid #e0f2f1; margin-bottom: 12px; }
+.qr-display canvas { max-width: 180px; max-height: 180px; }
+.qr-info { text-align: center; }
+.qr-amount { display: flex; justify-content: center; align-items: center; gap: 8px; font-size: 1rem; color: #1a3c34; margin-bottom: 4px; }
+.qr-amount strong { color: #00695c; font-size: 1.15rem; }
+.qr-note { font-size: 0.78rem; color: #7f9e98; margin: 0; }
+@media (max-width: 768px) { .detail-grid { grid-template-columns: 1fr; } .info-grid { grid-template-columns: 1fr; } }
+</style>

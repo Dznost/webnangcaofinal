@@ -1,0 +1,1043 @@
+<!-- SEO Meta for Admin Pages -->
+<section class="admin-form-page">
+    <div class="form-container">
+        <!-- Breadcrumb Navigation -->
+        <nav class="breadcrumb" aria-label="Breadcrumb">
+            <ol>
+                <li><a href="/admin">Dashboard</a></li>
+                <li><a href="/admin/events">Quan Ly Su Kien</a></li>
+                <li aria-current="page"><%= event ? 'Chinh Sua' : 'Them Moi' %></li>
+            </ol>
+        </nav>
+
+        <!-- Page Header -->
+        <header class="page-header">
+            <div class="header-content">
+                <div class="header-icon">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                        <line x1="16" y1="2" x2="16" y2="6"/>
+                        <line x1="8" y1="2" x2="8" y2="6"/>
+                        <line x1="3" y1="10" x2="21" y2="10"/>
+                    </svg>
+                </div>
+                <div class="header-text">
+                    <h1><%= event ? 'Chinh Sua Su Kien' : 'Them Su Kien Moi' %></h1>
+                    <p class="header-description">Quan ly cac su kien khuyen mai va uu dai cho khach hang</p>
+                </div>
+            </div>
+            <div class="header-actions">
+                <a href="/admin/events" class="btn btn-ghost">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M19 12H5M12 19l-7-7 7-7"/>
+                    </svg>
+                    Quay Lai
+                </a>
+            </div>
+        </header>
+        
+        <% if (typeof error !== 'undefined' && error) { %>
+            <div class="alert alert-error" role="alert">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/>
+                </svg>
+                <span><%= error %></span>
+            </div>
+        <% } %>
+        
+        <form method="POST" action="<%= event ? '/admin/events/' + event._id : '/admin/events' %>" class="modern-form" id="eventForm">
+            <div class="form-layout">
+                <!-- Main Content Column -->
+                <div class="form-main">
+                    <!-- Event Information Card -->
+                    <div class="form-card">
+                        <div class="card-header">
+                            <h2>Thong Tin Su Kien</h2>
+                            <span class="card-badge">Bat Buoc</span>
+                        </div>
+                        <div class="card-body">
+                            <div class="field-group">
+                                <label for="title" class="field-label">
+                                    Tieu De Su Kien
+                                    <span class="required">*</span>
+                                </label>
+                                <input type="text" id="title" name="title" value="<%= event?.title || '' %>" 
+                                       placeholder="Vi du: Khuyen Mai Mung Xuan 2025" required class="field-input">
+                            </div>
+
+                            <div class="field-group">
+                                <label for="description" class="field-label">
+                                    Mo Ta Su Kien
+                                    <span class="required">*</span>
+                                </label>
+                                <textarea id="description" name="description" rows="5" 
+                                          placeholder="Mo ta chi tiet ve su kien, dieu kien ap dung..." 
+                                          required class="field-textarea"><%= event?.description || '' %></textarea>
+                                <span class="field-hint">Mo ta se hien thi cho khach hang tren trang su kien</span>
+                            </div>
+
+                            <div class="field-group">
+                                <label for="image" class="field-label">
+                                    Hinh Anh Su Kien (URL)
+                                    <span class="required">*</span>
+                                </label>
+                                <input type="url" id="image" name="image" value="<%= event?.image || '' %>" 
+                                       placeholder="https://example.com/event-image.jpg" required 
+                                       onchange="previewEventImage(this.value)" class="field-input">
+                            </div>
+
+                            <div class="image-preview-container" id="eventImagePreview">
+                                <% if (event?.image) { %>
+                                    <img src="<%= event.image %>" alt="<%= event.title %>">
+                                <% } else { %>
+                                    <div class="preview-placeholder">
+                                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                            <rect x="3" y="3" width="18" height="18" rx="2"/>
+                                            <circle cx="8.5" cy="8.5" r="1.5"/>
+                                            <path d="M21 15l-5-5L5 21"/>
+                                        </svg>
+                                        <span>Hinh anh su kien se hien thi o day</span>
+                                    </div>
+                                <% } %>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Time Period Card -->
+                    <div class="form-card">
+                        <div class="card-header">
+                            <h2>Thoi Gian Su Kien</h2>
+                        </div>
+                        <div class="card-body">
+                            <div class="field-row">
+                                <div class="field-group">
+                                    <label for="startDate" class="field-label">
+                                        Ngay Bat Dau
+                                        <span class="required">*</span>
+                                    </label>
+                                    <input type="datetime-local" id="startDate" name="startDate" 
+                                           value="<%= event ? event.startDate.toISOString().slice(0, 16) : '' %>" 
+                                           required class="field-input">
+                                    <span class="field-hint">Ngay va gio bat dau su kien</span>
+                                </div>
+                                <div class="field-group">
+                                    <label for="endDate" class="field-label">
+                                        Ngay Ket Thuc
+                                        <span class="required">*</span>
+                                    </label>
+                                    <input type="datetime-local" id="endDate" name="endDate" 
+                                           value="<%= event ? event.endDate.toISOString().slice(0, 16) : '' %>" 
+                                           required class="field-input">
+                                    <span class="field-hint">Ngay va gio ket thuc su kien</span>
+                                </div>
+                            </div>
+
+                            <!-- Event Timeline Visual -->
+                            <div class="timeline-visual">
+                                <div class="timeline-bar">
+                                    <div class="timeline-progress" id="timelineProgress"></div>
+                                </div>
+                                <div class="timeline-labels">
+                                    <span id="startLabel">Bat dau</span>
+                                    <span id="endLabel">Ket thuc</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Scope Selection Card -->
+                    <div class="form-card">
+                        <div class="card-header">
+                            <h2>Pham Vi Ap Dung</h2>
+                        </div>
+                        <div class="card-body">
+                            <div class="scope-selector">
+                                <label class="scope-card" id="globalCard">
+                                    <input type="radio" name="discountScope" value="global" 
+                                           <%= (!event || event.discountScope === 'global') ? 'checked' : '' %> 
+                                           onchange="toggleScope()">
+                                    <div class="scope-content">
+                                        <div class="scope-icon">
+                                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <circle cx="12" cy="12" r="10"/>
+                                                <line x1="2" y1="12" x2="22" y2="12"/>
+                                                <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+                                            </svg>
+                                        </div>
+                                        <div class="scope-text">
+                                            <strong>Toan He Thong</strong>
+                                            <span>Ap dung cho tat ca chi nhanh</span>
+                                        </div>
+                                    </div>
+                                </label>
+                                <label class="scope-card" id="branchCard">
+                                    <input type="radio" name="discountScope" value="branch" 
+                                           <%= event?.discountScope === 'branch' ? 'checked' : '' %> 
+                                           onchange="toggleScope()">
+                                    <div class="scope-content">
+                                        <div class="scope-icon">
+                                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+                                                <circle cx="12" cy="10" r="3"/>
+                                            </svg>
+                                        </div>
+                                        <div class="scope-text">
+                                            <strong>Theo Chi Nhanh</strong>
+                                            <span>Chi ap dung cho chi nhanh duoc chon</span>
+                                        </div>
+                                    </div>
+                                </label>
+                            </div>
+
+                            <!-- Branch Selection (hidden by default) -->
+                            <div id="branchSelection" class="branch-selection" style="<%= (!event || event.discountScope === 'global') ? 'display:none;' : '' %>">
+                                <label class="field-label">Chon Chi Nhanh Ap Dung</label>
+                                <div class="branch-checklist">
+                                    <% if (branches && branches.length > 0) { %>
+                                        <% branches.forEach(branch => { %>
+                                            <label class="checklist-item">
+                                                <input type="checkbox" name="branches" value="<%= branch._id %>"
+                                                    <%= event?.branches?.some(b => b._id.toString() === branch._id.toString()) ? 'checked' : '' %>>
+                                                <span class="checkmark"></span>
+                                                <span class="item-info">
+                                                    <span class="item-name"><%= branch.name %></span>
+                                                    <span class="item-address"><%= branch.address %></span>
+                                                </span>
+                                            </label>
+                                        <% }) %>
+                                    <% } else { %>
+                                        <p class="empty-note">Chua co chi nhanh nao</p>
+                                    <% } %>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Dish Selection Card -->
+                    <div class="form-card">
+                        <div class="card-header">
+                            <h2>Mon An Ap Dung</h2>
+                            <span class="card-badge secondary">Tuy Chon</span>
+                        </div>
+                        <div class="card-body">
+                            <p class="info-text">Chon mon an cu the muon giam gia. Neu khong chon mon nao, giam gia se ap dung cho tat ca mon an.</p>
+                            
+                            <div class="field-group">
+                                <input type="text" placeholder="Tim kiem mon an..." class="field-input search-input" 
+                                       onkeyup="filterDishes(this.value)">
+                            </div>
+                            
+                            <div class="dishes-checklist" id="dishesList">
+                                <% if (dishes && dishes.length > 0) { %>
+                                    <% dishes.forEach(dish => { %>
+                                        <label class="checklist-item" data-name="<%= dish.name.toLowerCase() %>">
+                                            <input type="checkbox" name="dishes" value="<%= dish._id %>"
+                                                <%= event?.dishes?.some(d => d._id.toString() === dish._id.toString()) ? 'checked' : '' %>>
+                                            <span class="checkmark"></span>
+                                            <span class="item-info">
+                                                <span class="item-name"><%= dish.name %></span>
+                                                <span class="item-meta"><%= dish.category %> - <%= dish.price.toLocaleString('vi-VN') %>d</span>
+                                            </span>
+                                        </label>
+                                    <% }) %>
+                                <% } %>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sidebar Column -->
+                <div class="form-sidebar">
+                    <!-- Discount Configuration Card -->
+                    <div class="form-card">
+                        <div class="card-header">
+                            <h2>Cau Hinh Giam Gia</h2>
+                            <span class="card-badge">Bat Buoc</span>
+                        </div>
+                        <div class="card-body">
+                            <div class="field-group">
+                                <label for="discount" class="field-label">
+                                    Muc Giam Gia (%)
+                                    <span class="required">*</span>
+                                </label>
+                                <div class="discount-input-wrapper">
+                                    <input type="range" id="discountRange" min="0" max="100" 
+                                           value="<%= event?.discount || 0 %>" 
+                                           oninput="syncDiscount(this.value)" class="discount-slider">
+                                    <div class="input-with-addon">
+                                        <input type="number" id="discount" name="discount" 
+                                               value="<%= event?.discount || 0 %>" 
+                                               min="0" max="100" required class="field-input"
+                                               oninput="syncDiscountFromInput(this.value)">
+                                        <span class="input-addon">%</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Discount Preview -->
+                            <div class="discount-preview">
+                                <div class="preview-label">Vi du giam gia:</div>
+                                <div class="preview-calc">
+                                    <span class="original">100,000d</span>
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M5 12h14M12 5l7 7-7 7"/>
+                                    </svg>
+                                    <span class="discounted" id="discountedPrice">100,000d</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Event Status Card -->
+                    <div class="form-card">
+                        <div class="card-header">
+                            <h2>Trang Thai</h2>
+                        </div>
+                        <div class="card-body">
+                            <% 
+                                let statusClass = 'new';
+                                let statusText = 'Su kien moi';
+                                if (event) {
+                                    const now = new Date();
+                                    const start = new Date(event.startDate);
+                                    const end = new Date(event.endDate);
+                                    if (now < start) {
+                                        statusClass = 'upcoming';
+                                        statusText = 'Sap dien ra';
+                                    } else if (now >= start && now <= end) {
+                                        statusClass = 'active';
+                                        statusText = 'Dang dien ra';
+                                    } else {
+                                        statusClass = 'ended';
+                                        statusText = 'Da ket thuc';
+                                    }
+                                }
+                            %>
+                            <div class="status-indicator <%= statusClass %>">
+                                <div class="status-dot <%= statusClass %>"></div>
+                                <span><%= statusText %></span>
+                            </div>
+                            <% if (event) { %>
+                                <div class="meta-info">
+                                    <div class="meta-item">
+                                        <span class="meta-label">Tao luc:</span>
+                                        <span class="meta-value"><%= event.createdAt ? new Date(event.createdAt).toLocaleDateString('vi-VN') : 'N/A' %></span>
+                                    </div>
+                                </div>
+                            <% } %>
+                        </div>
+                    </div>
+
+                    <!-- Actions Card -->
+                    <div class="form-card actions-card">
+                        <button type="submit" class="btn btn-primary btn-full">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+                                <polyline points="17 21 17 13 7 13 7 21"/>
+                                <polyline points="7 3 7 8 15 8"/>
+                            </svg>
+                            <%= event ? 'Cap Nhat Su Kien' : 'Them Su Kien' %>
+                        </button>
+                        <a href="/admin/events" class="btn btn-secondary btn-full">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                            </svg>
+                            Huy Bo
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</section>
+
+<style>
+/* Modern Admin Form Styles */
+.admin-form-page {
+    background: linear-gradient(180deg, #f8f6f3 0%, #faf9f7 100%);
+    min-height: 100vh;
+    padding: 24px;
+}
+
+.form-container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* Breadcrumb */
+.breadcrumb {
+    margin-bottom: 24px;
+}
+
+.breadcrumb ol {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    font-size: 0.875rem;
+}
+
+.breadcrumb li {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #6b7280;
+}
+
+.breadcrumb li:not(:last-child)::after {
+    content: '/';
+    color: #d1d5db;
+}
+
+.breadcrumb a {
+    color: #8B6F47;
+    text-decoration: none;
+}
+
+.breadcrumb a:hover {
+    text-decoration: underline;
+}
+
+.breadcrumb li[aria-current="page"] {
+    color: #374151;
+    font-weight: 500;
+}
+
+/* Page Header */
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 32px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.header-content {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+}
+
+.header-icon {
+    width: 56px;
+    height: 56px;
+    background: linear-gradient(135deg, #8B6F47 0%, #6b5438 100%);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+}
+
+.header-text h1 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #1f2937;
+    margin: 0 0 4px 0;
+    font-family: 'Playfair Display', serif;
+}
+
+.header-description {
+    color: #6b7280;
+    margin: 0;
+}
+
+/* Form Layout */
+.form-layout {
+    display: grid;
+    grid-template-columns: 1fr 360px;
+    gap: 24px;
+}
+
+.form-main, .form-sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+/* Form Card */
+.form-card {
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 24px;
+    border-bottom: 1px solid #f3f4f6;
+    background: #fafafa;
+}
+
+.card-header h2 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #374151;
+    margin: 0;
+}
+
+.card-badge {
+    font-size: 0.75rem;
+    font-weight: 500;
+    padding: 4px 10px;
+    border-radius: 20px;
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.card-badge.secondary {
+    background: #e5e7eb;
+    color: #6b7280;
+}
+
+.card-body {
+    padding: 24px;
+}
+
+/* Field Styles */
+.field-group {
+    margin-bottom: 20px;
+}
+
+.field-group:last-child {
+    margin-bottom: 0;
+}
+
+.field-label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 8px;
+}
+
+.required {
+    color: #dc2626;
+}
+
+.field-input, .field-select, .field-textarea {
+    width: 100%;
+    padding: 12px 16px;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.9375rem;
+    color: #1f2937;
+    background: #fafafa;
+    transition: all 0.2s ease;
+}
+
+.field-input:focus, .field-select:focus, .field-textarea:focus {
+    outline: none;
+    border-color: #8B6F47;
+    background: white;
+    box-shadow: 0 0 0 4px rgba(139, 111, 71, 0.1);
+}
+
+.field-textarea {
+    resize: vertical;
+    min-height: 120px;
+}
+
+.field-hint {
+    display: block;
+    font-size: 0.8125rem;
+    color: #6b7280;
+    margin-top: 6px;
+}
+
+.field-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+/* Input with Addon */
+.input-with-addon {
+    display: flex;
+}
+
+.input-with-addon .field-input {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+    border-right: none;
+}
+
+.input-addon {
+    display: flex;
+    align-items: center;
+    padding: 0 16px;
+    background: #f3f4f6;
+    border: 1px solid #e5e7eb;
+    border-left: none;
+    border-radius: 0 10px 10px 0;
+    font-size: 0.875rem;
+    color: #6b7280;
+}
+
+/* Image Preview */
+.image-preview-container {
+    border: 2px dashed #d1d5db;
+    border-radius: 12px;
+    padding: 24px;
+    text-align: center;
+    background: #fafafa;
+    min-height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.image-preview-container img {
+    max-width: 100%;
+    max-height: 250px;
+    border-radius: 8px;
+}
+
+.preview-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    color: #9ca3af;
+}
+
+/* Timeline Visual */
+.timeline-visual {
+    margin-top: 24px;
+    padding: 20px;
+    background: #f9fafb;
+    border-radius: 12px;
+}
+
+.timeline-bar {
+    height: 8px;
+    background: #e5e7eb;
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 12px;
+}
+
+.timeline-progress {
+    height: 100%;
+    background: linear-gradient(90deg, #8B6F47 0%, #6b5438 100%);
+    border-radius: 4px;
+    width: 0%;
+    transition: width 0.3s ease;
+}
+
+.timeline-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.8125rem;
+    color: #6b7280;
+}
+
+/* Scope Selector */
+.scope-selector {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 20px;
+}
+
+.scope-card {
+    cursor: pointer;
+}
+
+.scope-card input {
+    display: none;
+}
+
+.scope-content {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 20px;
+    border: 2px solid #e5e7eb;
+    border-radius: 12px;
+    transition: all 0.2s ease;
+}
+
+.scope-card input:checked + .scope-content {
+    border-color: #8B6F47;
+    background: #fef7ed;
+}
+
+.scope-icon {
+    width: 48px;
+    height: 48px;
+    background: #f3f4f6;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #6b7280;
+}
+
+.scope-card input:checked + .scope-content .scope-icon {
+    background: #8B6F47;
+    color: white;
+}
+
+.scope-text {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.scope-text strong {
+    color: #374151;
+    font-size: 0.9375rem;
+}
+
+.scope-text span {
+    color: #6b7280;
+    font-size: 0.8125rem;
+}
+
+/* Branch Selection */
+.branch-selection {
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid #e5e7eb;
+}
+
+.branch-checklist, .dishes-checklist {
+    max-height: 250px;
+    overflow-y: auto;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+}
+
+.checklist-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 16px;
+    border-bottom: 1px solid #f3f4f6;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.checklist-item:last-child {
+    border-bottom: none;
+}
+
+.checklist-item:hover {
+    background: #f9fafb;
+}
+
+.checklist-item input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: #8B6F47;
+}
+
+.item-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    flex: 1;
+}
+
+.item-name {
+    font-weight: 500;
+    color: #374151;
+}
+
+.item-address, .item-meta {
+    color: #6b7280;
+    font-size: 0.8125rem;
+}
+
+.info-text {
+    color: #6b7280;
+    font-size: 0.875rem;
+    margin-bottom: 16px;
+    line-height: 1.5;
+}
+
+/* Discount Input */
+.discount-input-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.discount-slider {
+    width: 100%;
+    height: 8px;
+    border-radius: 4px;
+    background: #e5e7eb;
+    outline: none;
+    -webkit-appearance: none;
+}
+
+.discount-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #8B6F47;
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.discount-preview {
+    margin-top: 16px;
+    padding: 16px;
+    background: #f0fdf4;
+    border-radius: 10px;
+    border: 1px solid #bbf7d0;
+}
+
+.preview-label {
+    font-size: 0.8125rem;
+    color: #166534;
+    margin-bottom: 8px;
+}
+
+.preview-calc {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.original {
+    text-decoration: line-through;
+    color: #9ca3af;
+}
+
+.discounted {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #166534;
+}
+
+/* Status Indicator */
+.status-indicator {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 16px;
+    border-radius: 8px;
+    margin-bottom: 16px;
+}
+
+.status-indicator.active, .status-indicator.new {
+    background: #f0fdf4;
+}
+
+.status-indicator.upcoming {
+    background: #fef3c7;
+}
+
+.status-indicator.ended {
+    background: #f3f4f6;
+}
+
+.status-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+}
+
+.status-dot.active {
+    background: #22c55e;
+}
+
+.status-dot.new {
+    background: #3b82f6;
+}
+
+.status-dot.upcoming {
+    background: #f59e0b;
+}
+
+.status-dot.ended {
+    background: #9ca3af;
+}
+
+.meta-info {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.meta-item {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.8125rem;
+}
+
+.meta-label {
+    color: #6b7280;
+}
+
+.meta-value {
+    color: #374151;
+    font-weight: 500;
+}
+
+/* Actions Card */
+.actions-card {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+/* Buttons */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 20px;
+    border-radius: 10px;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #8B6F47 0%, #6b5438 100%);
+    color: white;
+    box-shadow: 0 4px 12px rgba(139, 111, 71, 0.25);
+}
+
+.btn-primary:hover {
+    box-shadow: 0 6px 16px rgba(139, 111, 71, 0.35);
+    transform: translateY(-1px);
+}
+
+.btn-secondary {
+    background: #f3f4f6;
+    color: #374151;
+    border: 1px solid #e5e7eb;
+}
+
+.btn-secondary:hover {
+    background: #e5e7eb;
+}
+
+.btn-ghost {
+    background: transparent;
+    color: #6b7280;
+    padding: 8px 16px;
+}
+
+.btn-ghost:hover {
+    background: #f3f4f6;
+}
+
+.btn-full {
+    width: 100%;
+}
+
+/* Alert */
+.alert {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 20px;
+    border-radius: 12px;
+    margin-bottom: 24px;
+}
+
+.alert-error {
+    background: #fef2f2;
+    color: #991b1b;
+    border: 1px solid #fecaca;
+}
+
+.empty-note {
+    padding: 20px;
+    text-align: center;
+    color: #9ca3af;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+    .form-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .scope-selector {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 640px) {
+    .admin-form-page {
+        padding: 16px;
+    }
+
+    .page-header {
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    .field-row {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+
+<script>
+function previewEventImage(url) {
+    const preview = document.getElementById('eventImagePreview');
+    if (url) {
+        preview.innerHTML = '<img src="' + url + '" alt="Preview">';
+    }
+}
+
+function toggleScope() {
+    const scope = document.querySelector('input[name="discountScope"]:checked').value;
+    const branchSection = document.getElementById('branchSelection');
+    branchSection.style.display = scope === 'branch' ? 'block' : 'none';
+}
+
+function filterDishes(search) {
+    const items = document.querySelectorAll('#dishesList .checklist-item');
+    search = search.toLowerCase();
+    items.forEach(item => {
+        const name = item.getAttribute('data-name');
+        item.style.display = name.includes(search) ? 'flex' : 'none';
+    });
+}
+
+function syncDiscount(value) {
+    document.getElementById('discount').value = value;
+    updateDiscountPreview(value);
+}
+
+function syncDiscountFromInput(value) {
+    document.getElementById('discountRange').value = value;
+    updateDiscountPreview(value);
+}
+
+function updateDiscountPreview(discount) {
+    const original = 100000;
+    const discounted = original * (1 - discount / 100);
+    document.getElementById('discountedPrice').textContent = discounted.toLocaleString('vi-VN') + 'd';
+}
+
+// Initialize
+document.addEventListener('DOMContentLoaded', function() {
+    toggleScope();
+    const discount = document.getElementById('discount').value;
+    updateDiscountPreview(discount);
+});
+</script>

@@ -1,0 +1,21 @@
+<section class="blog-section">
+    <div class="container">
+        <h1>Tin Tức & Blog</h1>
+        <div class="blog-grid">
+            <% blogs.forEach(blog => { %>
+                <div class="blog-card">
+                    <div class="blog-image-wrapper">
+                        <img src="<%= blog.image || 'https://images.unsplash.com/photo-1495195134817-aeb325a55b65?w=300&h=250&fit=crop' %>" alt="<%= blog.title %>" onerror="this.src='https://images.unsplash.com/photo-1495195134817-aeb325a55b65?w=300&h=250&fit=crop'">
+                    </div>
+                    <div class="blog-card-content">
+                        <h3><%= blog.title %></h3>
+                        <p class="author">✍️ <%= blog.author %></p>
+                        <p class="date">📅 <%= new Date(blog.createdAt).toLocaleDateString('vi-VN') %></p>
+                        <p class="blog-excerpt"><%= blog.content.substring(0, 80) %>...</p>
+                        <a href="/blog/<%= blog._id %>" class="btn btn-small">Đọc Thêm</a>
+                    </div>
+                </div>
+            <% }); %>
+        </div>
+    </div>
+</section>

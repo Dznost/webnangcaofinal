@@ -1,0 +1,861 @@
+<!-- Shopping Cart Page - La Maison Restaurant -->
+
+<section class="cart-page" role="main">
+    <div class="container">
+        <!-- Page Header -->
+        <div class="page-header">
+            <nav class="breadcrumb" aria-label="Breadcrumb">
+                <a href="/">Trang Chu</a>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="9 18 15 12 9 6"/>
+                </svg>
+                <a href="/menu">Thuc Don</a>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="9 18 15 12 9 6"/>
+                </svg>
+                <span>Gio Hang</span>
+            </nav>
+            <h1>Gio Hang Cua Ban</h1>
+        </div>
+
+        <% if (cart && cart.length > 0) { %>
+            <div class="cart-layout">
+                <!-- Cart Items -->
+                <div class="cart-items-section">
+                    <div class="section-header">
+                        <h2>
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="9" cy="21" r="1"/>
+                                <circle cx="20" cy="21" r="1"/>
+                                <path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/>
+                            </svg>
+                            <span><%= cart.length %> mon trong gio</span>
+                        </h2>
+                        <a href="/user/cart/clear" class="clear-cart-btn" onclick="return confirm('Xoa tat ca san pham khoi gio hang?')">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="3 6 5 6 21 6"/>
+                                <path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/>
+                            </svg>
+                            Xoa tat ca
+                        </a>
+                    </div>
+
+                    <div class="cart-items-list">
+                        <% let total = 0; %>
+                        <% cart.forEach((item, index) => { %>
+                            <% 
+                                const originalPrice = item.originalPrice || item.price;
+                                const finalPrice = item.price;
+                                const hasDiscount = item.discount && item.discount > 0;
+                                const itemTotal = finalPrice * item.quantity; 
+                                total += itemTotal;
+                            %>
+                            <article class="cart-item" data-item-id="<%= item.dishId %>">
+                                <div class="item-image">
+                                    <img src="<%= item.image || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=200&h=200&fit=crop' %>" 
+                                         alt="<%= item.name %>" loading="lazy"
+                                         onerror="this.src='https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=200&h=200&fit=crop'">
+                                    <% if (hasDiscount) { %>
+                                        <span class="discount-badge">-<%= item.discount %>%</span>
+                                    <% } %>
+                                </div>
+                                
+                                <div class="item-details">
+                                    <div class="item-info">
+                                        <h3 class="item-name"><%= item.name %></h3>
+                                        <span class="item-category"><%= item.category || 'Mon an' %></span>
+                                    </div>
+                                    
+                                    <div class="item-pricing">
+                                        <div class="price-display">
+                                            <span class="current-price"><%= finalPrice.toLocaleString('vi-VN') %>d</span>
+                                            <% if (hasDiscount) { %>
+                                                <span class="original-price"><%= originalPrice.toLocaleString('vi-VN') %>d</span>
+                                            <% } %>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="item-quantity">
+                                    <form action="/user/cart/update" method="POST" class="quantity-form">
+                                        <input type="hidden" name="dishId" value="<%= item.dishId %>">
+                                        <button type="button" class="qty-btn minus" onclick="updateQuantity(this, -1)">
+                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <line x1="5" y1="12" x2="19" y2="12"/>
+                                            </svg>
+                                        </button>
+                                        <input type="number" name="quantity" value="<%= item.quantity %>" min="1" max="99" class="qty-input" onchange="this.form.submit()">
+                                        <button type="button" class="qty-btn plus" onclick="updateQuantity(this, 1)">
+                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <line x1="12" y1="5" x2="12" y2="19"/>
+                                                <line x1="5" y1="12" x2="19" y2="12"/>
+                                            </svg>
+                                        </button>
+                                    </form>
+                                </div>
+                                
+                                <div class="item-total">
+                                    <span class="total-label">Tong:</span>
+                                    <span class="total-amount"><%= itemTotal.toLocaleString('vi-VN') %>d</span>
+                                </div>
+                                
+                                <div class="item-actions">
+                                    <a href="/user/cart/remove/<%= item.dishId %>" class="remove-btn" 
+                                       onclick="return confirm('Xoa san pham nay khoi gio hang?')" title="Xoa">
+                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <polyline points="3 6 5 6 21 6"/>
+                                            <path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/>
+                                            <line x1="10" y1="11" x2="10" y2="17"/>
+                                            <line x1="14" y1="11" x2="14" y2="17"/>
+                                        </svg>
+                                    </a>
+                                </div>
+                            </article>
+                        <% }); %>
+                    </div>
+                </div>
+
+                <!-- Order Summary -->
+                <aside class="order-summary">
+                    <div class="summary-card">
+                        <h2>Tom Tat Don Hang</h2>
+                        
+                        <div class="summary-details">
+                            <div class="summary-row">
+                                <span>Tam tinh (<%= cart.length %> mon)</span>
+                                <span><%= total.toLocaleString('vi-VN') %>d</span>
+                            </div>
+                            <div class="summary-row">
+                                <span>Phi giao hang</span>
+                                <span class="free-shipping">Mien phi</span>
+                            </div>
+                            <div class="summary-row discount-row" style="display: none;">
+                                <span>Giam gia</span>
+                                <span class="discount-amount">-0d</span>
+                            </div>
+                        </div>
+                        
+                        <div class="promo-code">
+                            <form class="promo-form">
+                                <input type="text" placeholder="Nhap ma giam gia" class="promo-input">
+                                <button type="button" class="promo-btn">Ap dung</button>
+                            </form>
+                        </div>
+                        
+                        <div class="summary-total">
+                            <span>Tong cong</span>
+                            <span class="total-price"><%= total.toLocaleString('vi-VN') %>d</span>
+                        </div>
+                        
+                        <a href="/user/checkout" class="btn btn-primary btn-checkout">
+                            <span>Tien Hanh Thanh Toan</span>
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M5 12h14M12 5l7 7-7 7"/>
+                            </svg>
+                        </a>
+                        
+                        <div class="secure-badge">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                            </svg>
+                            <span>Thanh toan bao mat SSL</span>
+                        </div>
+                        
+                        <div class="payment-methods">
+                            <span>Chap nhan:</span>
+                            <div class="method-icons">
+                                <span class="method-badge">VISA</span>
+                                <span class="method-badge">MasterCard</span>
+                                <span class="method-badge">MoMo</span>
+                                <span class="method-badge">ZaloPay</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <a href="/menu" class="continue-shopping">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M19 12H5M12 19l-7-7 7-7"/>
+                        </svg>
+                        <span>Tiep tuc mua sam</span>
+                    </a>
+                </aside>
+            </div>
+            
+        <% } else { %>
+            <!-- Empty Cart State -->
+            <div class="empty-cart">
+                <div class="empty-cart-content">
+                    <div class="empty-icon">
+                        <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <circle cx="9" cy="21" r="1"/>
+                            <circle cx="20" cy="21" r="1"/>
+                            <path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/>
+                        </svg>
+                    </div>
+                    <h2>Gio hang trong</h2>
+                    <p>Ban chua co san pham nao trong gio hang. Hay kham pha thuc don cua chung toi!</p>
+                    <a href="/menu" class="btn btn-primary">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/>
+                            <path d="M12 6v6l4 2"/>
+                        </svg>
+                        <span>Xem Thuc Don</span>
+                    </a>
+                </div>
+                
+                <!-- Suggested Items -->
+                <div class="suggested-section">
+                    <h3>Co the ban se thich</h3>
+                    <div class="suggested-items">
+                        <div class="suggested-placeholder">
+                            <p>Cac mon an noi bat se duoc hien thi o day</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        <% } %>
+    </div>
+</section>
+
+<style>
+/* Cart Page Styles - Luxury Restaurant Theme */
+.cart-page {
+    padding: 40px 0 80px;
+    background: #f8f6f3;
+    min-height: 100vh;
+}
+
+.cart-page .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+/* Page Header */
+.page-header {
+    margin-bottom: 40px;
+}
+
+.breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 16px;
+    font-size: 0.875rem;
+}
+
+.breadcrumb a {
+    color: #6b7280;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.breadcrumb a:hover {
+    color: #8B6F47;
+}
+
+.breadcrumb svg {
+    color: #d1d5db;
+}
+
+.breadcrumb span {
+    color: #1f2937;
+    font-weight: 500;
+}
+
+.page-header h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #1f2937;
+    margin: 0;
+    font-family: 'Playfair Display', serif;
+}
+
+/* Cart Layout */
+.cart-layout {
+    display: grid;
+    grid-template-columns: 1fr 380px;
+    gap: 32px;
+    align-items: start;
+}
+
+/* Cart Items Section */
+.cart-items-section {
+    background: white;
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.section-header h2 {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #1f2937;
+    margin: 0;
+}
+
+.section-header h2 svg {
+    color: #8B6F47;
+}
+
+.clear-cart-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.875rem;
+    color: #ef4444;
+    text-decoration: none;
+    padding: 8px 12px;
+    border-radius: 8px;
+    transition: all 0.2s;
+}
+
+.clear-cart-btn:hover {
+    background: #fef2f2;
+}
+
+/* Cart Items List */
+.cart-items-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.cart-item {
+    display: grid;
+    grid-template-columns: 100px 1fr auto auto auto;
+    gap: 20px;
+    align-items: center;
+    padding: 16px;
+    background: #f9fafb;
+    border-radius: 12px;
+    transition: all 0.2s;
+}
+
+.cart-item:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+}
+
+/* Item Image */
+.item-image {
+    position: relative;
+    width: 100px;
+    height: 100px;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.item-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.discount-badge {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    background: #dc2626;
+    color: white;
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 4px 8px;
+    border-radius: 6px;
+}
+
+/* Item Details */
+.item-details {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.item-name {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #1f2937;
+    margin: 0;
+}
+
+.item-category {
+    font-size: 0.8rem;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.price-display {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.current-price {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #8B6F47;
+}
+
+.original-price {
+    font-size: 0.875rem;
+    color: #9ca3af;
+    text-decoration: line-through;
+}
+
+/* Quantity Controls */
+.item-quantity {
+    display: flex;
+    align-items: center;
+}
+
+.quantity-form {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.qty-btn {
+    width: 36px;
+    height: 36px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #6b7280;
+    transition: all 0.2s;
+}
+
+.qty-btn:hover {
+    background: #f3f4f6;
+    color: #8B6F47;
+}
+
+.qty-input {
+    width: 48px;
+    height: 36px;
+    border: none;
+    border-left: 1px solid #e5e7eb;
+    border-right: 1px solid #e5e7eb;
+    text-align: center;
+    font-size: 0.95rem;
+    font-weight: 500;
+}
+
+.qty-input:focus {
+    outline: none;
+}
+
+/* Item Total */
+.item-total {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 4px;
+    min-width: 100px;
+}
+
+.total-label {
+    font-size: 0.75rem;
+    color: #6b7280;
+    text-transform: uppercase;
+}
+
+.total-amount {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #1f2937;
+}
+
+/* Item Actions */
+.remove-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #9ca3af;
+    transition: all 0.2s;
+}
+
+.remove-btn:hover {
+    background: #fef2f2;
+    color: #ef4444;
+}
+
+/* Order Summary */
+.order-summary {
+    position: sticky;
+    top: 20px;
+}
+
+.summary-card {
+    background: white;
+    border-radius: 16px;
+    padding: 28px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+}
+
+.summary-card h2 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #1f2937;
+    margin: 0 0 24px 0;
+    font-family: 'Playfair Display', serif;
+}
+
+.summary-details {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.summary-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.95rem;
+    color: #4b5563;
+}
+
+.free-shipping {
+    color: #16a34a;
+    font-weight: 500;
+}
+
+.discount-amount {
+    color: #dc2626;
+    font-weight: 500;
+}
+
+/* Promo Code */
+.promo-code {
+    padding: 20px 0;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.promo-form {
+    display: flex;
+    gap: 8px;
+}
+
+.promo-input {
+    flex: 1;
+    padding: 12px 14px;
+    border: 2px solid #e5e7eb;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    transition: border-color 0.2s;
+}
+
+.promo-input:focus {
+    outline: none;
+    border-color: #8B6F47;
+}
+
+.promo-btn {
+    padding: 12px 18px;
+    background: #f3f4f6;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #374151;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+}
+
+.promo-btn:hover {
+    background: #e5e7eb;
+}
+
+/* Summary Total */
+.summary-total {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 0;
+    margin-bottom: 20px;
+}
+
+.summary-total span:first-child {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #1f2937;
+}
+
+.total-price {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #8B6F47;
+    font-family: 'Playfair Display', serif;
+}
+
+/* Checkout Button */
+.btn-checkout {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    padding: 16px 24px;
+    background: linear-gradient(135deg, #8B6F47 0%, #6d563a 100%);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.3s;
+}
+
+.btn-checkout:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(139, 111, 71, 0.3);
+}
+
+/* Secure Badge */
+.secure-badge {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 16px;
+    padding: 12px;
+    background: #f0fdf4;
+    border-radius: 8px;
+    font-size: 0.8rem;
+    color: #16a34a;
+}
+
+/* Payment Methods */
+.payment-methods {
+    margin-top: 16px;
+    text-align: center;
+}
+
+.payment-methods > span {
+    font-size: 0.75rem;
+    color: #9ca3af;
+    display: block;
+    margin-bottom: 8px;
+}
+
+.method-icons {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.method-badge {
+    padding: 4px 10px;
+    background: #f3f4f6;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: #6b7280;
+}
+
+/* Continue Shopping */
+.continue-shopping {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 16px;
+    padding: 14px;
+    color: #8B6F47;
+    text-decoration: none;
+    font-weight: 500;
+    border-radius: 10px;
+    transition: all 0.2s;
+}
+
+.continue-shopping:hover {
+    background: rgba(139, 111, 71, 0.08);
+}
+
+/* Empty Cart */
+.empty-cart {
+    text-align: center;
+    padding: 60px 20px;
+}
+
+.empty-cart-content {
+    max-width: 400px;
+    margin: 0 auto 60px;
+}
+
+.empty-icon {
+    width: 120px;
+    height: 120px;
+    background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 24px;
+}
+
+.empty-icon svg {
+    color: #9ca3af;
+}
+
+.empty-cart h2 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #1f2937;
+    margin: 0 0 12px 0;
+    font-family: 'Playfair Display', serif;
+}
+
+.empty-cart p {
+    font-size: 1rem;
+    color: #6b7280;
+    margin: 0 0 28px 0;
+    line-height: 1.6;
+}
+
+.empty-cart .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 16px 32px;
+    background: linear-gradient(135deg, #8B6F47 0%, #6d563a 100%);
+    color: white;
+    border-radius: 12px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s;
+}
+
+.empty-cart .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(139, 111, 71, 0.3);
+}
+
+/* Suggested Section */
+.suggested-section {
+    max-width: 800px;
+    margin: 0 auto;
+    padding-top: 40px;
+    border-top: 1px solid #e5e7eb;
+}
+
+.suggested-section h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #1f2937;
+    margin: 0 0 24px 0;
+}
+
+.suggested-placeholder {
+    padding: 40px;
+    background: #f9fafb;
+    border-radius: 12px;
+    color: #9ca3af;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+    .cart-layout {
+        grid-template-columns: 1fr;
+    }
+    
+    .order-summary {
+        position: static;
+    }
+}
+
+@media (max-width: 768px) {
+    .cart-page {
+        padding: 24px 0 60px;
+    }
+    
+    .page-header h1 {
+        font-size: 1.75rem;
+    }
+    
+    .cart-item {
+        grid-template-columns: 80px 1fr;
+        gap: 12px;
+    }
+    
+    .item-image {
+        width: 80px;
+        height: 80px;
+    }
+    
+    .item-quantity,
+    .item-total,
+    .item-actions {
+        grid-column: 2;
+    }
+    
+    .item-quantity {
+        justify-self: start;
+    }
+    
+    .item-total {
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+    }
+    
+    .item-actions {
+        position: absolute;
+        top: 16px;
+        right: 16px;
+    }
+    
+    .cart-item {
+        position: relative;
+        padding-right: 60px;
+    }
+}
+
+@media (max-width: 480px) {
+    .promo-form {
+        flex-direction: column;
+    }
+    
+    .promo-btn {
+        width: 100%;
+    }
+}
+</style>
+
+<script>
+function updateQuantity(btn, change) {
+    const form = btn.closest('.quantity-form');
+    const input = form.querySelector('.qty-input');
+    let value = parseInt(input.value) + change;
+    
+    if (value < 1) value = 1;
+    if (value > 99) value = 99;
+    
+    input.value = value;
+    form.submit();
+}
+</script>

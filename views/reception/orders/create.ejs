@@ -1,0 +1,280 @@
+<section class="reception-create-order">
+  <div class="container">
+    <div class="page-header">
+      <h1>Tao Don Hang Tai Quan</h1>
+      <a href="/reception/orders" class="btn btn-secondary btn-sm">Quay Lai</a>
+    </div>
+
+    <% if (error) { %>
+    <div class="alert alert-error"><%= error %></div>
+    <% } %>
+
+    <% if (branch) { %>
+    <div class="branch-tag">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+      <span><%= branch.name %></span>
+      <span class="table-info">Ban trong: <strong><%= branch.availableTables %>/<%= branch.totalTables %></strong></span>
+    </div>
+    <% } %>
+
+    <form method="POST" action="/reception/orders/create" id="createOrderForm">
+      <div class="form-grid">
+        <!-- Customer info -->
+        <div class="form-card">
+          <h3>Thong Tin Khach Hang</h3>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="customerName">Ho ten khach</label>
+              <input type="text" id="customerName" name="customerName" placeholder="Nhap ten khach hang..." class="form-input">
+            </div>
+            <div class="form-group">
+              <label for="customerPhone">So dien thoai</label>
+              <input type="text" id="customerPhone" name="customerPhone" placeholder="0xxx xxx xxx" class="form-input">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="customerEmail">Email (khong bat buoc)</label>
+              <input type="email" id="customerEmail" name="customerEmail" placeholder="email@example.com" class="form-input">
+            </div>
+            <div class="form-group">
+              <label for="guests">So khach</label>
+              <input type="number" id="guests" name="guests" value="1" min="1" max="50" class="form-input">
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="specialRequests">Ghi chu</label>
+            <textarea id="specialRequests" name="specialRequests" rows="2" placeholder="Yeu cau dac biet..." class="form-input"></textarea>
+          </div>
+          <div class="form-group">
+            <label for="paymentMethod">Phuong thuc thanh toan</label>
+            <select id="paymentMethod" name="paymentMethod" class="form-input">
+              <option value="cash">Tien mat</option>
+              <option value="bank">Chuyen khoan ngan hang</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Dish selection -->
+        <div class="form-card menu-card">
+          <h3>Chon Mon An</h3>
+          <div class="dish-search-wrap">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" id="dishSearch" placeholder="Tim kiem mon an..." class="dish-search" oninput="filterDishes(this.value)">
+          </div>
+
+          <div class="category-tabs">
+            <button type="button" class="cat-tab active" onclick="filterCategory('all', this)">Tat ca</button>
+            <button type="button" class="cat-tab" onclick="filterCategory('appetizer', this)">Khai vi</button>
+            <button type="button" class="cat-tab" onclick="filterCategory('main', this)">Mon chinh</button>
+            <button type="button" class="cat-tab" onclick="filterCategory('dessert', this)">Trang mieng</button>
+            <button type="button" class="cat-tab" onclick="filterCategory('beverage', this)">Do uong</button>
+          </div>
+
+          <div class="dish-list" id="dishList">
+            <% dishes.forEach(function(dish) { %>
+            <div class="dish-item" data-id="<%= dish._id %>" data-name="<%= dish.name %>" data-price="<%= dish.discount > 0 ? Math.round(dish.price * (1 - dish.discount / 100)) : dish.price %>" data-original-price="<%= dish.price %>" data-discount="<%= dish.discount || 0 %>" data-category="<%= dish.category %>">
+              <% if (dish.image) { %>
+              <img src="<%= dish.image %>" alt="<%= dish.name %>" class="dish-thumb" onerror="this.style.display='none'">
+              <% } %>
+              <div class="dish-info">
+                <span class="dish-name"><%= dish.name %></span>
+                <div class="dish-price-line">
+                  <% if (dish.discount > 0) { %>
+                  <span class="dish-old-price"><%= dish.price.toLocaleString('vi-VN') %>d</span>
+                  <span class="dish-price"><%= Math.round(dish.price * (1 - dish.discount / 100)).toLocaleString('vi-VN') %>d</span>
+                  <span class="dish-discount-tag">-<%= dish.discount %>%</span>
+                  <% } else { %>
+                  <span class="dish-price"><%= dish.price.toLocaleString('vi-VN') %>d</span>
+                  <% } %>
+                </div>
+              </div>
+              <button type="button" class="btn-add-dish" onclick="addDish(this.closest('.dish-item'))">+</button>
+            </div>
+            <% }); %>
+          </div>
+        </div>
+      </div>
+
+      <!-- Selected items & total -->
+      <div class="order-summary-card" id="orderSummary" style="display:none;">
+        <h3>Don Hang Hien Tai</h3>
+        <div class="selected-items" id="selectedItems"></div>
+        <div class="summary-footer">
+          <div class="summary-total">
+            <span>Tong cong:</span>
+            <strong id="orderTotal">0d</strong>
+          </div>
+          <div class="summary-count" id="orderCount">0 mon</div>
+        </div>
+        <input type="hidden" name="items" id="itemsInput" value="[]">
+        <button type="submit" class="btn btn-teal btn-block btn-lg" id="submitBtn">
+          Tao Don Hang
+        </button>
+      </div>
+    </form>
+  </div>
+</section>
+
+<style>
+.reception-create-order { padding: 32px 0; background: #f0faf8; min-height: 80vh; }
+.reception-create-order h1 { font-family: 'Playfair Display', serif; font-size: 1.5rem; color: #1a3c34; }
+.page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+.branch-tag { display: flex; align-items: center; gap: 8px; background: #e0f2f1; color: #00695c; font-weight: 600; padding: 8px 16px; border-radius: 20px; font-size: 0.85rem; margin-bottom: 20px; width: fit-content; }
+.branch-tag .table-info { margin-left: 12px; color: #00897b; font-weight: 500; }
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
+.form-card { background: white; border-radius: 12px; padding: 24px; box-shadow: 0 2px 10px rgba(0,105,92,0.07); }
+.form-card h3 { font-family: 'Playfair Display', serif; font-size: 1rem; color: #1a3c34; margin: 0 0 16px; padding-bottom: 10px; border-bottom: 1px solid #e0f2f1; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+.form-group { display: flex; flex-direction: column; gap: 4px; margin-bottom: 10px; }
+.form-group label { font-size: 0.8rem; font-weight: 600; color: #5d7f78; text-transform: uppercase; letter-spacing: 0.3px; }
+.form-input { padding: 10px 14px; border: 1.5px solid #b2dfdb; border-radius: 8px; font-size: 0.9rem; color: #333; background: #fafffe; transition: border-color 0.2s; font-family: inherit; }
+.form-input:focus { outline: none; border-color: #00897b; box-shadow: 0 0 0 3px rgba(0,137,123,0.12); }
+
+/* Dish search */
+.dish-search-wrap { display: flex; align-items: center; gap: 8px; border: 1.5px solid #b2dfdb; border-radius: 8px; padding: 8px 12px; margin-bottom: 12px; background: #fafffe; }
+.dish-search-wrap svg { color: #80cbc4; flex-shrink: 0; }
+.dish-search { border: none; outline: none; background: transparent; font-size: 0.88rem; width: 100%; color: #333; }
+.dish-search::placeholder { color: #a5c9c5; }
+
+/* Category tabs */
+.category-tabs { display: flex; gap: 6px; margin-bottom: 14px; flex-wrap: wrap; }
+.cat-tab { padding: 5px 14px; border-radius: 16px; font-size: 0.78rem; font-weight: 600; border: 1.5px solid #b2dfdb; background: transparent; color: #00897b; cursor: pointer; transition: all 0.2s; }
+.cat-tab:hover { background: #e0f2f1; }
+.cat-tab.active { background: #00897b; color: white; border-color: #00695c; }
+
+/* Menu card */
+.menu-card { max-height: 600px; display: flex; flex-direction: column; }
+.dish-list { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; padding-right: 4px; }
+.dish-item { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 8px; background: #fafffe; border: 1px solid #e0f2f1; transition: all 0.15s; cursor: default; }
+.dish-item:hover { background: #e0f2f1; border-color: #80cbc4; }
+.dish-item.hidden { display: none; }
+.dish-thumb { width: 44px; height: 44px; border-radius: 8px; object-fit: cover; flex-shrink: 0; }
+.dish-info { flex: 1; min-width: 0; }
+.dish-name { display: block; font-weight: 600; font-size: 0.88rem; color: #1a3c34; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.dish-price-line { display: flex; align-items: center; gap: 6px; margin-top: 2px; }
+.dish-price { font-weight: 700; color: #00695c; font-size: 0.85rem; }
+.dish-old-price { text-decoration: line-through; color: #bbb; font-size: 0.78rem; }
+.dish-discount-tag { background: #ffebee; color: #c62828; font-size: 0.68rem; font-weight: 700; padding: 1px 6px; border-radius: 6px; }
+.btn-add-dish { width: 32px; height: 32px; border-radius: 50%; background: #00897b; color: white; border: none; font-size: 1.2rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: background 0.15s; line-height: 1; }
+.btn-add-dish:hover { background: #00695c; }
+
+/* Order summary */
+.order-summary-card { background: white; border-radius: 12px; padding: 24px; box-shadow: 0 2px 14px rgba(0,105,92,0.1); border: 2px solid #00897b; }
+.order-summary-card h3 { font-family: 'Playfair Display', serif; font-size: 1rem; color: #1a3c34; margin: 0 0 14px; padding-bottom: 10px; border-bottom: 1px solid #e0f2f1; }
+.selected-items { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; max-height: 300px; overflow-y: auto; }
+.sel-item { display: flex; align-items: center; gap: 12px; padding: 8px 10px; background: #f0faf8; border-radius: 8px; }
+.sel-item .sel-name { flex: 1; font-size: 0.88rem; font-weight: 500; color: #333; }
+.sel-item .sel-price { font-weight: 700; color: #00695c; font-size: 0.88rem; min-width: 80px; text-align: right; }
+.qty-ctrl { display: flex; align-items: center; gap: 4px; }
+.qty-btn { width: 26px; height: 26px; border-radius: 6px; border: 1px solid #b2dfdb; background: white; color: #00897b; font-weight: 700; font-size: 0.95rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.15s; }
+.qty-btn:hover { background: #e0f2f1; }
+.qty-btn.remove { border-color: #ffcdd2; color: #c62828; }
+.qty-btn.remove:hover { background: #ffebee; }
+.qty-val { width: 26px; text-align: center; font-weight: 700; font-size: 0.88rem; color: #1a3c34; }
+.summary-footer { display: flex; justify-content: space-between; align-items: center; padding: 14px 0; border-top: 2px solid #e0f2f1; margin-bottom: 14px; }
+.summary-total { font-size: 1.15rem; color: #1a3c34; }
+.summary-total strong { color: #00695c; font-size: 1.3rem; }
+.summary-count { font-size: 0.85rem; color: #7f9e98; }
+.btn-block { display: block; width: 100%; text-align: center; }
+.btn-lg { padding: 14px 28px; font-size: 1rem; }
+.btn { display: inline-block; padding: 8px 18px; border-radius: 8px; text-decoration: none; font-size: 0.85rem; font-weight: 600; border: none; cursor: pointer; transition: all 0.2s; }
+.btn-teal { background: #00897b; color: white; }
+.btn-teal:hover { background: #00695c; }
+.btn-secondary { background: #e0f2f1; color: #007d70; }
+.btn-sm { padding: 6px 14px; font-size: 0.8rem; }
+.alert { padding: 12px 18px; border-radius: 8px; margin-bottom: 16px; font-size: 0.9rem; }
+.alert-error { background: #fce4ec; color: #c62828; border: 1px solid #f8bbd0; }
+.alert-success { background: #e8f5e9; color: #2e7d32; border: 1px solid #c8e6c9; }
+
+@media (max-width: 900px) { .form-grid { grid-template-columns: 1fr; } .form-row { grid-template-columns: 1fr; } }
+</style>
+
+<script>
+(function() {
+  var selectedItems = {};
+
+  function render() {
+    var container = document.getElementById("selectedItems");
+    var summary = document.getElementById("orderSummary");
+    var totalEl = document.getElementById("orderTotal");
+    var countEl = document.getElementById("orderCount");
+    var input = document.getElementById("itemsInput");
+    var keys = Object.keys(selectedItems);
+
+    if (keys.length === 0) {
+      summary.style.display = "none";
+      return;
+    }
+    summary.style.display = "block";
+
+    var html = "";
+    var total = 0;
+    var count = 0;
+    keys.forEach(function(id) {
+      var item = selectedItems[id];
+      var lineTotal = item.price * item.quantity;
+      total += lineTotal;
+      count += item.quantity;
+      html += '<div class="sel-item">' +
+        '<span class="sel-name">' + item.name + '</span>' +
+        '<div class="qty-ctrl">' +
+          '<button type="button" class="qty-btn' + (item.quantity <= 1 ? ' remove' : '') + '" onclick="window._orderChangeQty(\'' + id + '\', -1)">' + (item.quantity <= 1 ? '&times;' : '&minus;') + '</button>' +
+          '<span class="qty-val">' + item.quantity + '</span>' +
+          '<button type="button" class="qty-btn" onclick="window._orderChangeQty(\'' + id + '\', 1)">+</button>' +
+        '</div>' +
+        '<span class="sel-price">' + lineTotal.toLocaleString("vi-VN") + 'd</span>' +
+      '</div>';
+    });
+    container.innerHTML = html;
+    totalEl.textContent = total.toLocaleString("vi-VN") + "d";
+    countEl.textContent = count + " mon";
+
+    // Build items array for form submission
+    var arr = keys.map(function(id) {
+      return { dishId: id, quantity: selectedItems[id].quantity };
+    });
+    input.value = JSON.stringify(arr);
+  }
+
+  window.addDish = function(el) {
+    var id = el.getAttribute("data-id");
+    var name = el.getAttribute("data-name");
+    var price = parseInt(el.getAttribute("data-price"));
+    if (selectedItems[id]) {
+      selectedItems[id].quantity += 1;
+    } else {
+      selectedItems[id] = { name: name, price: price, quantity: 1 };
+    }
+    render();
+  };
+
+  window._orderChangeQty = function(id, delta) {
+    if (!selectedItems[id]) return;
+    selectedItems[id].quantity += delta;
+    if (selectedItems[id].quantity <= 0) {
+      delete selectedItems[id];
+    }
+    render();
+  };
+
+  window.filterDishes = function(q) {
+    var items = document.querySelectorAll("#dishList .dish-item");
+    var term = q.toLowerCase().trim();
+    items.forEach(function(el) {
+      var name = el.getAttribute("data-name").toLowerCase();
+      el.classList.toggle("hidden", term && name.indexOf(term) === -1);
+    });
+  };
+
+  window.filterCategory = function(cat, btn) {
+    document.querySelectorAll(".cat-tab").forEach(function(t) { t.classList.remove("active"); });
+    btn.classList.add("active");
+    var items = document.querySelectorAll("#dishList .dish-item");
+    items.forEach(function(el) {
+      if (cat === "all") { el.classList.remove("hidden"); }
+      else { el.classList.toggle("hidden", el.getAttribute("data-category") !== cat); }
+    });
+  };
+})();
+</script>

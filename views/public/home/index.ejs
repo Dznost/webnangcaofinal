@@ -1,0 +1,1176 @@
+<!-- SEO Optimized Homepage for La Maison Restaurant -->
+
+<!-- Hero Section -->
+<section class="home-hero" role="banner">
+    <div class="hero-bg-overlay"></div>
+    <div class="container hero-container">
+        <div class="hero-content">
+            <span class="hero-tag">Fine Dining Experience</span>
+            <h1>Nha Hang La Maison</h1>
+            <p class="hero-tagline">Trai Nghiem Am Thuc Sang Trong & Tinh Te</p>
+            <p class="hero-description">Kham pha nhung huong vi tuyet voi tu cac dau bep tai nang, trong khong gian dang cap va am cung.</p>
+            <div class="hero-buttons">
+                <a href="/menu" class="btn btn-primary btn-lg">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/>
+                    </svg>
+                    Xem Thuc Don
+                </a>
+                <a href="#branches" class="btn btn-outline btn-lg">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                        <line x1="16" y1="2" x2="16" y2="6"/>
+                        <line x1="8" y1="2" x2="8" y2="6"/>
+                    </svg>
+                    Dat Ban Ngay
+                </a>
+            </div>
+        </div>
+        <div class="hero-visual">
+            <div class="hero-image-wrapper">
+                <img src="https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=600&h=700&fit=crop" 
+                     alt="Mon an dac sac tai La Maison" class="hero-main-image" loading="eager">
+                <div class="floating-badge">
+                    <span class="badge-number">10+</span>
+                    <span class="badge-text">Nam Kinh Nghiem</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="hero-scroll">
+        <span>Cuon xuong</span>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 5v14M5 12l7 7 7-7"/>
+        </svg>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="features-section">
+    <div class="container">
+        <div class="features-grid">
+            <div class="feature-item">
+                <div class="feature-icon">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+                        <path d="M2 17l10 5 10-5"/>
+                        <path d="M2 12l10 5 10-5"/>
+                    </svg>
+                </div>
+                <div class="feature-content">
+                    <h3>Chat Luong Cao Cap</h3>
+                    <p>Nguyen lieu tuoi song, che bien ti mi</p>
+                </div>
+            </div>
+            <div class="feature-item">
+                <div class="feature-icon">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                        <circle cx="9" cy="7" r="4"/>
+                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                    </svg>
+                </div>
+                <div class="feature-content">
+                    <h3>Phuc Vu Chuyen Nghiep</h3>
+                    <p>Doi ngu tan tam, chu dao</p>
+                </div>
+            </div>
+            <div class="feature-item">
+                <div class="feature-icon">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+                        <circle cx="12" cy="10" r="3"/>
+                    </svg>
+                </div>
+                <div class="feature-content">
+                    <h3>Nhieu Chi Nhanh</h3>
+                    <p>Vi tri thuan tien, de tim kiem</p>
+                </div>
+            </div>
+            <div class="feature-item">
+                <div class="feature-icon">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                    </svg>
+                </div>
+                <div class="feature-content">
+                    <h3>An Toan Ve Sinh</h3>
+                    <p>Tieu chuan VSATTP nghiem ngat</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Featured Dishes Section -->
+<section class="dishes-section" aria-labelledby="dishes-heading">
+    <div class="container">
+        <div class="section-header">
+            <span class="section-tag">Thuc Don Noi Bat</span>
+            <h2 id="dishes-heading">Mon An Dac Sac</h2>
+            <p class="section-description">Nhung mon an duoc yeu thich nhat tai La Maison</p>
+        </div>
+        
+        <% if (dishes && dishes.length > 0) { %>
+            <div class="dishes-grid">
+                <% dishes.slice(0, 6).forEach((dish, index) => { %>
+                    <article class="dish-card <%= index === 0 ? 'featured' : '' %>" itemscope itemtype="https://schema.org/MenuItem">
+                        <div class="dish-image">
+                            <img src="<%= dish.image || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&h=300&fit=crop' %>" 
+                                 alt="<%= dish.name %>" itemprop="image" loading="lazy"
+                                 onerror="this.src='https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&h=300&fit=crop'">
+                            <% if (dish.discount > 0) { %>
+                                <span class="discount-tag">-<%= dish.discount %>%</span>
+                            <% } %>
+                            <div class="dish-overlay">
+                                <a href="/dish/<%= dish._id %>" class="dish-view-btn">Xem Chi Tiet</a>
+                            </div>
+                        </div>
+                        <div class="dish-content">
+                            <span class="dish-category">
+                                <% 
+                                    const categoryMap = {
+                                        'appetizer': 'Khai Vi',
+                                        'main': 'Mon Chinh',
+                                        'dessert': 'Trang Mieng',
+                                        'beverage': 'Do Uong'
+                                    };
+                                %>
+                                <%= categoryMap[dish.category] || dish.category %>
+                            </span>
+                            <h3 itemprop="name"><%= dish.name %></h3>
+                            <p class="dish-description" itemprop="description"><%= dish.description.substring(0, 80) %>...</p>
+                            <div class="dish-footer">
+                                <span class="dish-price" itemprop="offers" itemscope itemtype="https://schema.org/Offer">
+                                    <span itemprop="price"><%= dish.price.toLocaleString('vi-VN') %></span>
+                                    <meta itemprop="priceCurrency" content="VND">d
+                                </span>
+                                <% if (locals.isLoggedIn) { %>
+                                    <form action="/user/cart/add" method="POST" class="add-cart-form">
+                                        <input type="hidden" name="dishId" value="<%= dish._id %>">
+                                        <input type="hidden" name="quantity" value="1">
+                                        <button type="submit" class="btn-add-cart" aria-label="Them vao gio hang">
+                                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
+                                                <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+                                            </svg>
+                                        </button>
+                                    </form>
+                                <% } %>
+                            </div>
+                        </div>
+                    </article>
+                <% }) %>
+            </div>
+            
+            <div class="section-cta">
+                <a href="/menu" class="btn btn-secondary btn-lg">
+                    Xem Tat Ca Thuc Don
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M5 12h14M12 5l7 7-7 7"/>
+                    </svg>
+                </a>
+            </div>
+        <% } else { %>
+            <div class="empty-state">
+                <p>Hien chua co mon an nao. Vui long quay lai sau.</p>
+            </div>
+        <% } %>
+    </div>
+</section>
+
+<!-- Branches Section -->
+<section class="branches-section" id="branches" aria-labelledby="branches-heading">
+    <div class="container">
+        <div class="section-header light">
+            <span class="section-tag">Chi Nhanh</span>
+            <h2 id="branches-heading">Dat Ban Tai Chi Nhanh</h2>
+            <p class="section-description">Chon chi nhanh va dat ban truoc de duoc phuc vu tot nhat</p>
+        </div>
+        
+        <% if (branches && branches.length > 0) { %>
+            <div class="branches-grid">
+                <% branches.forEach(branch => { %>
+                    <article class="branch-card" itemscope itemtype="https://schema.org/Restaurant">
+                        <div class="branch-image">
+                            <img src="<%= branch.image || 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=400&h=300&fit=crop' %>" 
+                                 alt="<%= branch.name %>" itemprop="image" loading="lazy"
+                                 onerror="this.src='https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=400&h=300&fit=crop'">
+                            <div class="branch-status <%= branch.availableTables > 5 ? 'available' : 'limited' %>">
+                                <%= branch.availableTables > 5 ? 'Con ban' : 'Sap het' %>
+                            </div>
+                        </div>
+                        <div class="branch-content">
+                            <h3 itemprop="name"><%= branch.name %></h3>
+                            <div class="branch-info">
+                                <div class="info-item">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+                                        <circle cx="12" cy="10" r="3"/>
+                                    </svg>
+                                    <span itemprop="address"><%= branch.address %></span>
+                                </div>
+                                <div class="info-item">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72"/>
+                                    </svg>
+                                    <a href="tel:<%= branch.phone %>" itemprop="telephone"><%= branch.phone %></a>
+                                </div>
+                                <div class="info-item">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <circle cx="12" cy="12" r="10"/>
+                                        <polyline points="12 6 12 12 16 14"/>
+                                    </svg>
+                                    <span itemprop="openingHours"><%= branch.openingHours %></span>
+                                </div>
+                            </div>
+                            <div class="branch-availability">
+                                <div class="availability-bar">
+                                    <div class="availability-fill" style="width: <%= Math.round((branch.availableTables / branch.totalTables) * 100) %>%"></div>
+                                </div>
+                                <span class="availability-text"><%= branch.availableTables %>/<%= branch.totalTables %> ban trong</span>
+                            </div>
+                            <a href="/branch/<%= branch._id %>" class="btn btn-primary btn-full">
+                                Xem Chi Tiet & Dat Ban
+                            </a>
+                        </div>
+                    </article>
+                <% }) %>
+            </div>
+            
+            <div class="section-cta">
+                <a href="/branches" class="btn btn-outline-dark btn-lg">
+                    Xem Tat Ca Chi Nhanh
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M5 12h14M12 5l7 7-7 7"/>
+                    </svg>
+                </a>
+            </div>
+        <% } else { %>
+            <div class="empty-state">
+                <p>Hien chua co chi nhanh nao. Vui long quay lai sau.</p>
+            </div>
+        <% } %>
+    </div>
+</section>
+
+<!-- Events Section -->
+<section class="events-section" aria-labelledby="events-heading">
+    <div class="container">
+        <div class="section-header">
+            <span class="section-tag">Uu Dai</span>
+            <h2 id="events-heading">Su Kien & Khuyen Mai</h2>
+            <p class="section-description">Dung bo lo cac chuong trinh uu dai hap dan</p>
+        </div>
+        
+        <% if (events && events.length > 0) { %>
+            <div class="events-grid">
+                <% events.slice(0, 3).forEach((event, index) => { %>
+                    <article class="event-card <%= index === 0 ? 'featured' : '' %>">
+                        <div class="event-image">
+                            <img src="<%= event.image || 'https://images.unsplash.com/photo-1511795409834-ef04bbd61622?w=500&h=350&fit=crop' %>" 
+                                 alt="<%= event.title %>" loading="lazy"
+                                 onerror="this.src='https://images.unsplash.com/photo-1511795409834-ef04bbd61622?w=500&h=350&fit=crop'">
+                            <% if (event.discount > 0) { %>
+                                <span class="event-discount">Giam <%= event.discount %>%</span>
+                            <% } %>
+                        </div>
+                        <div class="event-content">
+                            <div class="event-date">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                                    <line x1="16" y1="2" x2="16" y2="6"/>
+                                    <line x1="8" y1="2" x2="8" y2="6"/>
+                                </svg>
+                                <%= new Date(event.startDate).toLocaleDateString('vi-VN') %> - <%= new Date(event.endDate).toLocaleDateString('vi-VN') %>
+                            </div>
+                            <h3><%= event.title %></h3>
+                            <p><%= event.description.substring(0, 100) %>...</p>
+                            <a href="/event/<%= event._id %>" class="event-link">
+                                Xem Chi Tiet
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M5 12h14M12 5l7 7-7 7"/>
+                                </svg>
+                            </a>
+                        </div>
+                    </article>
+                <% }) %>
+            </div>
+            
+            <div class="section-cta">
+                <a href="/events" class="btn btn-secondary btn-lg">
+                    Xem Tat Ca Su Kien
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M5 12h14M12 5l7 7-7 7"/>
+                    </svg>
+                </a>
+            </div>
+        <% } else { %>
+            <div class="empty-state">
+                <p>Hien chua co su kien nao. Vui long quay lai sau.</p>
+            </div>
+        <% } %>
+    </div>
+</section>
+
+<!-- Newsletter Section -->
+<section class="newsletter-section">
+    <div class="container">
+        <div class="newsletter-content">
+            <div class="newsletter-text">
+                <h2>Nhan Tin Uu Dai Doc Quyen</h2>
+                <p>Dang ky nhan thong bao ve cac chuong trinh khuyen mai va su kien dac biet</p>
+            </div>
+            <form class="newsletter-form" onsubmit="return handleNewsletter(event)">
+                <input type="email" placeholder="Nhap email cua ban..." required class="newsletter-input">
+                <button type="submit" class="btn btn-primary">Dang Ky</button>
+            </form>
+        </div>
+    </div>
+</section>
+
+<style>
+/* Homepage Styles - Modern Restaurant Theme */
+
+/* Hero Section */
+.home-hero {
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    background: linear-gradient(135deg, #1f2937 0%, #374151 100%);
+    overflow: hidden;
+}
+
+.hero-bg-overlay {
+    position: absolute;
+    inset: 0;
+    background: url('https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=1920&h=1080&fit=crop') center/cover;
+    opacity: 0.15;
+}
+
+.hero-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 60px;
+    align-items: center;
+    padding: 120px 20px;
+    position: relative;
+    z-index: 2;
+}
+
+.hero-content {
+    color: white;
+}
+
+.hero-tag {
+    display: inline-block;
+    padding: 8px 20px;
+    background: rgba(139, 111, 71, 0.3);
+    border: 1px solid rgba(139, 111, 71, 0.5);
+    border-radius: 30px;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 24px;
+    color: #d4a574;
+}
+
+.home-hero h1 {
+    font-size: clamp(3rem, 6vw, 4.5rem);
+    font-weight: 700;
+    margin: 0 0 16px 0;
+    font-family: 'Playfair Display', serif;
+    line-height: 1.1;
+}
+
+.hero-tagline {
+    font-size: 1.5rem;
+    color: #d4a574;
+    margin: 0 0 16px 0;
+    font-weight: 500;
+}
+
+.hero-description {
+    font-size: 1.125rem;
+    color: rgba(255, 255, 255, 0.8);
+    margin: 0 0 40px 0;
+    max-width: 500px;
+    line-height: 1.7;
+}
+
+.hero-buttons {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.hero-visual {
+    position: relative;
+}
+
+.hero-image-wrapper {
+    position: relative;
+}
+
+.hero-main-image {
+    width: 100%;
+    max-width: 500px;
+    border-radius: 20px;
+    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4);
+}
+
+.floating-badge {
+    position: absolute;
+    bottom: -20px;
+    left: -30px;
+    background: linear-gradient(135deg, #8B6F47 0%, #6b5438 100%);
+    color: white;
+    padding: 20px 30px;
+    border-radius: 16px;
+    text-align: center;
+    box-shadow: 0 10px 30px rgba(139, 111, 71, 0.4);
+}
+
+.badge-number {
+    display: block;
+    font-size: 2.5rem;
+    font-weight: 700;
+    font-family: 'Playfair Display', serif;
+    line-height: 1;
+}
+
+.badge-text {
+    font-size: 0.8125rem;
+    opacity: 0.9;
+}
+
+.hero-scroll {
+    position: absolute;
+    bottom: 40px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 0.8125rem;
+    animation: bounce 2s infinite;
+}
+
+@keyframes bounce {
+    0%, 100% { transform: translateX(-50%) translateY(0); }
+    50% { transform: translateX(-50%) translateY(-8px); }
+}
+
+/* Features Section */
+.features-section {
+    background: white;
+    padding: 0;
+    margin-top: -60px;
+    position: relative;
+    z-index: 10;
+}
+
+.features-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+
+.feature-item {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 32px 24px;
+    border-right: 1px solid #f3f4f6;
+    transition: background 0.3s;
+}
+
+.feature-item:last-child {
+    border-right: none;
+}
+
+.feature-item:hover {
+    background: #faf9f7;
+}
+
+.feature-icon {
+    width: 56px;
+    height: 56px;
+    background: linear-gradient(135deg, #8B6F47 0%, #6b5438 100%);
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    flex-shrink: 0;
+}
+
+.feature-content h3 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #1f2937;
+    margin: 0 0 4px 0;
+}
+
+.feature-content p {
+    font-size: 0.875rem;
+    color: #6b7280;
+    margin: 0;
+}
+
+/* Section Styles */
+.section-tag {
+    display: inline-block;
+    color: #8B6F47;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 12px;
+}
+
+.section-header {
+    text-align: center;
+    max-width: 600px;
+    margin: 0 auto 60px;
+}
+
+.section-header.light .section-tag {
+    color: #d4a574;
+}
+
+.section-header.light h2, .section-header.light p {
+    color: white;
+}
+
+.section-header h2 {
+    font-size: clamp(2rem, 4vw, 2.75rem);
+    font-weight: 700;
+    color: #1f2937;
+    margin: 0 0 16px 0;
+    font-family: 'Playfair Display', serif;
+}
+
+.section-description {
+    font-size: 1.125rem;
+    color: #6b7280;
+    margin: 0;
+}
+
+.section-cta {
+    text-align: center;
+    margin-top: 48px;
+}
+
+/* Dishes Section */
+.dishes-section {
+    padding: 100px 20px;
+    background: white;
+}
+
+.dishes-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 30px;
+}
+
+.dish-card {
+    background: white;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+    border: 1px solid #f3f4f6;
+}
+
+.dish-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
+}
+
+.dish-card.featured {
+    grid-row: span 2;
+}
+
+.dish-image {
+    position: relative;
+    overflow: hidden;
+    aspect-ratio: 4/3;
+}
+
+.dish-card.featured .dish-image {
+    aspect-ratio: 4/5;
+}
+
+.dish-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+}
+
+.dish-card:hover .dish-image img {
+    transform: scale(1.1);
+}
+
+.discount-tag {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    background: #dc2626;
+    color: white;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.8125rem;
+    font-weight: 600;
+}
+
+.dish-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.dish-card:hover .dish-overlay {
+    opacity: 1;
+}
+
+.dish-view-btn {
+    padding: 12px 24px;
+    background: white;
+    color: #1f2937;
+    border-radius: 8px;
+    font-weight: 600;
+    text-decoration: none;
+    transform: translateY(10px);
+    transition: all 0.3s;
+}
+
+.dish-card:hover .dish-view-btn {
+    transform: translateY(0);
+}
+
+.dish-content {
+    padding: 24px;
+}
+
+.dish-category {
+    font-size: 0.75rem;
+    color: #8B6F47;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 600;
+}
+
+.dish-content h3 {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #1f2937;
+    margin: 8px 0;
+}
+
+.dish-description {
+    font-size: 0.875rem;
+    color: #6b7280;
+    line-height: 1.5;
+    margin: 0 0 16px 0;
+}
+
+.dish-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.dish-price {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #8B6F47;
+}
+
+.btn-add-cart {
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    border: none;
+    background: linear-gradient(135deg, #8B6F47 0%, #6b5438 100%);
+    color: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s;
+}
+
+.btn-add-cart:hover {
+    transform: scale(1.1);
+}
+
+/* Branches Section */
+.branches-section {
+    padding: 100px 20px;
+    background: linear-gradient(135deg, #1f2937 0%, #374151 100%);
+}
+
+.branches-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 30px;
+}
+
+.branch-card {
+    background: white;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+}
+
+.branch-card:hover {
+    transform: translateY(-8px);
+}
+
+.branch-image {
+    position: relative;
+    height: 200px;
+    overflow: hidden;
+}
+
+.branch-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.branch-status {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.branch-status.available {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.branch-status.limited {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.branch-content {
+    padding: 24px;
+}
+
+.branch-content h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #1f2937;
+    margin: 0 0 16px 0;
+}
+
+.branch-info {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.info-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    font-size: 0.875rem;
+    color: #4b5563;
+}
+
+.info-item svg {
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+.info-item a {
+    color: #8B6F47;
+    text-decoration: none;
+}
+
+.branch-availability {
+    margin-bottom: 20px;
+}
+
+.availability-bar {
+    height: 8px;
+    background: #e5e7eb;
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 8px;
+}
+
+.availability-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #22c55e 0%, #16a34a 100%);
+    border-radius: 4px;
+}
+
+.availability-text {
+    font-size: 0.8125rem;
+    color: #6b7280;
+}
+
+/* Events Section */
+.events-section {
+    padding: 100px 20px;
+    background: #faf9f7;
+}
+
+.events-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+}
+
+.event-card {
+    background: white;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+}
+
+.event-card.featured {
+    grid-row: span 2;
+}
+
+.event-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
+}
+
+.event-image {
+    position: relative;
+    height: 200px;
+    overflow: hidden;
+}
+
+.event-card.featured .event-image {
+    height: 300px;
+}
+
+.event-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.event-discount {
+    position: absolute;
+    bottom: 16px;
+    left: 16px;
+    background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+    color: white;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.9375rem;
+}
+
+.event-content {
+    padding: 24px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.event-date {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.8125rem;
+    color: #8B6F47;
+    margin-bottom: 12px;
+}
+
+.event-content h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #1f2937;
+    margin: 0 0 12px 0;
+}
+
+.event-content p {
+    color: #6b7280;
+    font-size: 0.9375rem;
+    line-height: 1.6;
+    margin: 0;
+    flex: 1;
+}
+
+.event-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: #8B6F47;
+    font-weight: 600;
+    text-decoration: none;
+    margin-top: 16px;
+    transition: gap 0.2s;
+}
+
+.event-link:hover {
+    gap: 12px;
+}
+
+/* Newsletter Section */
+.newsletter-section {
+    padding: 80px 20px;
+    background: linear-gradient(135deg, #8B6F47 0%, #6b5438 100%);
+}
+
+.newsletter-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 40px;
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.newsletter-text h2 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: white;
+    margin: 0 0 8px 0;
+    font-family: 'Playfair Display', serif;
+}
+
+.newsletter-text p {
+    color: rgba(255, 255, 255, 0.8);
+    margin: 0;
+}
+
+.newsletter-form {
+    display: flex;
+    gap: 12px;
+}
+
+.newsletter-input {
+    padding: 14px 20px;
+    border: none;
+    border-radius: 10px;
+    width: 300px;
+    font-size: 1rem;
+}
+
+.newsletter-form .btn-primary {
+    background: white;
+    color: #8B6F47;
+}
+
+/* Buttons */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 28px;
+    border-radius: 10px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    font-size: 1rem;
+    border: none;
+    cursor: pointer;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #8B6F47 0%, #6b5438 100%);
+    color: white;
+    box-shadow: 0 4px 12px rgba(139, 111, 71, 0.3);
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(139, 111, 71, 0.4);
+}
+
+.btn-secondary {
+    background: #f3f4f6;
+    color: #374151;
+}
+
+.btn-secondary:hover {
+    background: #e5e7eb;
+}
+
+.btn-outline {
+    background: transparent;
+    color: white;
+    border: 2px solid rgba(255, 255, 255, 0.5);
+}
+
+.btn-outline:hover {
+    background: white;
+    color: #1f2937;
+    border-color: white;
+}
+
+.btn-outline-dark {
+    background: transparent;
+    color: white;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+.btn-outline-dark:hover {
+    background: white;
+    color: #1f2937;
+}
+
+.btn-full {
+    width: 100%;
+    justify-content: center;
+}
+
+.btn-lg {
+    padding: 16px 32px;
+}
+
+/* Empty State */
+.empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: #9ca3af;
+    grid-column: 1 / -1;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+    .hero-container {
+        grid-template-columns: 1fr;
+        text-align: center;
+        padding: 100px 20px;
+    }
+
+    .hero-content {
+        max-width: 600px;
+        margin: 0 auto;
+    }
+
+    .hero-description {
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .hero-buttons {
+        justify-content: center;
+    }
+
+    .hero-visual {
+        display: none;
+    }
+
+    .features-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .feature-item {
+        border-bottom: 1px solid #f3f4f6;
+    }
+
+    .dishes-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .dish-card.featured {
+        grid-row: auto;
+    }
+
+    .events-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .event-card.featured {
+        grid-row: auto;
+    }
+}
+
+@media (max-width: 768px) {
+    .home-hero {
+        min-height: auto;
+    }
+
+    .hero-container {
+        padding: 80px 20px;
+    }
+
+    .features-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .feature-item {
+        border-right: none;
+    }
+
+    .dishes-section, .branches-section, .events-section {
+        padding: 60px 20px;
+    }
+
+    .dishes-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .branches-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .hero-buttons {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .btn-lg {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .newsletter-content {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .newsletter-form {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .newsletter-input {
+        width: 100%;
+    }
+}
+</style>
+
+<script>
+function handleNewsletter(e) {
+    e.preventDefault();
+    alert('Cam on ban da dang ky! Chung toi se gui thong tin uu dai som nhat.');
+    e.target.reset();
+    return false;
+}
+</script>

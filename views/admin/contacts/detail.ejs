@@ -1,0 +1,208 @@
+<section class="admin-section">
+    <div class="container">
+        <div class="section-header">
+            <h1>Chi Tiet Lien He</h1>
+            <a href="/admin/contacts" class="btn btn-secondary">Quay Lai</a>
+        </div>
+
+        <% if (typeof success !== 'undefined' && success) { %>
+            <div class="alert alert-success"><%= success %></div>
+        <% } %>
+
+        <div class="contact-detail-card">
+            <div class="contact-info-box">
+                <h3>Thong Tin Nguoi Gui</h3>
+                <p><strong>Loai:</strong> 
+                    <% if (contact.type === 'shipper_application') { %>
+                        <span class="type-badge shipper-type">Don dang ky Shipper</span>
+                    <% } else if (contact.type === 'staff_application') { %>
+                        <span class="type-badge staff-type">Don dang ky Nhan Vien</span>
+                    <% } else { %>
+                        <span class="type-badge feedback-type">Phan hoi</span>
+                    <% } %>
+                </p>
+                <p><strong>Ten:</strong> <%= contact.name %></p>
+                <p><strong>Email:</strong> <a href="mailto:<%= contact.email %>"><%= contact.email %></a></p>
+                <% if (contact.phone) { %>
+                <p><strong>SDT:</strong> <%= contact.phone %></p>
+                <% } %>
+                <% if (contact.branchId) { %>
+                <p><strong>Chi Nhanh:</strong> <%= contact.branchId.name %><%= contact.branchId.address ? ' - ' + contact.branchId.address : '' %></p>
+                <% } %>
+                <p><strong>Ngay Gui:</strong> <%= new Date(contact.createdAt).toLocaleString('vi-VN') %></p>
+                <p><strong>Trang Thai:</strong> 
+                    <span class="status-badge status-<%= contact.status %>">
+                        <% if (contact.status === 'new') { %>Moi<% } %>
+                        <% if (contact.status === 'read') { %>Da Doc<% } %>
+                        <% if (contact.status === 'replied') { %>Da Tra Loi<% } %>
+                        <% if (contact.status === 'approved') { %>Da Duyet<% } %>
+                        <% if (contact.status === 'rejected') { %>Tu Choi<% } %>
+                    </span>
+                </p>
+            </div>
+
+            <div class="message-box">
+                <h3>Tin Nhan</h3>
+                <div class="message-content">
+                    <%= contact.message %>
+                </div>
+            </div>
+
+            <% if (contact.reply) { %>
+            <div class="reply-box">
+                <h3>Phan Hoi Cua Admin</h3>
+                <div class="reply-content">
+                    <%= contact.reply %>
+                </div>
+            </div>
+            <% } %>
+
+            <!-- Shipper application actions -->
+            <% if (contact.type === 'shipper_application' && contact.status !== 'approved' && contact.status !== 'rejected') { %>
+            <div class="shipper-actions">
+                <h3>Xu Ly Don Dang Ky Shipper</h3>
+                <p class="action-desc">Duyet don dang ky se tu dong chuyen role cua nguoi dung thanh Shipper.</p>
+                <div class="action-buttons-row">
+                    <form method="POST" action="/admin/contacts/<%= contact._id %>/approve-shipper" style="display:inline">
+                        <button type="submit" class="btn btn-success" onclick="return confirm('Ban chac chan muon DUYET nguoi nay lam shipper?')">Duyet Lam Shipper</button>
+                    </form>
+                    <form method="POST" action="/admin/contacts/<%= contact._id %>/reject-shipper" style="display:inline">
+                        <button type="submit" class="btn btn-danger" onclick="return confirm('Ban chac chan muon TU CHOI don dang ky nay?')">Tu Choi</button>
+                    </form>
+                </div>
+            </div>
+            <% } %>
+
+            <% if (contact.type === 'shipper_application' && contact.status === 'approved') { %>
+            <div class="approved-notice">
+                <h3>Da Duyet</h3>
+                <p>Nguoi dung nay da duoc duyet lam shipper thanh cong.</p>
+            </div>
+            <% } %>
+
+            <% if (contact.type === 'shipper_application' && contact.status === 'rejected') { %>
+            <div class="rejected-notice">
+                <h3>Da Tu Choi</h3>
+                <p>Don dang ky nay da bi tu choi.</p>
+            </div>
+            <% } %>
+
+            <!-- Staff application actions -->
+            <% if (contact.type === 'staff_application' && contact.status !== 'approved' && contact.status !== 'rejected') { %>
+            <div class="shipper-actions staff-actions">
+                <h3>Xu Ly Don Dang Ky Nhan Vien</h3>
+                <p class="action-desc">Duyet don dang ky se tu dong chuyen role cua nguoi dung thanh Nhan Vien.</p>
+                <div class="action-buttons-row">
+                    <form method="POST" action="/admin/contacts/<%= contact._id %>/approve-staff" style="display:inline">
+                        <button type="submit" class="btn btn-success" onclick="return confirm('Ban chac chan muon DUYET nguoi nay lam nhan vien?')">Duyet Lam Nhan Vien</button>
+                    </form>
+                    <form method="POST" action="/admin/contacts/<%= contact._id %>/reject-staff" style="display:inline">
+                        <button type="submit" class="btn btn-danger" onclick="return confirm('Ban chac chan muon TU CHOI don dang ky nay?')">Tu Choi</button>
+                    </form>
+                </div>
+            </div>
+            <% } %>
+
+            <% if (contact.type === 'staff_application' && contact.status === 'approved') { %>
+            <div class="approved-notice">
+                <h3>Da Duyet</h3>
+                <p>Nguoi dung nay da duoc duyet lam nhan vien thanh cong.</p>
+            </div>
+            <% } %>
+
+            <% if (contact.type === 'staff_application' && contact.status === 'rejected') { %>
+            <div class="rejected-notice">
+                <h3>Da Tu Choi</h3>
+                <p>Don dang ky nhan vien nay da bi tu choi.</p>
+            </div>
+            <% } %>
+
+            <!-- Reply form for feedback contacts -->
+            <% if (contact.type !== 'shipper_application' && contact.type !== 'staff_application' && !contact.reply) { %>
+            <form method="POST" action="/admin/contacts/<%= contact._id %>/reply" class="admin-form">
+                <div class="form-group">
+                    <label for="reply">Phan Hoi Cho Khach Hang</label>
+                    <textarea id="reply" name="reply" rows="6" required placeholder="Nhap phan hoi cua ban..."></textarea>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Gui Phan Hoi</button>
+                    <a href="/admin/contacts" class="btn btn-secondary">Huy</a>
+                </div>
+            </form>
+            <% } %>
+        </div>
+    </div>
+</section>
+
+<style>
+    .contact-detail-card {
+        background: white;
+        padding: 2rem;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .contact-info-box, .message-box, .reply-box {
+        margin-bottom: 2rem;
+        padding: 1.5rem;
+        border: 1px solid #e0e0e0;
+        border-radius: 6px;
+    }
+
+    .contact-info-box h3, .message-box h3, .reply-box h3 {
+        margin-bottom: 1rem;
+        color: #8B6F47;
+    }
+
+    .message-content, .reply-content {
+        padding: 1rem;
+        background: #f9f9f9;
+        border-left: 3px solid #8B6F47;
+        white-space: pre-wrap;
+        line-height: 1.6;
+    }
+
+    .admin-form {
+        margin-top: 2rem;
+    }
+
+    .type-badge { display: inline-block; padding: 3px 12px; border-radius: 10px; font-size: 0.82rem; font-weight: 600; }
+    .shipper-type { background: #fff3e0; color: #e65100; }
+    .staff-type { background: #e8f5e9; color: #2e7d32; }
+    .feedback-type { background: #e3f2fd; color: #1565c0; }
+
+    .status-approved { background: #d4edda; color: #155724; }
+    .status-rejected { background: #f8d7da; color: #721c24; }
+
+    .shipper-actions {
+        margin-top: 2rem;
+        padding: 1.5rem;
+        border: 2px solid #8B6F47;
+        border-radius: 8px;
+        background: #faf8f5;
+    }
+    .shipper-actions h3 { color: #8B6F47; margin-bottom: 8px; }
+    .staff-actions { border-color: #2e7d32; }
+    .staff-actions h3 { color: #2e7d32; }
+    .action-desc { color: #666; font-size: 0.9rem; margin-bottom: 16px; }
+    .action-buttons-row { display: flex; gap: 12px; }
+    .btn-success { background: #2e7d32; color: white; border: none; padding: 10px 24px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.9rem; }
+    .btn-success:hover { background: #1b5e20; }
+    .btn-danger { background: #c62828; color: white; border: none; padding: 10px 24px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.9rem; }
+    .btn-danger:hover { background: #b71c1c; }
+
+    .approved-notice {
+        margin-top: 2rem; padding: 1.5rem; background: #e8f5e9; border-radius: 8px; border: 1px solid #c8e6c9;
+    }
+    .approved-notice h3 { color: #2e7d32; margin-bottom: 8px; }
+    .approved-notice p { color: #2e7d32; }
+
+    .rejected-notice {
+        margin-top: 2rem; padding: 1.5rem; background: #fce4ec; border-radius: 8px; border: 1px solid #f8bbd0;
+    }
+    .rejected-notice h3 { color: #c62828; margin-bottom: 8px; }
+    .rejected-notice p { color: #c62828; }
+
+    .alert { padding: 12px 18px; border-radius: 8px; margin-bottom: 20px; font-size: 0.9rem; }
+    .alert-success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+</style>

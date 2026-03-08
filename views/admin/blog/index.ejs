@@ -1,0 +1,38 @@
+<section class="admin-section">
+    <div class="container">
+        <div class="section-header">
+            <h1>Quan Ly Blog</h1>
+            <a href="/admin/blogs/new" class="btn btn-primary">+ Them Bai Blog</a>
+        </div>
+
+        <% if (blogs && blogs.length > 0) { %>
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>Tieu De</th>
+                    <th>Tac Gia</th>
+                    <th>Ngay Tao</th>
+                    <th>Hanh Dong</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% blogs.forEach(blog => { %>
+                <tr>
+                    <td><%= blog.title %></td>
+                    <td><%= blog.author || 'Admin' %></td>
+                    <td><%= new Date(blog.createdAt).toLocaleDateString('vi-VN') %></td>
+                    <td>
+                        <div style="display:flex;gap:6px;">
+                            <a href="/admin/blogs/<%= blog._id %>/edit" class="btn btn-small btn-primary">Sua</a>
+                            <a href="/admin/blogs/<%= blog._id %>/delete" class="btn btn-small btn-danger" onclick="return confirm('Ban chac chan?')">Xoa</a>
+                        </div>
+                    </td>
+                </tr>
+                <% }) %>
+            </tbody>
+        </table>
+        <% } else { %>
+        <div class="empty-state">Chua co bai blog nao. <a href="/admin/blogs/new">Them bai blog moi</a></div>
+        <% } %>
+    </div>
+</section>

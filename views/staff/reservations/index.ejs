@@ -1,0 +1,85 @@
+<section class="staff-orders">
+    <div class="container">
+        <div class="page-header">
+            <h1>Dat Ban</h1>
+            <a href="/staff" class="btn btn-secondary btn-small">Quay Lai</a>
+        </div>
+
+        <div class="filter-bar">
+            <a href="/staff/reservations?status=all" class="filter-btn <%= statusFilter === 'all' ? 'active' : '' %>">Tat Ca</a>
+            <a href="/staff/reservations?status=processing" class="filter-btn <%= statusFilter === 'processing' ? 'active' : '' %>">Dang Xu Ly</a>
+            <a href="/staff/reservations?status=completed" class="filter-btn <%= statusFilter === 'completed' ? 'active' : '' %>">Hoan Thanh</a>
+        </div>
+
+        <% if (reservations && reservations.length > 0) { %>
+        <div class="orders-table-wrap">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>Ma</th>
+                        <th>Khach Hang</th>
+                        <th>Chi Nhanh</th>
+                        <th>Ngay</th>
+                        <th>Gio</th>
+                        <th>So Khach</th>
+                        <th>Tong Tien</th>
+                        <th>Trang Thai</th>
+                        <th>Hanh Dong</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% reservations.forEach(function(r) { %>
+                    <tr>
+                        <td><strong>#<%= r._id.toString().slice(-6).toUpperCase() %></strong></td>
+                        <td><%= r.userId ? r.userId.name : 'N/A' %></td>
+                        <td><%= r.branchId ? r.branchId.name : 'N/A' %></td>
+                        <td><%= new Date(r.date).toLocaleDateString('vi-VN') %></td>
+                        <td><%= r.time || 'N/A' %></td>
+                        <td><%= r.guests %></td>
+                        <td class="price-cell"><%= r.totalAmount ? r.totalAmount.toLocaleString('vi-VN') : '0' %>d</td>
+                        <td>
+                            <span class="status-tag status-<%= r.status %>">
+                                <%= r.status === 'confirmed' ? 'Da xac nhan' : r.status === 'paid' ? 'Da thanh toan' : r.status === 'processing' ? 'Dang xu ly' : r.status === 'completed' ? 'Hoan thanh' : r.status %>
+                            </span>
+                        </td>
+                        <td><a href="/staff/reservations/<%= r._id %>" class="btn btn-primary btn-small">Chi Tiet</a></td>
+                    </tr>
+                    <% }); %>
+                </tbody>
+            </table>
+        </div>
+        <% } else { %>
+        <div class="staff-empty">
+            <p>Khong co dat ban nao</p>
+        </div>
+        <% } %>
+    </div>
+</section>
+
+<style>
+.staff-orders { padding: 40px 0; background: #f8f6f3; min-height: 80vh; }
+.staff-orders h1 { font-family: 'Playfair Display', serif; font-size: 1.8rem; color: #2c2c2c; }
+.page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+.filter-bar { display: flex; gap: 8px; margin-bottom: 24px; flex-wrap: wrap; }
+.filter-btn { padding: 8px 18px; border-radius: 20px; font-size: 0.85rem; font-weight: 600; text-decoration: none; color: #555; background: white; border: 1px solid #e0d8ce; transition: all 0.2s; }
+.filter-btn:hover { background: #f3efe8; }
+.filter-btn.active { background: #8B6F47; color: white; border-color: #8B6F47; }
+.orders-table-wrap { overflow-x: auto; }
+.admin-table { width: 100%; border-collapse: collapse; background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 1px 8px rgba(0,0,0,0.06); }
+.admin-table thead { background: #8B6F47; color: white; }
+.admin-table th, .admin-table td { padding: 12px 14px; text-align: left; border-bottom: 1px solid #f0ebe4; font-size: 0.9rem; }
+.admin-table tbody tr:hover { background: #faf8f5; }
+.price-cell { font-weight: 600; color: #8B6F47; }
+.status-tag { padding: 3px 10px; border-radius: 10px; font-size: 0.78rem; font-weight: 600; }
+.status-processing { background: #e3f2fd; color: #1565c0; }
+.status-completed { background: #d4edda; color: #155724; }
+.status-confirmed { background: #fff3e0; color: #e65100; }
+.status-paid { background: #e8f5e9; color: #2e7d32; }
+.staff-empty { text-align: center; padding: 60px 20px; background: white; border-radius: 10px; box-shadow: 0 1px 8px rgba(0,0,0,0.06); }
+.staff-empty p { color: #999; }
+.btn { display: inline-block; padding: 8px 18px; border-radius: 6px; text-decoration: none; font-size: 0.85rem; font-weight: 600; border: none; cursor: pointer; transition: all 0.2s; }
+.btn-primary { background: #8B6F47; color: white; }
+.btn-secondary { background: #e0d8ce; color: #555; }
+.btn-small { padding: 6px 14px; font-size: 0.82rem; }
+@media (max-width: 768px) { .admin-table th, .admin-table td { padding: 8px 10px; font-size: 0.82rem; } }
+</style>

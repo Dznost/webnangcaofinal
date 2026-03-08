@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="<%= typeof metaDescription !== 'undefined' ? metaDescription : 'La Maison - Nha hang sang trong voi am thuc tuyet voi va dich vu chuyen nghiep tai Viet Nam' %>">
+    <meta name="keywords" content="nha hang, fine dining, am thuc, La Maison, dat ban, thuc don">
+    <meta name="author" content="La Maison Restaurant">
+    <meta property="og:title" content="<%= typeof title !== 'undefined' ? title : 'La Maison - Fine Dining Restaurant' %>">
+    <meta property="og:description" content="<%= typeof metaDescription !== 'undefined' ? metaDescription : 'Trai nghiem am thuc tinh te tai La Maison' %>">
+    <meta property="og:type" content="website">
+    <title><%= typeof title !== 'undefined' ? title : 'La Maison - Fine Dining Restaurant' %></title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/responsive-pages.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="<%= typeof isAdminPage !== 'undefined' && isAdminPage ? 'admin-layout' : 'public-layout' %>">
+    <!-- Top bar -->
+    <div class="topbar">
+        <div class="container topbar-inner">
+            <div class="topbar-left">
+                <span>0123 456 789</span>
+                <span class="topbar-divider"></span>
+                <span>info@lamaison.vn</span>
+            </div>
+            <div class="topbar-right">
+                <% if (isLoggedIn) { %>
+                    <% if (isAdmin) { %>
+                        <a href="/admin" class="topbar-link topbar-admin">Dashboard Admin</a>
+                        <span class="topbar-divider"></span>
+                    <% } else if (isShipper) { %>
+                        <a href="/shipper" class="topbar-link topbar-admin">Trang Shipper</a>
+                        <span class="topbar-divider"></span>
+                    <% } else if (typeof isStaff !== 'undefined' && isStaff) { %>
+                        <a href="/staff" class="topbar-link topbar-admin">Trang Nhan Vien</a>
+                        <span class="topbar-divider"></span>
+                    <% } else if (typeof isReception !== 'undefined' && isReception) { %>
+                        <a href="/reception" class="topbar-link topbar-admin">Trang Le Tan</a>
+                        <span class="topbar-divider"></span>
+                    <% } else { %>
+                        <a href="/user/profile" class="topbar-link">Ho So</a>
+                        <span class="topbar-divider"></span>
+                        <a href="/user/cart" class="topbar-link topbar-cart">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+                            Gio Hang
+                        </a>
+                        <span class="topbar-divider"></span>
+                    <% } %>
+                    <a href="/auth/logout" class="topbar-link topbar-logout">Dang Xuat</a>
+                <% } else { %>
+                    <a href="/login" class="topbar-link">Dang Nhap</a>
+                    <span class="topbar-divider"></span>
+                    <a href="/register" class="topbar-link">Dang Ky</a>
+                <% } %>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main navbar -->
+    <nav class="navbar">
+        <div class="container navbar-inner">
+            <a href="/" class="navbar-brand">
+                <div class="brand-logo-wrapper">
+                    <svg class="brand-logo-icon" width="40" height="40" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="32" cy="32" r="30" stroke="currentColor" stroke-width="2"/>
+                        <path d="M20 38c0-8 5-14 12-14s12 6 12 14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        <path d="M32 24v-8M32 16l-3-3M32 16l3-3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <line x1="16" y1="40" x2="48" y2="40" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        <path d="M18 40c0 4 6 8 14 8s14-4 14-8" stroke="currentColor" stroke-width="2"/>
+                    </svg>
+                </div>
+                <div class="brand-text">
+                    <span class="brand-name">La Maison</span>
+                    <span class="brand-tagline">Fine Dining</span>
+                </div>
+            </a>
+
+            <button class="nav-toggle" id="navToggle" aria-label="Toggle menu">
+                <span></span><span></span><span></span>
+            </button>
+
+            <ul class="navbar-menu" id="navMenu">
+                <li><a href="/" class="nav-link">Trang Chu</a></li>
+                <li><a href="/menu" class="nav-link">Thuc Don</a></li>
+                <li><a href="/branches" class="nav-link">Chi Nhanh</a></li>
+                <li><a href="/events" class="nav-link">Su Kien</a></li>
+                <li><a href="/blog" class="nav-link">Tin Tuc</a></li>
+                <li><a href="/about" class="nav-link">Ve Chung Toi</a></li>
+                <li><a href="/contact" class="nav-link">Lien He</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <% if (typeof isAdminPage !== 'undefined' && isAdminPage && isAdmin) { %>
+        <%- include('./admin/sidebar') %>
+    <% } %>
+
+    <main class="main-content">
+        <%- body %>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-top">
+                <div class="footer-brand">
+                    <div class="brand-logo footer-logo">
+                        <svg width="36" height="36" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <circle cx="32" cy="32" r="30" stroke="currentColor" stroke-width="2"/>
+                            <path d="M20 38c0-8 5-14 12-14s12 6 12 14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            <path d="M32 24v-8M32 16l-3-3M32 16l3-3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <line x1="16" y1="40" x2="48" y2="40" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            <path d="M18 40c0 4 6 8 14 8s14-4 14-8" stroke="currentColor" stroke-width="2"/>
+                        </svg>
+                    </div>
+                    <h3>La Maison</h3>
+                    <p>Nha hang sang trong voi am thuc tuyet voi va dich vu chuyen nghiep.</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Dieu Huong</h4>
+                    <ul class="footer-links">
+                        <li><a href="/menu">Thuc Don</a></li>
+                        <li><a href="/branches">Chi Nhanh</a></li>
+                        <li><a href="/events">Su Kien</a></li>
+                        <li><a href="/blog">Tin Tuc</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Lien He</h4>
+                    <ul class="footer-links">
+                        <li>0123 456 789</li>
+                        <li>info@lamaison.vn</li>
+                        <li>123 Le Loi, Quan 1, TP.HCM</li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Gio Mo Cua</h4>
+                    <ul class="footer-links">
+                        <li>Thu 2 - Thu 6: 11:00 - 22:00</li>
+                        <li>Thu 7 - Chu Nhat: 10:00 - 23:00</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 La Maison. Tat ca quyen duoc bao luu.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+    (function() {
+        var toggle = document.getElementById('navToggle');
+        var menu = document.getElementById('navMenu');
+        if (toggle && menu) {
+            toggle.addEventListener('click', function() {
+                toggle.classList.toggle('active');
+                menu.classList.toggle('open');
+            });
+            // Close menu when clicking a link (mobile)
+            var links = menu.querySelectorAll('.nav-link');
+            for (var i = 0; i < links.length; i++) {
+                links[i].addEventListener('click', function() {
+                    toggle.classList.remove('active');
+                    menu.classList.remove('open');
+                });
+            }
+        }
+    })();
+    </script>
+</body>
+</html>

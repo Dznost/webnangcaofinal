@@ -1,0 +1,368 @@
+<section class="admin-section" style="padding:24px 0;background:#f9f8f6;min-height:100vh;">
+  <div class="container" style="max-width:1300px;margin:0 auto;padding:0 20px;">
+    <!-- Header -->
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;">
+      <div>
+        <a href="/admin/users" style="color:#888;text-decoration:none;font-size:0.85rem;display:flex;align-items:center;gap:6px;margin-bottom:8px;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+          Quay lai danh sach
+        </a>
+        <h1 style="margin:0;font-size:1.5rem;color:#333;">Chi Tiet Nguoi Dung</h1>
+      </div>
+    </div>
+
+    <% if (typeof success !== 'undefined' && success) { %>
+      <div style="padding:12px 18px;background:#e8f5e9;color:#2e7d32;border-radius:8px;margin-bottom:20px;font-size:0.9rem;"><%= success %></div>
+    <% } %>
+    <% if (typeof error !== 'undefined' && error) { %>
+      <div style="padding:12px 18px;background:#ffebee;color:#c62828;border-radius:8px;margin-bottom:20px;font-size:0.9rem;"><%= error %></div>
+    <% } %>
+
+    <div style="display:grid;grid-template-columns:320px 1fr;gap:24px;align-items:start;">
+      <!-- Left Sidebar -->
+      <div>
+        <!-- Profile Card -->
+        <div style="background:#fff;border-radius:12px;padding:28px 24px;box-shadow:0 2px 12px rgba(0,0,0,0.06);margin-bottom:20px;text-align:center;">
+          <div style="width:90px;height:90px;border-radius:50%;background:linear-gradient(135deg,#b8860b,#d4a84b);color:#fff;display:flex;align-items:center;justify-content:center;font-size:2.2rem;font-weight:700;margin:0 auto 14px;">
+            <%= user.name ? user.name.charAt(0).toUpperCase() : 'U' %>
+          </div>
+          <h2 style="margin:0 0 6px;font-size:1.25rem;color:#333;"><%= user.name %></h2>
+          <span style="display:inline-block;padding:4px 14px;border-radius:14px;font-size:0.75rem;font-weight:600;text-transform:uppercase;
+            <% if (user.role === 'admin') { %>background:#f8d7da;color:#721c24;
+            <% } else if (user.role === 'shipper') { %>background:#fff3e0;color:#e65100;
+            <% } else if (user.role === 'staff') { %>background:#e3f2fd;color:#1565c0;
+            <% } else if (user.role === 'reception') { %>background:#e8f5e9;color:#1b5e20;
+            <% } else { %>background:#e0f2f1;color:#00695c;<% } %>
+          "><%= user.role %></span>
+
+          <div style="margin-top:20px;text-align:left;border-top:1px solid #f0ebe3;padding-top:16px;">
+            <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #f8f6f3;font-size:0.88rem;">
+              <span style="color:#888;">Email</span>
+              <span style="color:#333;font-weight:500;max-width:55%;text-align:right;word-break:break-all;"><%= user.email %></span>
+            </div>
+            <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #f8f6f3;font-size:0.88rem;">
+              <span style="color:#888;">Dien thoai</span>
+              <span style="color:#333;font-weight:500;"><%= user.phone || 'Chua cap nhat' %></span>
+            </div>
+            <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #f8f6f3;font-size:0.88rem;">
+              <span style="color:#888;">Dia chi</span>
+              <span style="color:#333;font-weight:500;max-width:55%;text-align:right;"><%= user.address || 'Chua cap nhat' %></span>
+            </div>
+            <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #f8f6f3;font-size:0.88rem;">
+              <span style="color:#888;">Ngay tham gia</span>
+              <span style="color:#333;font-weight:500;"><%= new Date(user.createdAt).toLocaleDateString('vi-VN') %></span>
+            </div>
+            <div style="display:flex;justify-content:space-between;padding:10px 0;font-size:0.88rem;">
+              <span style="color:#888;">Tong chi tieu</span>
+              <span style="color:#b8860b;font-weight:700;font-size:1rem;"><%= (totalSpent || 0).toLocaleString('vi-VN') %>d</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Change Password -->
+        <div style="background:#fff;border-radius:12px;padding:20px 24px;box-shadow:0 2px 12px rgba(0,0,0,0.06);margin-bottom:20px;">
+          <h3 style="font-size:0.95rem;color:#b8860b;margin:0 0 16px;padding-bottom:10px;border-bottom:1px solid #f0ebe3;">Doi Mat Khau</h3>
+          <form method="POST" action="/admin/users/<%= user._id %>/change-password">
+            <div style="margin-bottom:12px;">
+              <label style="display:block;font-size:0.8rem;font-weight:600;color:#666;margin-bottom:4px;">Mat khau moi</label>
+              <input type="password" name="newPassword" placeholder="It nhat 6 ky tu" minlength="6" required
+                style="width:100%;padding:10px 12px;border:1px solid #e0d8ce;border-radius:6px;font-size:0.88rem;box-sizing:border-box;">
+            </div>
+            <div style="margin-bottom:14px;">
+              <label style="display:block;font-size:0.8rem;font-weight:600;color:#666;margin-bottom:4px;">Xac nhan</label>
+              <input type="password" name="confirmPassword" placeholder="Nhap lai mat khau" minlength="6" required
+                style="width:100%;padding:10px 12px;border:1px solid #e0d8ce;border-radius:6px;font-size:0.88rem;box-sizing:border-box;">
+            </div>
+            <button type="submit" onclick="return confirm('Doi mat khau cho nguoi dung nay?')"
+              style="width:100%;padding:10px;background:#b8860b;color:#fff;border:none;border-radius:6px;font-weight:600;cursor:pointer;">Doi Mat Khau</button>
+          </form>
+        </div>
+
+        <!-- Change Role -->
+        <% if (user.role !== 'admin') { %>
+        <div style="background:#fff;border-radius:12px;padding:20px 24px;box-shadow:0 2px 12px rgba(0,0,0,0.06);margin-bottom:20px;border:2px solid #b8860b;">
+          <h3 style="font-size:0.95rem;color:#b8860b;margin:0 0 12px;">Doi Role</h3>
+          <p style="font-size:0.85rem;color:#666;margin-bottom:12px;">Role hien tai: <strong><%= user.role %></strong></p>
+          <form method="POST" action="/admin/users/<%= user._id %>/change-role" style="display:flex;gap:10px;">
+            <select name="role" required style="flex:1;padding:10px 12px;border:1px solid #e0d8ce;border-radius:6px;font-size:0.88rem;">
+              <option value="user" <%= user.role === 'user' ? 'selected' : '' %>>User (Nguoi dung)</option>
+              <option value="shipper" <%= user.role === 'shipper' ? 'selected' : '' %>>Shipper (Giao hang)</option>
+              <option value="staff" <%= user.role === 'staff' ? 'selected' : '' %>>Staff (Nhan vien)</option>
+              <option value="reception" <%= user.role === 'reception' ? 'selected' : '' %>>Reception (Le tan)</option>
+            </select>
+            <button type="submit" onclick="return confirm('Doi role nguoi dung nay?')"
+              style="padding:10px 16px;background:#b8860b;color:#fff;border:none;border-radius:6px;font-weight:600;cursor:pointer;">Doi</button>
+          </form>
+        </div>
+        <% } %>
+
+        <!-- Branch Info (for shipper/staff/reception) -->
+        <% if (user.role === 'shipper' || user.role === 'staff' || user.role === 'reception') { %>
+        <div style="background:#fff;border-radius:12px;padding:20px 24px;box-shadow:0 2px 12px rgba(0,0,0,0.06);">
+          <h3 style="font-size:0.95rem;color:#b8860b;margin:0 0 14px;padding-bottom:10px;border-bottom:1px solid #f0ebe3;">
+            Chi Nhanh <% if (user.role === 'shipper') { %>Shipper<% } else if (user.role === 'reception') { %>Le Tan<% } else { %>Nhan Vien<% } %>
+          </h3>
+          <div style="margin-bottom:14px;">
+            <div style="display:flex;justify-content:space-between;padding:8px 0;font-size:0.88rem;border-bottom:1px solid #f8f6f3;">
+              <span style="color:#888;">Chi nhanh</span>
+              <span style="color:<%= user.branchId ? '#2e7d32' : '#e65100' %>;font-weight:600;"><%= user.branchId ? user.branchId.name : 'Chua gan' %></span>
+            </div>
+            <% if (user.branchId && user.branchId.address) { %>
+            <div style="display:flex;justify-content:space-between;padding:8px 0;font-size:0.88rem;">
+              <span style="color:#888;">Dia chi</span>
+              <span style="color:#333;max-width:55%;text-align:right;"><%= user.branchId.address %></span>
+            </div>
+            <% } %>
+          </div>
+
+          <% if (user.branchChangeStatus === 'pending' && user.pendingBranchId) { %>
+          <div style="background:#fff8f0;border:2px solid #ffe0b2;border-radius:8px;padding:14px;margin-bottom:14px;">
+            <h4 style="color:#e65100;margin:0 0 8px;font-size:0.9rem;">Yeu Cau Doi Chi Nhanh</h4>
+            <p style="color:#555;font-size:0.85rem;margin-bottom:10px;">
+              Yeu cau chuyen sang: <strong><%= user.pendingBranchId.name %></strong>
+            </p>
+            <div style="display:flex;gap:8px;">
+              <form method="POST" action="/admin/users/<%= user._id %>/approve-branch-change" style="flex:1;">
+                <button type="submit" onclick="return confirm('Duyet yeu cau?')"
+                  style="width:100%;padding:8px;background:#2e7d32;color:#fff;border:none;border-radius:6px;font-weight:600;cursor:pointer;font-size:0.85rem;">Duyet</button>
+              </form>
+              <form method="POST" action="/admin/users/<%= user._id %>/reject-branch-change" style="flex:1;">
+                <button type="submit" onclick="return confirm('Tu choi yeu cau?')"
+                  style="width:100%;padding:8px;background:#c62828;color:#fff;border:none;border-radius:6px;font-weight:600;cursor:pointer;font-size:0.85rem;">Tu Choi</button>
+              </form>
+            </div>
+          </div>
+          <% } %>
+
+          <div>
+            <h4 style="color:#666;margin:0 0 8px;font-size:0.85rem;font-weight:600;">Gan Chi Nhanh</h4>
+            <form method="POST" action="/admin/users/<%= user._id %>/set-branch" style="display:flex;gap:8px;">
+              <select name="branchId" required style="flex:1;padding:10px 12px;border:1px solid #e0d8ce;border-radius:6px;font-size:0.88rem;">
+                <option value="">-- Chon chi nhanh --</option>
+                <% if (typeof branches !== 'undefined' && branches) { %>
+                  <% branches.forEach(function(b) { %>
+                  <option value="<%= b._id %>" <%= (user.branchId && user.branchId._id && user.branchId._id.toString() === b._id.toString()) ? 'selected' : '' %>><%= b.name %></option>
+                  <% }); %>
+                <% } %>
+              </select>
+              <button type="submit" onclick="return confirm('Gan chi nhanh?')"
+                style="padding:10px 14px;background:#b8860b;color:#fff;border:none;border-radius:6px;font-weight:600;cursor:pointer;">Gan</button>
+            </form>
+          </div>
+        </div>
+        <% } %>
+      </div>
+
+      <!-- Right Main Content -->
+      <div>
+        <!-- Stats Cards -->
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px;">
+          <div style="background:#fff;border-radius:10px;padding:20px;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,0.05);">
+            <span style="display:block;font-size:1.8rem;font-weight:700;color:#b8860b;"><%= orders ? orders.length : 0 %></span>
+            <span style="font-size:0.8rem;color:#888;text-transform:uppercase;letter-spacing:0.5px;">Don Hang</span>
+          </div>
+          <div style="background:#fff;border-radius:10px;padding:20px;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,0.05);">
+            <span style="display:block;font-size:1.8rem;font-weight:700;color:#1565c0;"><%= reservations ? reservations.length : 0 %></span>
+            <span style="font-size:0.8rem;color:#888;text-transform:uppercase;letter-spacing:0.5px;">Dat Ban</span>
+          </div>
+          <div style="background:#fff;border-radius:10px;padding:20px;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,0.05);">
+            <span style="display:block;font-size:1.8rem;font-weight:700;color:#2e7d32;"><%= payments ? payments.length : 0 %></span>
+            <span style="font-size:0.8rem;color:#888;text-transform:uppercase;letter-spacing:0.5px;">Thanh Toan</span>
+          </div>
+          <div style="background:#fff;border-radius:10px;padding:20px;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,0.05);">
+            <span style="display:block;font-size:1.8rem;font-weight:700;color:#e65100;"><%= (totalSpent || 0).toLocaleString('vi-VN') %></span>
+            <span style="font-size:0.8rem;color:#888;text-transform:uppercase;letter-spacing:0.5px;">Tong Chi (d)</span>
+          </div>
+        </div>
+
+        <!-- Orders Table -->
+        <div style="background:#fff;border-radius:12px;padding:20px 24px;box-shadow:0 2px 12px rgba(0,0,0,0.06);margin-bottom:20px;">
+          <h3 style="font-size:1rem;color:#b8860b;margin:0 0 16px;padding-bottom:12px;border-bottom:1px solid #f0ebe3;display:flex;align-items:center;gap:8px;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+            Lich Su Don Hang
+          </h3>
+          <% if (orders && orders.length > 0) { %>
+          <div style="overflow-x:auto;">
+            <table style="width:100%;border-collapse:collapse;font-size:0.85rem;">
+              <thead>
+                <tr style="background:#f9f8f6;">
+                  <th style="padding:12px 10px;text-align:left;font-size:0.75rem;font-weight:600;color:#666;text-transform:uppercase;">Ma</th>
+                  <th style="padding:12px 10px;text-align:left;font-size:0.75rem;font-weight:600;color:#666;text-transform:uppercase;">Loai</th>
+                  <th style="padding:12px 10px;text-align:left;font-size:0.75rem;font-weight:600;color:#666;text-transform:uppercase;">Chi Nhanh</th>
+                  <th style="padding:12px 10px;text-align:right;font-size:0.75rem;font-weight:600;color:#666;text-transform:uppercase;">Tong Tien</th>
+                  <th style="padding:12px 10px;text-align:center;font-size:0.75rem;font-weight:600;color:#666;text-transform:uppercase;">Trang Thai</th>
+                  <th style="padding:12px 10px;text-align:center;font-size:0.75rem;font-weight:600;color:#666;text-transform:uppercase;">Thanh Toan</th>
+                  <th style="padding:12px 10px;text-align:left;font-size:0.75rem;font-weight:600;color:#666;text-transform:uppercase;">Ngay</th>
+                  <th style="padding:12px 10px;text-align:center;font-size:0.75rem;font-weight:600;color:#666;text-transform:uppercase;"></th>
+                </tr>
+              </thead>
+              <tbody>
+                <% orders.slice(0, 10).forEach(function(order) { %>
+                <tr style="border-bottom:1px solid #f5f3f0;">
+                  <td style="padding:12px 10px;"><span style="font-family:monospace;font-weight:600;color:#b8860b;">#<%= order._id.toString().slice(-6).toUpperCase() %></span></td>
+                  <td style="padding:12px 10px;">
+                    <% if (order.orderType === 'dine-in') { %>
+                      <span style="padding:3px 8px;background:#e3f2fd;color:#1565c0;border-radius:10px;font-size:0.72rem;font-weight:600;">Dine-in</span>
+                    <% } else { %>
+                      <span style="padding:3px 8px;background:#fff3e0;color:#e65100;border-radius:10px;font-size:0.72rem;font-weight:600;">Takeaway</span>
+                    <% } %>
+                  </td>
+                  <td style="padding:12px 10px;color:#555;"><%= order.branchId ? order.branchId.name : 'N/A' %></td>
+                  <td style="padding:12px 10px;text-align:right;font-weight:600;color:#333;"><%= (order.finalPrice || order.totalPrice || 0).toLocaleString('vi-VN') %>d</td>
+                  <td style="padding:12px 10px;text-align:center;">
+                    <% if (order.status === 'completed') { %>
+                      <span style="padding:3px 8px;background:#e8f5e9;color:#2e7d32;border-radius:10px;font-size:0.72rem;font-weight:600;">Hoan thanh</span>
+                    <% } else if (order.status === 'processing' || order.status === 'shipping') { %>
+                      <span style="padding:3px 8px;background:#e3f2fd;color:#1565c0;border-radius:10px;font-size:0.72rem;font-weight:600;"><%= order.status %></span>
+                    <% } else if (order.status === 'cancelled') { %>
+                      <span style="padding:3px 8px;background:#ffebee;color:#c62828;border-radius:10px;font-size:0.72rem;font-weight:600;">Da huy</span>
+                    <% } else { %>
+                      <span style="padding:3px 8px;background:#fff3e0;color:#e65100;border-radius:10px;font-size:0.72rem;font-weight:600;"><%= order.status %></span>
+                    <% } %>
+                  </td>
+                  <td style="padding:12px 10px;text-align:center;">
+                    <% if (order.paymentStatus === 'paid') { %>
+                      <span style="padding:3px 8px;background:#e8f5e9;color:#2e7d32;border-radius:10px;font-size:0.72rem;font-weight:600;">Da tra</span>
+                    <% } else { %>
+                      <span style="padding:3px 8px;background:#fff3e0;color:#e65100;border-radius:10px;font-size:0.72rem;font-weight:600;">Chua tra</span>
+                    <% } %>
+                  </td>
+                  <td style="padding:12px 10px;color:#555;font-size:0.82rem;"><%= new Date(order.createdAt).toLocaleDateString('vi-VN') %></td>
+                  <td style="padding:12px 10px;text-align:center;">
+                    <a href="/admin/orders/<%= order._id %>" style="color:#b8860b;font-size:0.8rem;text-decoration:none;font-weight:600;">Xem</a>
+                  </td>
+                </tr>
+                <% }); %>
+              </tbody>
+            </table>
+          </div>
+          <% if (orders.length > 10) { %>
+          <p style="text-align:center;margin-top:12px;font-size:0.85rem;color:#888;">Va <%= orders.length - 10 %> don hang khac...</p>
+          <% } %>
+          <% } else { %>
+          <div style="text-align:center;padding:30px;color:#888;">Chua co don hang nao</div>
+          <% } %>
+        </div>
+
+        <!-- Reservations Table -->
+        <div style="background:#fff;border-radius:12px;padding:20px 24px;box-shadow:0 2px 12px rgba(0,0,0,0.06);margin-bottom:20px;">
+          <h3 style="font-size:1rem;color:#b8860b;margin:0 0 16px;padding-bottom:12px;border-bottom:1px solid #f0ebe3;display:flex;align-items:center;gap:8px;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            Lich Su Dat Ban
+          </h3>
+          <% if (reservations && reservations.length > 0) { %>
+          <div style="overflow-x:auto;">
+            <table style="width:100%;border-collapse:collapse;font-size:0.85rem;">
+              <thead>
+                <tr style="background:#f9f8f6;">
+                  <th style="padding:12px 10px;text-align:left;font-size:0.75rem;font-weight:600;color:#666;text-transform:uppercase;">Ma</th>
+                  <th style="padding:12px 10px;text-align:left;font-size:0.75rem;font-weight:600;color:#666;text-transform:uppercase;">Chi Nhanh</th>
+                  <th style="padding:12px 10px;text-align:left;font-size:0.75rem;font-weight:600;color:#666;text-transform:uppercase;">Ngay & Gio</th>
+                  <th style="padding:12px 10px;text-align:center;font-size:0.75rem;font-weight:600;color:#666;text-transform:uppercase;">Khach</th>
+                  <th style="padding:12px 10px;text-align:right;font-size:0.75rem;font-weight:600;color:#666;text-transform:uppercase;">Tong Tien</th>
+                  <th style="padding:12px 10px;text-align:center;font-size:0.75rem;font-weight:600;color:#666;text-transform:uppercase;">Trang Thai</th>
+                  <th style="padding:12px 10px;text-align:center;font-size:0.75rem;font-weight:600;color:#666;text-transform:uppercase;"></th>
+                </tr>
+              </thead>
+              <tbody>
+                <% reservations.slice(0, 10).forEach(function(r) { %>
+                <tr style="border-bottom:1px solid #f5f3f0;">
+                  <td style="padding:12px 10px;"><span style="font-family:monospace;font-weight:600;color:#1565c0;">#<%= r._id.toString().slice(-6).toUpperCase() %></span></td>
+                  <td style="padding:12px 10px;color:#555;"><%= r.branchId ? r.branchId.name : 'N/A' %></td>
+                  <td style="padding:12px 10px;">
+                    <div style="font-weight:500;color:#333;"><%= new Date(r.date).toLocaleDateString('vi-VN') %></div>
+                    <div style="font-size:0.8rem;color:#888;"><%= r.time %></div>
+                  </td>
+                  <td style="padding:12px 10px;text-align:center;"><span style="display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;background:#e3f2fd;border-radius:50%;font-weight:700;color:#1565c0;font-size:0.85rem;"><%= r.guests || r.numberOfGuests || 0 %></span></td>
+                  <td style="padding:12px 10px;text-align:right;font-weight:600;color:#333;"><%= (r.totalAmount || 0).toLocaleString('vi-VN') %>d</td>
+                  <td style="padding:12px 10px;text-align:center;">
+                    <% if (r.status === 'completed') { %>
+                      <span style="padding:3px 8px;background:#e8f5e9;color:#2e7d32;border-radius:10px;font-size:0.72rem;font-weight:600;">Hoan thanh</span>
+                    <% } else if (r.status === 'confirmed') { %>
+                      <span style="padding:3px 8px;background:#e3f2fd;color:#1565c0;border-radius:10px;font-size:0.72rem;font-weight:600;">Xac nhan</span>
+                    <% } else if (r.status === 'cancelled') { %>
+                      <span style="padding:3px 8px;background:#ffebee;color:#c62828;border-radius:10px;font-size:0.72rem;font-weight:600;">Da huy</span>
+                    <% } else { %>
+                      <span style="padding:3px 8px;background:#fff3e0;color:#e65100;border-radius:10px;font-size:0.72rem;font-weight:600;">Cho xac nhan</span>
+                    <% } %>
+                  </td>
+                  <td style="padding:12px 10px;text-align:center;">
+                    <a href="/admin/reservations/<%= r._id %>" style="color:#b8860b;font-size:0.8rem;text-decoration:none;font-weight:600;">Xem</a>
+                  </td>
+                </tr>
+                <% }); %>
+              </tbody>
+            </table>
+          </div>
+          <% if (reservations.length > 10) { %>
+          <p style="text-align:center;margin-top:12px;font-size:0.85rem;color:#888;">Va <%= reservations.length - 10 %> dat ban khac...</p>
+          <% } %>
+          <% } else { %>
+          <div style="text-align:center;padding:30px;color:#888;">Chua co dat ban nao</div>
+          <% } %>
+        </div>
+
+        <!-- Payments Table -->
+        <div style="background:#fff;border-radius:12px;padding:20px 24px;box-shadow:0 2px 12px rgba(0,0,0,0.06);">
+          <h3 style="font-size:1rem;color:#b8860b;margin:0 0 16px;padding-bottom:12px;border-bottom:1px solid #f0ebe3;display:flex;align-items:center;gap:8px;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+            Lich Su Thanh Toan
+          </h3>
+          <% if (payments && payments.length > 0) { %>
+          <div style="overflow-x:auto;">
+            <table style="width:100%;border-collapse:collapse;font-size:0.85rem;">
+              <thead>
+                <tr style="background:#f9f8f6;">
+                  <th style="padding:12px 10px;text-align:left;font-size:0.75rem;font-weight:600;color:#666;text-transform:uppercase;">Ma GD</th>
+                  <th style="padding:12px 10px;text-align:left;font-size:0.75rem;font-weight:600;color:#666;text-transform:uppercase;">Loai</th>
+                  <th style="padding:12px 10px;text-align:right;font-size:0.75rem;font-weight:600;color:#666;text-transform:uppercase;">So Tien</th>
+                  <th style="padding:12px 10px;text-align:center;font-size:0.75rem;font-weight:600;color:#666;text-transform:uppercase;">Phuong Thuc</th>
+                  <th style="padding:12px 10px;text-align:center;font-size:0.75rem;font-weight:600;color:#666;text-transform:uppercase;">Trang Thai</th>
+                  <th style="padding:12px 10px;text-align:left;font-size:0.75rem;font-weight:600;color:#666;text-transform:uppercase;">Ngay</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% payments.slice(0, 10).forEach(function(p) { %>
+                <tr style="border-bottom:1px solid #f5f3f0;">
+                  <td style="padding:12px 10px;"><span style="font-family:monospace;font-weight:600;color:#2e7d32;"><%= p.transactionId || p._id.toString().slice(-8).toUpperCase() %></span></td>
+                  <td style="padding:12px 10px;">
+                    <% if (p.orderId) { %>
+                      <span style="padding:3px 8px;background:#e3f2fd;color:#1565c0;border-radius:10px;font-size:0.72rem;font-weight:600;">Don Hang</span>
+                    <% } else { %>
+                      <span style="padding:3px 8px;background:#f3e5f5;color:#7b1fa2;border-radius:10px;font-size:0.72rem;font-weight:600;">Dat Ban</span>
+                    <% } %>
+                  </td>
+                  <td style="padding:12px 10px;text-align:right;font-weight:600;color:#333;"><%= (p.finalAmount || p.amount || 0).toLocaleString('vi-VN') %>d</td>
+                  <td style="padding:12px 10px;text-align:center;">
+                    <% if (p.paymentMethod === 'bank') { %>
+                      <span style="padding:3px 8px;background:#e8f5e9;color:#2e7d32;border-radius:10px;font-size:0.72rem;font-weight:600;">Ngan hang</span>
+                    <% } else { %>
+                      <span style="padding:3px 8px;background:#fff3e0;color:#e65100;border-radius:10px;font-size:0.72rem;font-weight:600;">Tien mat</span>
+                    <% } %>
+                  </td>
+                  <td style="padding:12px 10px;text-align:center;">
+                    <% if (p.status === 'completed') { %>
+                      <span style="padding:3px 8px;background:#e8f5e9;color:#2e7d32;border-radius:10px;font-size:0.72rem;font-weight:600;">Thanh cong</span>
+                    <% } else if (p.status === 'pending') { %>
+                      <span style="padding:3px 8px;background:#fff3e0;color:#e65100;border-radius:10px;font-size:0.72rem;font-weight:600;">Dang cho</span>
+                    <% } else { %>
+                      <span style="padding:3px 8px;background:#ffebee;color:#c62828;border-radius:10px;font-size:0.72rem;font-weight:600;">That bai</span>
+                    <% } %>
+                  </td>
+                  <td style="padding:12px 10px;color:#555;font-size:0.82rem;"><%= p.paidAt ? new Date(p.paidAt).toLocaleDateString('vi-VN') : 'N/A' %></td>
+                </tr>
+                <% }); %>
+              </tbody>
+            </table>
+          </div>
+          <% if (payments.length > 10) { %>
+          <p style="text-align:center;margin-top:12px;font-size:0.85rem;color:#888;">Va <%= payments.length - 10 %> giao dich khac...</p>
+          <% } %>
+          <% } else { %>
+          <div style="text-align:center;padding:30px;color:#888;">Chua co thanh toan nao</div>
+          <% } %>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

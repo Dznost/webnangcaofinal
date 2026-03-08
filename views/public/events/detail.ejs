@@ -1,0 +1,320 @@
+<section class="event-detail">
+    <div class="container">
+        <a href="/events" class="back-link">&larr; Quay lai danh sach su kien</a>
+
+        <div class="event-detail-content">
+            <div class="event-image">
+                <img src="<%= event.image || 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=500&h=400&fit=crop' %>" alt="<%= event.title %>" onerror="this.src='https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=500&h=400&fit=crop'">
+                <% if (event.discount > 0) { %>
+                    <span class="event-discount-badge">-<%= event.discount %>%</span>
+                <% } %>
+            </div>
+            <div class="event-info">
+                <h1><%= event.title %></h1>
+
+                <div class="event-meta">
+                    <div class="event-meta-item">
+                        <strong>Tu ngay:</strong>
+                        <span><%= new Date(event.startDate).toLocaleDateString('vi-VN') %></span>
+                    </div>
+                    <div class="event-meta-item">
+                        <strong>Den ngay:</strong>
+                        <span><%= new Date(event.endDate).toLocaleDateString('vi-VN') %></span>
+                    </div>
+                    <% 
+                        var now = new Date();
+                        var start = new Date(event.startDate);
+                        var end = new Date(event.endDate);
+                    %>
+                    <div class="event-meta-item">
+                        <strong>Trang thai:</strong>
+                        <% if (now < start) { %>
+                            <span class="status-tag upcoming">Sap dien ra</span>
+                        <% } else if (now >= start && now <= end) { %>
+                            <span class="status-tag active">Dang dien ra</span>
+                        <% } else { %>
+                            <span class="status-tag expired">Da ket thuc</span>
+                        <% } %>
+                    </div>
+                </div>
+
+                <% if (event.discount > 0) { %>
+                <div class="event-discount-info">
+                    <div class="discount-value">Giam <%= event.discount %>%</div>
+                    <div class="discount-scope">
+                        <% if (event.discountScope === 'global') { %>
+                            <span class="scope-label global">Ap dung toan bo chi nhanh</span>
+                        <% } else { %>
+                            <span class="scope-label branch">Ap dung tai chi nhanh cu the</span>
+                        <% } %>
+                    </div>
+                </div>
+                <% } %>
+
+                <div class="event-description">
+                    <h3>Mo ta su kien</h3>
+                    <p><%= event.description %></p>
+                </div>
+
+                <% if (event.discountScope === 'branch' && event.branches && event.branches.length > 0) { %>
+                <div class="event-branches">
+                    <h3>Chi nhanh ap dung</h3>
+                    <div class="branch-list">
+                        <% event.branches.forEach(function(branch) { %>
+                        <div class="branch-item">
+                            <strong><%= branch.name %></strong>
+                            <span><%= branch.address %></span>
+                        </div>
+                        <% }); %>
+                    </div>
+                </div>
+                <% } %>
+
+                <% if (event.dishes && event.dishes.length > 0) { %>
+                <div class="event-dishes">
+                    <h3>Mon an ap dung giam gia</h3>
+                    <div class="dish-list">
+                        <% event.dishes.forEach(function(dish) { %>
+                        <div class="dish-item">
+                            <img src="<%= dish.image || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=80' %>" alt="<%= dish.name %>" onerror="this.src='https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=80'">
+                            <div class="dish-item-info">
+                                <strong><%= dish.name %></strong>
+                                <span class="dish-price">
+                                    <% if (event.discount > 0) { %>
+                                        <del><%= dish.price.toLocaleString('vi-VN') %>d</del>
+                                        <em><%= Math.round(dish.price * (1 - event.discount / 100)).toLocaleString('vi-VN') %>d</em>
+                                    <% } else { %>
+                                        <%= dish.price.toLocaleString('vi-VN') %>d
+                                    <% } %>
+                                </span>
+                            </div>
+                        </div>
+                        <% }); %>
+                    </div>
+                </div>
+                <% } %>
+
+                <div class="event-cta">
+                    <a href="/menu" class="btn btn-primary">Xem Thuc Don</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+    .back-link {
+        display: inline-block;
+        color: #8B6F47;
+        margin-bottom: 20px;
+        font-size: 0.95rem;
+    }
+
+    .event-detail-content {
+        display: grid;
+        grid-template-columns: 1fr 1.2fr;
+        gap: 36px;
+        align-items: start;
+    }
+
+    .event-image {
+        position: relative;
+        border-radius: 12px;
+        overflow: hidden;
+    }
+
+    .event-image img {
+        width: 100%;
+        height: auto;
+        display: block;
+    }
+
+    .event-discount-badge {
+        position: absolute;
+        top: 16px;
+        right: 16px;
+        background: #dc3545;
+        color: white;
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-weight: 700;
+        font-size: 1.1rem;
+    }
+
+    .event-info h1 {
+        font-size: 1.8rem;
+        color: #2c2c2c;
+        margin-bottom: 16px;
+    }
+
+    .event-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 16px;
+        margin-bottom: 20px;
+        padding: 16px;
+        background: #f8f6f3;
+        border-radius: 8px;
+    }
+
+    .event-meta-item {
+        display: flex;
+        gap: 6px;
+        align-items: center;
+        font-size: 0.9rem;
+    }
+
+    .event-meta-item strong {
+        color: #666;
+    }
+
+    .status-tag {
+        padding: 3px 10px;
+        border-radius: 12px;
+        font-size: 0.82rem;
+        font-weight: 600;
+    }
+
+    .status-tag.upcoming { background: #fff3cd; color: #856404; }
+    .status-tag.active { background: #d4edda; color: #155724; }
+    .status-tag.expired { background: #f8d7da; color: #721c24; }
+
+    .event-discount-info {
+        padding: 20px;
+        background: linear-gradient(135deg, #fff8e1, #fff3cd);
+        border: 2px solid #f9a825;
+        border-radius: 10px;
+        margin-bottom: 24px;
+        text-align: center;
+    }
+
+    .discount-value {
+        font-size: 1.6rem;
+        font-weight: 800;
+        color: #dc3545;
+        margin-bottom: 6px;
+    }
+
+    .scope-label {
+        display: inline-block;
+        padding: 4px 14px;
+        border-radius: 16px;
+        font-size: 0.85rem;
+        font-weight: 600;
+    }
+
+    .scope-label.global { background: #d4edda; color: #155724; }
+    .scope-label.branch { background: #d1ecf1; color: #0c5460; }
+
+    .event-description {
+        margin-bottom: 24px;
+    }
+
+    .event-description h3,
+    .event-branches h3,
+    .event-dishes h3 {
+        font-size: 1.1rem;
+        color: #8B6F47;
+        margin-bottom: 10px;
+        padding-bottom: 6px;
+        border-bottom: 1px solid #f0ebe4;
+    }
+
+    .event-description p {
+        color: #555;
+        line-height: 1.7;
+    }
+
+    .event-branches {
+        margin-bottom: 24px;
+    }
+
+    .branch-list {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .branch-item {
+        display: flex;
+        flex-direction: column;
+        padding: 12px 16px;
+        background: #f8f6f3;
+        border-radius: 8px;
+        border-left: 3px solid #8B6F47;
+    }
+
+    .branch-item strong {
+        color: #2c2c2c;
+        font-size: 0.95rem;
+    }
+
+    .branch-item span {
+        color: #888;
+        font-size: 0.82rem;
+    }
+
+    .event-dishes {
+        margin-bottom: 24px;
+    }
+
+    .dish-list {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+    }
+
+    .dish-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 10px;
+        background: #f8f6f3;
+        border-radius: 8px;
+    }
+
+    .dish-item img {
+        width: 50px;
+        height: 50px;
+        border-radius: 6px;
+        object-fit: cover;
+        flex-shrink: 0;
+    }
+
+    .dish-item-info {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+    }
+
+    .dish-item-info strong {
+        font-size: 0.9rem;
+        color: #2c2c2c;
+    }
+
+    .dish-price del {
+        color: #999;
+        font-size: 0.82rem;
+        margin-right: 6px;
+    }
+
+    .dish-price em {
+        color: #dc3545;
+        font-weight: 700;
+        font-style: normal;
+        font-size: 0.9rem;
+    }
+
+    .event-cta {
+        margin-top: 24px;
+    }
+
+    @media (max-width: 768px) {
+        .event-detail-content {
+            grid-template-columns: 1fr;
+        }
+        .dish-list {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>

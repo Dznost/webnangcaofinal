@@ -1,0 +1,82 @@
+<div class="container" style="max-width: 1200px; margin: 0 auto; padding: 20px;">
+  <h1>Dat Ban Tai Chi Nhanh</h1>
+
+  <% if (noBranch) { %>
+    <div class="alert alert-danger">
+      Ban chua duoc gan chi nhanh. Vui long lien he admin.
+    </div>
+  <% } else { %>
+    <!-- Search & Filter -->
+    <div style="margin-bottom: 20px; display: flex; gap: 10px; flex-wrap: wrap;">
+      <form method="GET" style="display: flex; gap: 10px; flex: 1; flex-wrap: wrap;">
+        <input type="text" name="q" placeholder="Tim kiem theo ten, dien thoai" value="<%= searchQuery %>" style="padding: 8px; flex: 1; min-width: 200px;">
+        <select name="status" style="padding: 8px;">
+          <option value="all" <%= statusFilter === 'all' ? 'selected' : '' %>>Tat ca trang thai</option>
+          <option value="pending" <%= statusFilter === 'pending' ? 'selected' : '' %>>Cho xac nhan</option>
+          <option value="confirmed" <%= statusFilter === 'confirmed' ? 'selected' : '' %>>Da xac nhan</option>
+          <option value="completed" <%= statusFilter === 'completed' ? 'selected' : '' %>>Hoan thanh</option>
+        </select>
+        <button type="submit" style="padding: 8px 16px; background: #8B6F47; color: white; border: none; border-radius: 4px; cursor: pointer;">Tim</button>
+      </form>
+    </div>
+
+    <!-- Reservations Table -->
+    <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+      <thead>
+        <tr style="background: #f5f5f5;">
+          <th style="padding: 12px; text-align: left; border-bottom: 2px solid #8B6F47;">Khach Hang</th>
+          <th style="padding: 12px; text-align: left; border-bottom: 2px solid #8B6F47;">Dien Thoai</th>
+          <th style="padding: 12px; text-align: left; border-bottom: 2px solid #8B6F47;">Ngay Gio</th>
+          <th style="padding: 12px; text-align: left; border-bottom: 2px solid #8B6F47;">So Khach</th>
+          <th style="padding: 12px; text-align: left; border-bottom: 2px solid #8B6F47;">Trang Thai</th>
+          <th style="padding: 12px; text-align: left; border-bottom: 2px solid #8B6F47;">Thanh Toan</th>
+          <th style="padding: 12px; text-align: center; border-bottom: 2px solid #8B6F47;">Tac Vu</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if (reservations && reservations.length > 0) { %>
+          <% reservations.forEach(res => { %>
+            <tr style="border-bottom: 1px solid #eee; hover { background: #f9f9f9; }">
+              <td style="padding: 12px;"><%= res.userId?.name || 'Khach hang' %></td>
+              <td style="padding: 12px;"><%= res.userId?.phone || '-' %></td>
+              <td style="padding: 12px;">
+                <% const resDate = new Date(res.date); %>
+                <%= resDate.getDate() %>/<%= resDate.getMonth() + 1 %>/<%= resDate.getFullYear() %> <%= res.time || '-' %>
+              </td>
+              <td style="padding: 12px;"><%= res.guests %></td>
+              <td style="padding: 12px;">
+                <span style="padding: 4px 8px; border-radius: 4px; font-size: 0.9em;
+                  <% if (res.status === 'pending') { %>
+                    background: #fff3cd; color: #856404;
+                  <% } else if (res.status === 'confirmed' || res.status === 'paid' || res.status === 'processing') { %>
+                    background: #d1ecf1; color: #0c5460;
+                  <% } else if (res.status === 'completed') { %>
+                    background: #d4edda; color: #155724;
+                  <% } else { %>
+                    background: #f8d7da; color: #721c24;
+                  <% } %>
+                ">
+                  <%= res.status === 'pending' ? 'Cho xac nhan' : 
+                      res.status === 'confirmed' ? 'Da xac nhan' :
+                      res.status === 'paid' ? 'Da thanh toan' :
+                      res.status === 'processing' ? 'Dang xu ly' :
+                      res.status === 'completed' ? 'Hoan thanh' : res.status %>
+                </span>
+              </td>
+              <td style="padding: 12px;">
+                <%= res.paymentStatus === 'paid' ? '✓ Da thanh toan' : '✗ Chua thanh toan' %>
+              </td>
+              <td style="padding: 12px; text-align: center;">
+                <a href="/reception/reservations/<%= res._id %>" style="color: #8B6F47; text-decoration: none; font-weight: 500;">Chi tiet</a>
+              </td>
+            </tr>
+          <% }); %>
+        <% } else { %>
+          <tr>
+            <td colspan="7" style="padding: 20px; text-align: center; color: #666;">Khong tim thay dat ban nao</td>
+          </tr>
+        <% } %>
+      </tbody>
+    </table>
+  <% } %>
+</div>

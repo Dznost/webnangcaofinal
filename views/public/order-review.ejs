@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Danh Gia Don Hang - La Maison</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: #f0faf8; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
+        .review-page { max-width: 500px; width: 100%; }
+        .review-card { background: white; border-radius: 16px; padding: 32px; box-shadow: 0 4px 20px rgba(0,105,92,0.1); }
+        .brand { text-align: center; margin-bottom: 24px; }
+        .brand h1 { font-family: 'Playfair Display', serif; font-size: 1.5rem; color: #1a3c34; }
+        .brand p { color: #7f9e98; font-size: 0.85rem; margin-top: 4px; }
+        .order-info { background: #f0faf8; border-radius: 10px; padding: 16px; margin-bottom: 20px; }
+        .order-info .order-id { font-family: 'Playfair Display', serif; font-weight: 700; color: #00897b; font-size: 1.1rem; margin-bottom: 8px; }
+        .order-info .info-row { display: flex; justify-content: space-between; font-size: 0.85rem; color: #555; padding: 4px 0; }
+        .order-info .info-row strong { color: #1a3c34; }
+        .items-section { margin-bottom: 16px; }
+        .items-section h3 { font-size: 0.88rem; font-weight: 700; color: #1a3c34; margin-bottom: 8px; }
+        .item-row { display: flex; justify-content: space-between; padding: 6px 0; font-size: 0.85rem; color: #555; border-bottom: 1px solid #f0faf8; }
+        .item-row:last-child { border-bottom: none; }
+        .total-section { display: flex; justify-content: space-between; padding: 12px 0; border-top: 2px solid #e0f2f1; font-size: 1.1rem; font-weight: 700; color: #1a3c34; }
+        .total-section strong { color: #00695c; }
+
+        /* Rating form */
+        .rating-section { margin-top: 20px; padding-top: 20px; border-top: 2px solid #e0f2f1; }
+        .rating-section h3 { font-family: 'Playfair Display', serif; font-size: 1rem; color: #1a3c34; margin-bottom: 14px; text-align: center; }
+        .star-rating { display: flex; justify-content: center; align-items: center; gap: 8px; margin-bottom: 14px; }
+        .star-btn { font-size: 2.5rem; color: #e0d8ce; cursor: pointer; transition: color 0.15s, transform 0.15s; line-height: 1; user-select: none; }
+        .star-btn:hover { transform: scale(1.15); }
+        .star-btn.active { color: #eab308; }
+        .rating-text { display: block; text-align: center; font-size: 0.88rem; color: #7f9e98; margin-bottom: 14px; font-weight: 500; }
+        .rating-textarea { width: 100%; padding: 12px 14px; border: 1.5px solid #b2dfdb; border-radius: 8px; font-size: 0.9rem; resize: vertical; font-family: inherit; color: #333; background: #fafffe; }
+        .rating-textarea:focus { outline: none; border-color: #00897b; box-shadow: 0 0 0 3px rgba(0,137,123,0.12); }
+        .btn-submit { display: block; width: 100%; padding: 14px; background: #00897b; color: white; border: none; border-radius: 10px; font-weight: 700; font-size: 1rem; cursor: pointer; transition: background 0.2s; margin-top: 14px; }
+        .btn-submit:hover:not(:disabled) { background: #00695c; }
+        .btn-submit:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        /* Already rated */
+        .rated-display { text-align: center; padding: 20px 0; }
+        .rated-stars { font-size: 2rem; line-height: 1; margin-bottom: 8px; }
+        .rated-stars .filled { color: #eab308; }
+        .rated-stars .empty { color: #e0d8ce; }
+        .rated-comment { background: #fffbeb; padding: 12px; border-radius: 8px; border-left: 3px solid #eab308; font-style: italic; color: #555; font-size: 0.9rem; margin-top: 10px; text-align: left; }
+        .rated-date { font-size: 0.78rem; color: #aaa; margin-top: 8px; }
+
+        .alert { padding: 12px 16px; border-radius: 8px; margin-bottom: 16px; font-size: 0.88rem; text-align: center; }
+        .alert-success { background: #e8f5e9; color: #2e7d32; border: 1px solid #c8e6c9; }
+        .alert-warning { background: #fff8e1; color: #f57f17; border: 1px solid #ffe082; }
+    </style>
+</head>
+<body>
+    <div class="review-page">
+        <div class="review-card">
+            <div class="brand">
+                <h1>La Maison</h1>
+                <p>Cam on quy khach da su dung dich vu</p>
+            </div>
+
+            <% if (success === 'rated') { %>
+            <div class="alert alert-success">Cam on ban da danh gia! Phan hoi cua ban rat quan trong voi chung toi.</div>
+            <% } else if (success === 'already') { %>
+            <div class="alert alert-warning">Don hang nay da duoc danh gia truoc do.</div>
+            <% } else if (success === 'invalid') { %>
+            <div class="alert alert-warning">Vui long chon so sao danh gia (1-5).</div>
+            <% } %>
+
+            <div class="order-info">
+                <div class="order-id">Don hang #<%= order._id.toString().slice(-6).toUpperCase() %></div>
+                <div class="info-row">
+                    <span>Khach hang:</span>
+                    <strong><%= order.fullName || 'Khach vang lai' %></strong>
+                </div>
+                <% if (order.branchId) { %>
+                <div class="info-row">
+                    <span>Chi nhanh:</span>
+                    <strong><%= order.branchId.name %></strong>
+                </div>
+                <% } %>
+                <div class="info-row">
+                    <span>Ngay dat:</span>
+                    <strong><%= new Date(order.createdAt).toLocaleString('vi-VN') %></strong>
+                </div>
+                <div class="info-row">
+                    <span>Trang thai:</span>
+                    <strong style="color:<%= order.status === 'completed' ? '#2e7d32' : '#ef6c00' %>;">
+                        <%= order.status === 'completed' ? 'Hoan thanh' : order.status === 'processing' ? 'Dang xu ly' : order.status %>
+                    </strong>
+                </div>
+            </div>
+
+            <div class="items-section">
+                <h3>Mon an da dat</h3>
+                <% order.items.forEach(function(item) { %>
+                <div class="item-row">
+                    <span><%= item.name %> x<%= item.quantity %></span>
+                    <strong><%= (item.price * item.quantity).toLocaleString('vi-VN') %>d</strong>
+                </div>
+                <% }); %>
+            </div>
+
+            <div class="total-section">
+                <span>Tong cong:</span>
+                <strong><%= (order.finalPrice || order.totalPrice).toLocaleString('vi-VN') %>d</strong>
+            </div>
+
+            <div class="rating-section">
+                <% if (order.rating) { %>
+                <!-- Already rated -->
+                <h3>Danh Gia Cua Ban</h3>
+                <div class="rated-display">
+                    <div class="rated-stars">
+                        <% for (var i = 1; i <= 5; i++) { %>
+                        <span class="<%= i <= order.rating ? 'filled' : 'empty' %>">&#9733;</span>
+                        <% } %>
+                    </div>
+                    <p style="font-weight:700;color:#1a3c34;"><%= order.rating %>/5 sao</p>
+                    <% if (order.ratingComment) { %>
+                    <div class="rated-comment">"<%= order.ratingComment %>"</div>
+                    <% } %>
+                    <% if (order.ratedAt) { %>
+                    <p class="rated-date">Danh gia luc: <%= new Date(order.ratedAt).toLocaleString('vi-VN') %></p>
+                    <% } %>
+                </div>
+                <% } else { %>
+                <!-- Rating form -->
+                <h3>Hay Danh Gia Trai Nghiem Cua Ban</h3>
+                <form method="POST" action="/order-review/<%= order._id %>">
+                    <input type="hidden" name="rating" id="ratingInput" value="" required>
+                    <div class="star-rating" id="starRating">
+                        <% for (var s = 1; s <= 5; s++) { %>
+                        <span class="star-btn" data-value="<%= s %>">&#9733;</span>
+                        <% } %>
+                    </div>
+                    <span class="rating-text" id="ratingText">Chon so sao danh gia</span>
+                    <textarea name="ratingComment" class="rating-textarea" placeholder="Nhan xet cua ban (khong bat buoc)..." rows="3" maxlength="500"></textarea>
+                    <button type="submit" class="btn-submit" id="submitBtn" disabled>Gui Danh Gia</button>
+                </form>
+                <% } %>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    (function() {
+        var labels = ["", "Rat te", "Khong tot", "Binh thuong", "Tot", "Tuyet voi"];
+        var stars = document.querySelectorAll("#starRating .star-btn");
+        var input = document.getElementById("ratingInput");
+        var text = document.getElementById("ratingText");
+        var btn = document.getElementById("submitBtn");
+        if (!stars.length) return;
+
+        stars.forEach(function(star) {
+            star.addEventListener("click", function() {
+                var val = parseInt(this.getAttribute("data-value"));
+                input.value = val;
+                btn.disabled = false;
+                text.textContent = val + " sao - " + labels[val];
+                stars.forEach(function(s, idx) {
+                    s.classList.toggle("active", idx < val);
+                });
+            });
+            star.addEventListener("mouseenter", function() {
+                var val = parseInt(this.getAttribute("data-value"));
+                stars.forEach(function(s, idx) {
+                    s.classList.toggle("active", idx < val);
+                });
+            });
+            star.addEventListener("mouseleave", function() {
+                var selected = parseInt(input.value) || 0;
+                stars.forEach(function(s, idx) {
+                    s.classList.toggle("active", idx < selected);
+                });
+            });
+        });
+    })();
+    </script>
+</body>
+</html>

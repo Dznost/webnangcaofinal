@@ -1,0 +1,195 @@
+<section class="admin-section">
+    <div class="container">
+        <div class="section-header">
+            <h1>Quan Ly Don Hang</h1>
+            <span class="order-total-badge"><%= orders.length %> don</span>
+        </div>
+
+        <% if (typeof success !== 'undefined' && success) { %>
+        <div class="alert alert-success"><%= success %></div>
+        <% } %>
+
+        <!-- Search + filter bar -->
+        <form method="GET" action="/admin/orders" class="admin-filter-bar">
+            <div class="search-wrap">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                <input type="text" name="q" value="<%= typeof searchQuery !== 'undefined' ? searchQuery : '' %>" placeholder="Ten khach, SDT..." class="filter-search-input">
+            </div>
+            <select name="status" class="filter-select">
+                <option value="">Trang thai</option>
+                <option value="pending" <%= (typeof statusFilter !== 'undefined' && statusFilter === 'pending') ? 'selected' : '' %>>Cho xu ly</option>
+                <option value="processing" <%= (typeof statusFilter !== 'undefined' && statusFilter === 'processing') ? 'selected' : '' %>>Dang xu ly</option>
+                <option value="completed" <%= (typeof statusFilter !== 'undefined' && statusFilter === 'completed') ? 'selected' : '' %>>Hoan thanh</option>
+                <option value="cancelled" <%= (typeof statusFilter !== 'undefined' && statusFilter === 'cancelled') ? 'selected' : '' %>>Da huy</option>
+            </select>
+            <select name="orderType" class="filter-select">
+                <option value="">Loai don</option>
+                <option value="dine-in" <%= (typeof orderTypeFilter !== 'undefined' && orderTypeFilter === 'dine-in') ? 'selected' : '' %>>Tai quan</option>
+                <option value="takeaway" <%= (typeof orderTypeFilter !== 'undefined' && orderTypeFilter === 'takeaway') ? 'selected' : '' %>>Mang ve</option>
+            </select>
+            <select name="branchId" class="filter-select">
+                <option value="">Tat ca chi nhanh</option>
+                <% if (typeof branches !== 'undefined' && branches) { %>
+                <% branches.forEach(function(b) { %>
+                <option value="<%= b._id %>" <%= (typeof branchFilter !== 'undefined' && branchFilter === b._id.toString()) ? 'selected' : '' %>><%= b.name %></option>
+                <% }); %>
+                <% } %>
+            </select>
+            <button type="submit" class="btn btn-primary btn-filter">Loc</button>
+            <% if ((typeof searchQuery !== 'undefined' && searchQuery) || (typeof statusFilter !== 'undefined' && statusFilter) || (typeof orderTypeFilter !== 'undefined' && orderTypeFilter) || (typeof branchFilter !== 'undefined' && branchFilter)) { %>
+            <a href="/admin/orders" class="btn btn-clear">Xoa loc</a>
+            <% } %>
+        </form>
+
+        <% if ((typeof searchQuery !== 'undefined' && searchQuery) || (typeof statusFilter !== 'undefined' && statusFilter) || (typeof orderTypeFilter !== 'undefined' && orderTypeFilter)) { %>
+        <p class="filter-note">Dang hien thi <strong><%= orders.length %></strong> don hang theo bo loc</p>
+        <% } %>
+
+        <% if (orders && orders.length > 0) { %>
+        <div class="table-scroll-wrap">
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>Ma Don</th>
+                    <th>Khach Hang</th>
+                    <th>Loai</th>
+                    <th>Chi Nhanh</th>
+                    <th>Tong Tien</th>
+                    <th>Trang Thai</th>
+                    <th>Thanh Toan</th>
+                    <th>Phu Trach</th>
+                    <th>Danh Gia</th>
+                    <th>Ngay Tao</th>
+                    <th>Chi Tiet</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% orders.forEach(function(order) { %>
+                <tr>
+                    <td><strong class="order-code">#<%= order._id.toString().slice(-6).toUpperCase() %></strong></td>
+                    <td>
+                        <div class="customer-cell">
+                            <span class="customer-name"><%= order.userId ? (order.userId.name || order.userId.email) : (order.fullName || 'N/A') %></span>
+                            <span class="customer-phone"><%= order.phone || (order.userId ? order.userId.phone : '') %></span>
+                        </div>
+                    </td>
+                    <td>
+                        <% if (order.orderType === 'dine-in') { %>
+                        <span class="type-badge dine-in-badge">Tai quan</span>
+                        <% } else { %>
+                        <span class="type-badge takeaway-badge">Mang ve</span>
+                        <% } %>
+                    </td>
+                    <td><%= order.branchId ? order.branchId.name : '-' %></td>
+                    <td class="price-cell"><strong><%= (order.finalPrice || order.totalPrice || 0).toLocaleString('vi-VN') %>d</strong></td>
+                    <td>
+                        <span class="status-badge status-<%= order.status %>">
+                            <%= order.status === 'pending' ? 'Cho xu ly' :
+                                order.status === 'approved' ? 'Da duyet' :
+                                order.status === 'processing' ? 'Dang xu ly' :
+                                order.status === 'completed' ? 'Hoan thanh' : 'Da huy' %>
+                        </span>
+                    </td>
+                    <td>
+                        <span class="status-badge status-<%= order.paymentStatus %>">
+                            <%= order.paymentStatus === 'paid' ? 'Da TT' : 'Chua TT' %>
+                        </span>
+                    </td>
+                    <td>
+                        <% if (order.orderType === 'takeaway' && order.shipperId) { %>
+                        <div class="assignee-cell">
+                            <span class="assignee-name shipper-name"><%= order.shipperId.name %></span>
+                            <small class="assignee-role">Shipper</small>
+                        </div>
+                        <% } else if (order.orderType === 'dine-in' && order.staffId) { %>
+                        <div class="assignee-cell">
+                            <span class="assignee-name staff-name"><%= order.staffId.name %></span>
+                            <small class="assignee-role">Nhan vien</small>
+                        </div>
+                        <% } else { %>
+                        <span class="no-assign">Chua gan</span>
+                        <% } %>
+                    </td>
+                    <td>
+                        <% if (order.rating) { %>
+                        <div class="rating-cell">
+                            <% for (var i = 1; i <= 5; i++) { %><span class="star <%= i <= order.rating ? 'star-on' : 'star-off' %>">&#9733;</span><% } %>
+                            <span class="rating-val"><%= order.rating %>/5</span>
+                        </div>
+                        <% } else { %><span class="no-assign">-</span><% } %>
+                    </td>
+                    <td class="date-cell"><%= new Date(order.createdAt).toLocaleDateString('vi-VN') %></td>
+                    <td><a href="/admin/orders/<%= order._id %>" class="btn btn-small btn-primary">Chi Tiet</a></td>
+                </tr>
+                <% }); %>
+            </tbody>
+        </table>
+        </div>
+        <% } else { %>
+        <div class="empty-state">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#ccc" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            <p>Khong tim thay don hang nao.</p>
+        </div>
+        <% } %>
+    </div>
+</section>
+
+<style>
+.admin-section { padding: 32px 0; }
+.section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+.section-header h1 { font-family: 'Playfair Display', serif; font-size: 1.7rem; color: #2c2c2c; margin: 0; }
+.order-total-badge { background: #f0ebe4; color: #8B6F47; padding: 5px 14px; border-radius: 12px; font-size: 0.85rem; font-weight: 700; }
+
+.admin-filter-bar { display: flex; gap: 10px; background: white; padding: 16px 20px; border-radius: 12px; box-shadow: 0 1px 8px rgba(0,0,0,0.06); margin-bottom: 16px; flex-wrap: wrap; align-items: center; }
+.search-wrap { display: flex; align-items: center; gap: 8px; flex: 1; min-width: 200px; border: 1.5px solid #e0d8ce; border-radius: 8px; padding: 8px 12px; }
+.search-wrap svg { color: #bbb; flex-shrink: 0; }
+.filter-search-input { border: none; outline: none; font-size: 0.86rem; width: 100%; background: transparent; color: #333; }
+.filter-search-input::placeholder { color: #ccc; }
+.filter-select { border: 1.5px solid #e0d8ce; border-radius: 8px; padding: 8px 12px; font-size: 0.86rem; color: #555; background: white; outline: none; cursor: pointer; }
+.filter-select:focus { border-color: #8B6F47; }
+.btn-filter { padding: 9px 18px; }
+.btn-clear { padding: 9px 14px; font-size: 0.82rem; background: transparent; color: #8B6F47; border: 1.5px solid #e0d8ce; }
+.btn-clear:hover { background: #f7f4ef; }
+.filter-note { font-size: 0.84rem; color: #888; margin-bottom: 12px; }
+.table-scroll-wrap { overflow-x: auto; border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,0.07); }
+.admin-table { width: 100%; border-collapse: collapse; background: white; min-width: 1000px; }
+.admin-table thead { background: #8B6F47; color: white; }
+.admin-table th { padding: 13px 14px; text-align: left; font-size: 0.8rem; font-weight: 700; letter-spacing: 0.03em; white-space: nowrap; }
+.admin-table td { padding: 12px 14px; border-bottom: 1px solid #f7f4ef; font-size: 0.86rem; vertical-align: middle; }
+.admin-table tbody tr:hover { background: #faf8f5; }
+.order-code { font-family: 'Playfair Display', serif; color: #2c2c2c; }
+.customer-cell { display: flex; flex-direction: column; gap: 2px; }
+.customer-name { font-weight: 600; color: #2c2c2c; }
+.customer-phone { font-size: 0.8rem; color: #999; }
+.type-badge { display: inline-block; padding: 3px 10px; border-radius: 10px; font-size: 0.75rem; font-weight: 700; }
+.dine-in-badge { background: #e3f2fd; color: #1565c0; }
+.takeaway-badge { background: #fff3e0; color: #e65100; }
+.price-cell { color: #8B6F47; }
+.status-badge { display: inline-block; padding: 3px 10px; border-radius: 10px; font-size: 0.75rem; font-weight: 700; }
+.status-pending { background: #fff8e1; color: #f57f17; }
+.status-processing { background: #e3f2fd; color: #1565c0; }
+.status-completed { background: #d4edda; color: #155724; }
+.status-cancelled { background: #fce4ec; color: #c62828; }
+.status-paid { background: #e8f5e9; color: #2e7d32; }
+.status-unpaid { background: #fce4ec; color: #c62828; }
+.assignee-cell { display: flex; flex-direction: column; gap: 1px; }
+.assignee-name { font-weight: 600; font-size: 0.85rem; }
+.shipper-name { color: #e65100; }
+.staff-name { color: #1565c0; }
+.assignee-role { color: #999; font-size: 0.75rem; }
+.no-assign { color: #ccc; font-size: 0.82rem; }
+.rating-cell { display: flex; align-items: center; gap: 2px; }
+.star { font-size: 0.85rem; }
+.star-on { color: #eab308; }
+.star-off { color: #e0e0e0; }
+.rating-val { font-size: 0.78rem; font-weight: 600; color: #888; margin-left: 3px; }
+.date-cell { font-size: 0.8rem; color: #aaa; white-space: nowrap; }
+.empty-state { text-align: center; padding: 60px 20px; background: white; border-radius: 12px; box-shadow: 0 1px 8px rgba(0,0,0,0.05); }
+.empty-state p { color: #aaa; margin-top: 12px; }
+.alert { padding: 12px 18px; border-radius: 8px; margin-bottom: 20px; font-size: 0.9rem; }
+.alert-success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+.btn { display: inline-block; padding: 8px 18px; border-radius: 6px; text-decoration: none; font-size: 0.85rem; font-weight: 600; border: none; cursor: pointer; transition: all 0.2s; }
+.btn-primary { background: #8B6F47; color: white; }
+.btn-primary:hover { background: #7a5f3a; }
+.btn-small { padding: 5px 12px; font-size: 0.8rem; }
+</style>

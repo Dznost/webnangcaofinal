@@ -1,0 +1,7 @@
+*.ejs linguist-language=HTML
+*.css linguist-language=CSS
+*.js linguist-language=JavaScript
+components/** linguist-vendored
+hooks/** linguist-vendored
+lib/** linguist-vendored
+user_read_only_context/** linguist-documentation

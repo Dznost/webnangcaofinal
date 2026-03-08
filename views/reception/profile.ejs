@@ -1,0 +1,156 @@
+<section class="reception-profile">
+    <div class="container">
+        <div class="page-header">
+            <h1>Ho So Le Tan</h1>
+            <a href="/reception" class="btn btn-secondary btn-sm">Quay Lai</a>
+        </div>
+
+        <% if (success) { %>
+        <div class="alert alert-success"><%= success %></div>
+        <% } %>
+        <% if (error) { %>
+        <div class="alert alert-error"><%= error %></div>
+        <% } %>
+
+        <div class="profile-grid">
+            <div class="profile-sidebar">
+                <div class="profile-card">
+                    <div class="profile-avatar"><%= profile.name ? profile.name.charAt(0).toUpperCase() : 'L' %></div>
+                    <h2><%= profile.name %></h2>
+                    <p class="profile-role-badge">Le Tan</p>
+                    <p class="profile-email"><%= profile.email %></p>
+                    <div class="profile-meta">
+                        <div class="meta-item">
+                            <span class="meta-label">Dien thoai</span>
+                            <span class="meta-value"><%= profile.phone || 'Chua cap nhat' %></span>
+                        </div>
+                        <div class="meta-item">
+                            <span class="meta-label">Chi nhanh</span>
+                            <span class="meta-value branch-val"><%= profile.branchId ? profile.branchId.name : 'Chua gan' %></span>
+                        </div>
+                        <% if (profile.branchId && profile.branchId.address) { %>
+                        <div class="meta-item">
+                            <span class="meta-label">Dia chi CN</span>
+                            <span class="meta-value"><%= profile.branchId.address %></span>
+                        </div>
+                        <% } %>
+                        <% if (profile.branchChangeStatus === 'pending') { %>
+                        <div class="meta-item">
+                            <span class="meta-label">Yeu cau</span>
+                            <span class="pending-badge">Dang cho duyet</span>
+                        </div>
+                        <% } %>
+                        <div class="meta-item">
+                            <span class="meta-label">Ngay tao</span>
+                            <span class="meta-value"><%= new Date(profile.createdAt).toLocaleDateString('vi-VN') %></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="profile-main">
+                <!-- Branch change section -->
+                <div class="profile-card">
+                    <h3>Quan Ly Chi Nhanh</h3>
+                    <% if (profile.branchId) { %>
+                    <div class="current-branch-box">
+                        <div class="cb-icon">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                        </div>
+                        <div>
+                            <p class="cb-name"><%= profile.branchId.name %></p>
+                            <% if (profile.branchId.address) { %><p class="cb-addr"><%= profile.branchId.address %></p><% } %>
+                        </div>
+                    </div>
+                    <% } else { %>
+                    <div class="no-branch-notice">Ban chua duoc gan chi nhanh nao. Vui long chon chi nhanh muon cong tac.</div>
+                    <% } %>
+
+                    <% if (profile.branchChangeStatus === 'pending' && profile.pendingBranchId) { %>
+                    <div class="pending-notice">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                        <p>Yeu cau chuyen sang <strong><%= profile.pendingBranchId.name %></strong> dang cho admin duyet.</p>
+                    </div>
+                    <% } else { %>
+                    <form method="POST" action="/reception/request-branch-change" class="profile-form" style="margin-top:16px;">
+                        <div class="form-group">
+                            <label for="newBranchId">Yeu cau doi sang chi nhanh</label>
+                            <select name="newBranchId" id="newBranchId" required>
+                                <option value="">-- Chon chi nhanh --</option>
+                                <% if (typeof branches !== 'undefined' && branches) { %>
+                                <% branches.forEach(function(b) { %>
+                                <option value="<%= b._id %>" <%= (profile.branchId && profile.branchId._id.toString() === b._id.toString()) ? 'disabled' : '' %>>
+                                    <%= b.name %><%= b.address ? ' — ' + b.address : '' %><%= (profile.branchId && profile.branchId._id.toString() === b._id.toString()) ? ' (Hien tai)' : '' %>
+                                </option>
+                                <% }); %>
+                                <% } %>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-teal btn-block" onclick="return confirm('Gui yeu cau doi chi nhanh?')">Gui Yeu Cau Doi Chi Nhanh</button>
+                    </form>
+                    <% } %>
+                </div>
+
+                <!-- Change password -->
+                <div class="profile-card">
+                    <h3>Doi Mat Khau</h3>
+                    <form method="POST" action="/reception/change-password" class="profile-form">
+                        <div class="form-group">
+                            <label for="currentPassword">Mat khau hien tai</label>
+                            <input type="password" id="currentPassword" name="currentPassword" placeholder="Nhap mat khau hien tai" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="newPassword">Mat khau moi</label>
+                            <input type="password" id="newPassword" name="newPassword" placeholder="It nhat 6 ky tu" minlength="6" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="confirmPassword">Xac nhan mat khau moi</label>
+                            <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Nhap lai mat khau moi" minlength="6" required>
+                        </div>
+                        <button type="submit" class="btn btn-teal btn-block">Doi Mat Khau</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+.reception-profile { padding: 40px 0; background: #f0faf8; min-height: 80vh; }
+.reception-profile h1 { font-family: 'Playfair Display', serif; font-size: 1.8rem; color: #1a3c34; }
+.page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+.profile-grid { display: grid; grid-template-columns: 300px 1fr; gap: 24px; align-items: start; }
+.profile-card { background: white; border-radius: 12px; padding: 24px; box-shadow: 0 2px 10px rgba(0,105,92,0.07); margin-bottom: 20px; }
+.profile-card h3 { font-family: 'Playfair Display', serif; font-size: 1rem; color: #1a3c34; margin-bottom: 16px; padding-bottom: 10px; border-bottom: 1px solid #e0f2f1; }
+.profile-avatar { width: 70px; height: 70px; border-radius: 50%; background: #00897b; color: white; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; font-weight: 700; font-family: 'Playfair Display', serif; margin: 0 auto 12px; }
+.profile-sidebar h2 { text-align: center; font-family: 'Playfair Display', serif; font-size: 1.25rem; color: #1a3c34; margin-bottom: 4px; }
+.profile-role-badge { text-align: center; color: #00897b; font-size: 0.82rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; background: #e0f2f1; border-radius: 10px; padding: 3px 14px; display: inline-block; width: 100%; box-sizing: border-box; margin-bottom: 2px; }
+.profile-email { text-align: center; color: #80cbc4; font-size: 0.88rem; margin-bottom: 20px; }
+.profile-meta { border-top: 1px solid #e0f2f1; padding-top: 14px; display: flex; flex-direction: column; gap: 10px; }
+.meta-item { display: flex; justify-content: space-between; font-size: 0.88rem; }
+.meta-label { color: #80cbc4; }
+.meta-value { color: #333; font-weight: 500; }
+.branch-val { color: #00695c; font-weight: 700; }
+.pending-badge { background: #fff8e1; color: #f57f17; padding: 2px 10px; border-radius: 10px; font-size: 0.75rem; font-weight: 700; }
+.current-branch-box { display: flex; align-items: flex-start; gap: 12px; background: #e8f5e9; border-radius: 10px; padding: 14px 16px; margin-bottom: 14px; }
+.cb-icon { color: #00897b; margin-top: 2px; flex-shrink: 0; }
+.cb-name { font-weight: 700; color: #1a3c34; font-size: 0.95rem; margin-bottom: 2px; }
+.cb-addr { color: #7f9e98; font-size: 0.84rem; }
+.no-branch-notice { background: #fff8e1; border: 1px solid #ffe082; border-radius: 8px; padding: 12px 16px; color: #f57f17; font-size: 0.88rem; margin-bottom: 14px; }
+.pending-notice { display: flex; align-items: flex-start; gap: 10px; background: #fff3e0; border: 1px solid #ffcc02; border-radius: 8px; padding: 12px 16px; color: #e65100; font-size: 0.88rem; }
+.pending-notice svg { flex-shrink: 0; margin-top: 2px; }
+.profile-form select, .profile-form input { width: 100%; padding: 10px 12px; border: 1.5px solid #b2dfdb; border-radius: 8px; font-size: 0.88rem; box-sizing: border-box; background: white; color: #333; }
+.profile-form select:focus, .profile-form input:focus { outline: none; border-color: #00897b; box-shadow: 0 0 0 3px rgba(0,137,123,0.1); }
+.form-group { margin-bottom: 14px; }
+.form-group label { display: block; font-size: 0.82rem; font-weight: 700; color: #00695c; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.03em; }
+.btn { display: inline-block; padding: 10px 20px; border-radius: 8px; text-decoration: none; font-size: 0.88rem; font-weight: 600; border: none; cursor: pointer; transition: all 0.2s; }
+.btn-teal { background: #00897b; color: white; }
+.btn-teal:hover { background: #00695c; }
+.btn-secondary { background: #e0f2f1; color: #007d70; }
+.btn-sm { padding: 6px 14px; font-size: 0.8rem; }
+.btn-block { display: block; width: 100%; text-align: center; }
+.alert { padding: 12px 18px; border-radius: 8px; margin-bottom: 20px; font-size: 0.9rem; }
+.alert-success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+.alert-error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+@media (max-width: 768px) { .profile-grid { grid-template-columns: 1fr; } }
+</style>

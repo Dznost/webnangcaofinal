@@ -1,0 +1,932 @@
+<!-- SEO Meta for Admin Pages -->
+<section class="admin-form-page">
+    <div class="form-container">
+        <!-- Breadcrumb Navigation -->
+        <nav class="breadcrumb" aria-label="Breadcrumb">
+            <ol>
+                <li><a href="/admin">Dashboard</a></li>
+                <li><a href="/admin/blogs">Quan Ly Tin Tuc</a></li>
+                <li aria-current="page"><%= blog ? 'Chinh Sua' : 'Them Moi' %></li>
+            </ol>
+        </nav>
+
+        <!-- Page Header -->
+        <header class="page-header">
+            <div class="header-content">
+                <div class="header-icon">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                        <polyline points="14 2 14 8 20 8"/>
+                        <line x1="16" y1="13" x2="8" y2="13"/>
+                        <line x1="16" y1="17" x2="8" y2="17"/>
+                        <polyline points="10 9 9 9 8 9"/>
+                    </svg>
+                </div>
+                <div class="header-text">
+                    <h1><%= blog ? 'Chinh Sua Bai Viet' : 'Them Bai Viet Moi' %></h1>
+                    <p class="header-description">Quan ly bai viet blog va tin tuc nha hang</p>
+                </div>
+            </div>
+            <div class="header-actions">
+                <a href="/admin/blogs" class="btn btn-ghost">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M19 12H5M12 19l-7-7 7-7"/>
+                    </svg>
+                    Quay Lai
+                </a>
+            </div>
+        </header>
+        
+        <% if (typeof error !== 'undefined' && error) { %>
+            <div class="alert alert-error" role="alert">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/>
+                </svg>
+                <span><%= error %></span>
+            </div>
+        <% } %>
+        
+        <form method="POST" action="<%= blog ? `/admin/blogs/${blog._id}` : '/admin/blogs' %>" class="modern-form" id="blogForm">
+            <div class="form-layout">
+                <!-- Main Content Column -->
+                <div class="form-main">
+                    <!-- Article Information Card -->
+                    <div class="form-card">
+                        <div class="card-header">
+                            <h2>Thong Tin Bai Viet</h2>
+                            <span class="card-badge">Bat Buoc</span>
+                        </div>
+                        <div class="card-body">
+                            <div class="field-group">
+                                <label for="title" class="field-label">
+                                    Tieu De Bai Viet
+                                    <span class="required">*</span>
+                                </label>
+                                <input type="text" id="title" name="title" value="<%= blog?.title || '' %>" 
+                                       placeholder="Vi du: Kham Pha Am Thuc Viet Truyen Thong" 
+                                       required class="field-input field-input-lg"
+                                       oninput="updateCharCount(this, 'titleCount', 100)">
+                                <div class="field-footer">
+                                    <span class="field-hint">Tieu de se hien thi tren trang blog va tim kiem</span>
+                                    <span class="char-count" id="titleCount"><%= blog?.title?.length || 0 %>/100</span>
+                                </div>
+                            </div>
+
+                            <div class="field-row">
+                                <div class="field-group">
+                                    <label for="author" class="field-label">
+                                        Tac Gia
+                                        <span class="required">*</span>
+                                    </label>
+                                    <input type="text" id="author" name="author" 
+                                           value="<%= blog?.author || 'Admin' %>" 
+                                           placeholder="Ten tac gia" required class="field-input">
+                                </div>
+                                <div class="field-group">
+                                    <label for="category" class="field-label">Danh Muc</label>
+                                    <div class="select-wrapper">
+                                        <select id="category" name="category" class="field-select">
+                                            <option value="news" <%= blog?.category === 'news' ? 'selected' : '' %>>Tin Tuc</option>
+                                            <option value="recipe" <%= blog?.category === 'recipe' ? 'selected' : '' %>>Cong Thuc Nau An</option>
+                                            <option value="culture" <%= blog?.category === 'culture' ? 'selected' : '' %>>Van Hoa Am Thuc</option>
+                                            <option value="tips" <%= blog?.category === 'tips' ? 'selected' : '' %>>Meo & Kinh Nghiem</option>
+                                        </select>
+                                        <svg class="select-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <polyline points="6 9 12 15 18 9"/>
+                                        </svg>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="field-group">
+                                <label for="excerpt" class="field-label">Tom Tat Ngan</label>
+                                <textarea id="excerpt" name="excerpt" rows="3" 
+                                          placeholder="Tom tat ngan gon cua bai viet (150 ky tu)" 
+                                          class="field-textarea"
+                                          oninput="updateCharCount(this, 'excerptCount', 200)"><%= blog?.excerpt || '' %></textarea>
+                                <div class="field-footer">
+                                    <span class="field-hint">Tom tat se hien thi tren danh sach bai viet</span>
+                                    <span class="char-count" id="excerptCount"><%= blog?.excerpt?.length || 0 %>/200</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Featured Image Card -->
+                    <div class="form-card">
+                        <div class="card-header">
+                            <h2>Hinh Anh Dai Dien</h2>
+                        </div>
+                        <div class="card-body">
+                            <div class="field-group">
+                                <label for="image" class="field-label">
+                                    URL Hinh Anh
+                                    <span class="required">*</span>
+                                </label>
+                                <input type="url" id="image" name="image" value="<%= blog?.image || '' %>" 
+                                       placeholder="https://example.com/image.jpg" required 
+                                       onchange="previewBlogImage(this.value)" class="field-input">
+                                <span class="field-hint">Su dung hinh anh chat luong cao, ty le 16:9</span>
+                            </div>
+
+                            <div class="image-preview-container" id="blogImagePreview">
+                                <% if (blog?.image) { %>
+                                    <img src="<%= blog.image %>" alt="<%= blog.title %>">
+                                <% } else { %>
+                                    <div class="preview-placeholder">
+                                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                            <rect x="3" y="3" width="18" height="18" rx="2"/>
+                                            <circle cx="8.5" cy="8.5" r="1.5"/>
+                                            <path d="M21 15l-5-5L5 21"/>
+                                        </svg>
+                                        <span>Hinh anh se hien thi o day</span>
+                                    </div>
+                                <% } %>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Content Editor Card -->
+                    <div class="form-card">
+                        <div class="card-header">
+                            <h2>Noi Dung Bai Viet</h2>
+                            <div class="editor-toolbar">
+                                <button type="button" class="toolbar-btn" onclick="insertFormat('**', '**')" title="In dam">
+                                    <strong>B</strong>
+                                </button>
+                                <button type="button" class="toolbar-btn" onclick="insertFormat('*', '*')" title="In nghieng">
+                                    <em>I</em>
+                                </button>
+                                <button type="button" class="toolbar-btn" onclick="insertFormat('## ', '')" title="Tieu de">
+                                    H
+                                </button>
+                                <button type="button" class="toolbar-btn" onclick="insertFormat('- ', '')" title="Danh sach">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/>
+                                        <line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="field-group">
+                                <textarea id="content" name="content" rows="20" 
+                                          placeholder="Nhap noi dung day du cua bai viet. Ho tro Markdown dinh dang.
+
+Vi du:
+## Tieu de muc
+Noi dung van ban binh thuong.
+
+**Van ban in dam** va *van ban in nghieng*
+
+- Danh sach muc 1
+- Danh sach muc 2"
+                                          required class="field-textarea content-editor"><%= blog?.content || '' %></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sidebar Column -->
+                <div class="form-sidebar">
+                    <!-- Publish Settings Card -->
+                    <div class="form-card">
+                        <div class="card-header">
+                            <h2>Cai Dat Xuat Ban</h2>
+                        </div>
+                        <div class="card-body">
+                            <div class="field-group">
+                                <label for="status" class="field-label">Trang Thai</label>
+                                <div class="status-toggle">
+                                    <label class="toggle-option">
+                                        <input type="radio" name="status" value="published" 
+                                               <%= (!blog || blog?.status === 'published') ? 'checked' : '' %>>
+                                        <span class="toggle-content">
+                                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+                                            </svg>
+                                            Da Xuat Ban
+                                        </span>
+                                    </label>
+                                    <label class="toggle-option">
+                                        <input type="radio" name="status" value="draft" 
+                                               <%= blog?.status === 'draft' ? 'checked' : '' %>>
+                                        <span class="toggle-content">
+                                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                                            </svg>
+                                            Ban Nhap
+                                        </span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="field-group">
+                                <label class="checkbox-label">
+                                    <input type="checkbox" name="featured" <%= blog?.featured ? 'checked' : '' %>>
+                                    <span class="checkbox-custom"></span>
+                                    <span class="checkbox-text">
+                                        <strong>Bai Viet Noi Bat</strong>
+                                        <small>Hien thi o vi tri dac biet tren trang chu</small>
+                                    </span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tags Card -->
+                    <div class="form-card">
+                        <div class="card-header">
+                            <h2>Tu Khoa (Tags)</h2>
+                        </div>
+                        <div class="card-body">
+                            <div class="field-group">
+                                <input type="text" id="tags" name="tags" 
+                                       value="<%= blog?.tags ? blog.tags.join(', ') : '' %>" 
+                                       placeholder="am thuc, nha hang, mon an" class="field-input">
+                                <span class="field-hint">Phan cach cac tu khoa bang dau phay</span>
+                            </div>
+                            
+                            <!-- Quick Tags -->
+                            <div class="quick-tags">
+                                <span class="quick-tag" onclick="addTag('am thuc')">am thuc</span>
+                                <span class="quick-tag" onclick="addTag('nha hang')">nha hang</span>
+                                <span class="quick-tag" onclick="addTag('khuyen mai')">khuyen mai</span>
+                                <span class="quick-tag" onclick="addTag('cong thuc')">cong thuc</span>
+                                <span class="quick-tag" onclick="addTag('meo vat')">meo vat</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SEO Preview Card -->
+                    <div class="form-card">
+                        <div class="card-header">
+                            <h2>Xem Truoc SEO</h2>
+                        </div>
+                        <div class="card-body">
+                            <div class="seo-preview">
+                                <div class="seo-title" id="seoTitle"><%= blog?.title || 'Tieu de bai viet' %></div>
+                                <div class="seo-url">lamaison.vn/blog/<%= blog?._id || 'bai-viet-moi' %></div>
+                                <div class="seo-excerpt" id="seoExcerpt"><%= blog?.excerpt || 'Tom tat noi dung bai viet se hien thi o day...' %></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Meta Info Card -->
+                    <% if (blog) { %>
+                    <div class="form-card">
+                        <div class="card-header">
+                            <h2>Thong Tin</h2>
+                        </div>
+                        <div class="card-body">
+                            <div class="meta-info">
+                                <div class="meta-item">
+                                    <span class="meta-label">Tao luc:</span>
+                                    <span class="meta-value"><%= blog.createdAt ? new Date(blog.createdAt).toLocaleDateString('vi-VN') : 'N/A' %></span>
+                                </div>
+                                <div class="meta-item">
+                                    <span class="meta-label">Cap nhat:</span>
+                                    <span class="meta-value"><%= blog.updatedAt ? new Date(blog.updatedAt).toLocaleDateString('vi-VN') : 'N/A' %></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <% } %>
+
+                    <!-- Actions Card -->
+                    <div class="form-card actions-card">
+                        <button type="submit" class="btn btn-primary btn-full">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+                                <polyline points="17 21 17 13 7 13 7 21"/>
+                                <polyline points="7 3 7 8 15 8"/>
+                            </svg>
+                            <%= blog ? 'Cap Nhat Bai Viet' : 'Xuat Ban Bai Viet' %>
+                        </button>
+                        <a href="/admin/blogs" class="btn btn-secondary btn-full">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                            </svg>
+                            Huy Bo
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</section>
+
+<style>
+/* Modern Admin Form Styles */
+.admin-form-page {
+    background: linear-gradient(180deg, #f8f6f3 0%, #faf9f7 100%);
+    min-height: 100vh;
+    padding: 24px;
+}
+
+.form-container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* Breadcrumb */
+.breadcrumb {
+    margin-bottom: 24px;
+}
+
+.breadcrumb ol {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    font-size: 0.875rem;
+}
+
+.breadcrumb li {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #6b7280;
+}
+
+.breadcrumb li:not(:last-child)::after {
+    content: '/';
+    color: #d1d5db;
+}
+
+.breadcrumb a {
+    color: #8B6F47;
+    text-decoration: none;
+}
+
+.breadcrumb a:hover {
+    text-decoration: underline;
+}
+
+.breadcrumb li[aria-current="page"] {
+    color: #374151;
+    font-weight: 500;
+}
+
+/* Page Header */
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 32px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.header-content {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+}
+
+.header-icon {
+    width: 56px;
+    height: 56px;
+    background: linear-gradient(135deg, #8B6F47 0%, #6b5438 100%);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+}
+
+.header-text h1 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #1f2937;
+    margin: 0 0 4px 0;
+    font-family: 'Playfair Display', serif;
+}
+
+.header-description {
+    color: #6b7280;
+    margin: 0;
+}
+
+/* Form Layout */
+.form-layout {
+    display: grid;
+    grid-template-columns: 1fr 360px;
+    gap: 24px;
+}
+
+.form-main, .form-sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+/* Form Card */
+.form-card {
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 24px;
+    border-bottom: 1px solid #f3f4f6;
+    background: #fafafa;
+}
+
+.card-header h2 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #374151;
+    margin: 0;
+}
+
+.card-badge {
+    font-size: 0.75rem;
+    font-weight: 500;
+    padding: 4px 10px;
+    border-radius: 20px;
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.card-body {
+    padding: 24px;
+}
+
+/* Editor Toolbar */
+.editor-toolbar {
+    display: flex;
+    gap: 4px;
+}
+
+.toolbar-btn {
+    width: 32px;
+    height: 32px;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    background: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #374151;
+    transition: all 0.2s;
+}
+
+.toolbar-btn:hover {
+    background: #f3f4f6;
+    border-color: #8B6F47;
+}
+
+/* Field Styles */
+.field-group {
+    margin-bottom: 20px;
+}
+
+.field-group:last-child {
+    margin-bottom: 0;
+}
+
+.field-label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 8px;
+}
+
+.required {
+    color: #dc2626;
+}
+
+.field-input, .field-select, .field-textarea {
+    width: 100%;
+    padding: 12px 16px;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.9375rem;
+    color: #1f2937;
+    background: #fafafa;
+    transition: all 0.2s ease;
+}
+
+.field-input-lg {
+    font-size: 1.125rem;
+    padding: 14px 16px;
+}
+
+.field-input:focus, .field-select:focus, .field-textarea:focus {
+    outline: none;
+    border-color: #8B6F47;
+    background: white;
+    box-shadow: 0 0 0 4px rgba(139, 111, 71, 0.1);
+}
+
+.field-textarea {
+    resize: vertical;
+    min-height: 100px;
+}
+
+.content-editor {
+    min-height: 400px;
+    font-family: 'Monaco', 'Menlo', monospace;
+    font-size: 0.875rem;
+    line-height: 1.7;
+}
+
+.field-hint {
+    font-size: 0.8125rem;
+    color: #6b7280;
+}
+
+.field-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 6px;
+}
+
+.char-count {
+    font-size: 0.75rem;
+    color: #9ca3af;
+}
+
+.field-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+/* Select Wrapper */
+.select-wrapper {
+    position: relative;
+}
+
+.select-wrapper .field-select {
+    appearance: none;
+    padding-right: 40px;
+}
+
+.select-icon {
+    position: absolute;
+    right: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #6b7280;
+    pointer-events: none;
+}
+
+/* Image Preview */
+.image-preview-container {
+    border: 2px dashed #d1d5db;
+    border-radius: 12px;
+    padding: 24px;
+    text-align: center;
+    background: #fafafa;
+    min-height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.image-preview-container img {
+    max-width: 100%;
+    max-height: 250px;
+    border-radius: 8px;
+}
+
+.preview-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    color: #9ca3af;
+}
+
+/* Status Toggle */
+.status-toggle {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.toggle-option {
+    cursor: pointer;
+}
+
+.toggle-option input {
+    display: none;
+}
+
+.toggle-content {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 16px;
+    border: 2px solid #e5e7eb;
+    border-radius: 10px;
+    transition: all 0.2s;
+}
+
+.toggle-option input:checked + .toggle-content {
+    border-color: #8B6F47;
+    background: #fef7ed;
+}
+
+/* Checkbox Label */
+.checkbox-label {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    cursor: pointer;
+    padding: 16px;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    transition: all 0.2s;
+}
+
+.checkbox-label:hover {
+    border-color: #8B6F47;
+}
+
+.checkbox-label input {
+    display: none;
+}
+
+.checkbox-custom {
+    width: 20px;
+    height: 20px;
+    border: 2px solid #d1d5db;
+    border-radius: 4px;
+    flex-shrink: 0;
+    position: relative;
+    transition: all 0.2s;
+}
+
+.checkbox-label input:checked + .checkbox-custom {
+    background: #8B6F47;
+    border-color: #8B6F47;
+}
+
+.checkbox-label input:checked + .checkbox-custom::after {
+    content: '';
+    position: absolute;
+    left: 5px;
+    top: 2px;
+    width: 6px;
+    height: 10px;
+    border: solid white;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+}
+
+.checkbox-text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.checkbox-text strong {
+    color: #374151;
+    font-size: 0.9375rem;
+}
+
+.checkbox-text small {
+    color: #6b7280;
+    font-size: 0.8125rem;
+}
+
+/* Quick Tags */
+.quick-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 12px;
+}
+
+.quick-tag {
+    padding: 6px 12px;
+    background: #f3f4f6;
+    border-radius: 20px;
+    font-size: 0.8125rem;
+    color: #6b7280;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.quick-tag:hover {
+    background: #8B6F47;
+    color: white;
+}
+
+/* SEO Preview */
+.seo-preview {
+    padding: 16px;
+    background: #f9fafb;
+    border-radius: 10px;
+    border: 1px solid #e5e7eb;
+}
+
+.seo-title {
+    font-size: 1.125rem;
+    color: #1a0dab;
+    margin-bottom: 4px;
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.seo-url {
+    font-size: 0.8125rem;
+    color: #006621;
+    margin-bottom: 6px;
+}
+
+.seo-excerpt {
+    font-size: 0.8125rem;
+    color: #545454;
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* Meta Info */
+.meta-info {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.meta-item {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.8125rem;
+}
+
+.meta-label {
+    color: #6b7280;
+}
+
+.meta-value {
+    color: #374151;
+    font-weight: 500;
+}
+
+/* Actions Card */
+.actions-card {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+/* Buttons */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 20px;
+    border-radius: 10px;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #8B6F47 0%, #6b5438 100%);
+    color: white;
+    box-shadow: 0 4px 12px rgba(139, 111, 71, 0.25);
+}
+
+.btn-primary:hover {
+    box-shadow: 0 6px 16px rgba(139, 111, 71, 0.35);
+    transform: translateY(-1px);
+}
+
+.btn-secondary {
+    background: #f3f4f6;
+    color: #374151;
+    border: 1px solid #e5e7eb;
+}
+
+.btn-secondary:hover {
+    background: #e5e7eb;
+}
+
+.btn-ghost {
+    background: transparent;
+    color: #6b7280;
+    padding: 8px 16px;
+}
+
+.btn-ghost:hover {
+    background: #f3f4f6;
+}
+
+.btn-full {
+    width: 100%;
+}
+
+/* Alert */
+.alert {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 20px;
+    border-radius: 12px;
+    margin-bottom: 24px;
+}
+
+.alert-error {
+    background: #fef2f2;
+    color: #991b1b;
+    border: 1px solid #fecaca;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+    .form-layout {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 640px) {
+    .admin-form-page {
+        padding: 16px;
+    }
+
+    .page-header {
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    .field-row {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+
+<script>
+function previewBlogImage(url) {
+    const preview = document.getElementById('blogImagePreview');
+    if (url) {
+        preview.innerHTML = '<img src="' + url + '" alt="Preview">';
+    }
+}
+
+function updateCharCount(input, counterId, max) {
+    const count = input.value.length;
+    const counter = document.getElementById(counterId);
+    counter.textContent = count + '/' + max;
+    counter.style.color = count > max ? '#dc2626' : '#9ca3af';
+    
+    // Update SEO preview
+    if (input.id === 'title') {
+        document.getElementById('seoTitle').textContent = input.value || 'Tieu de bai viet';
+    }
+    if (input.id === 'excerpt') {
+        document.getElementById('seoExcerpt').textContent = input.value || 'Tom tat noi dung bai viet se hien thi o day...';
+    }
+}
+
+function addTag(tag) {
+    const input = document.getElementById('tags');
+    const current = input.value.trim();
+    if (current) {
+        if (!current.includes(tag)) {
+            input.value = current + ', ' + tag;
+        }
+    } else {
+        input.value = tag;
+    }
+}
+
+function insertFormat(before, after) {
+    const textarea = document.getElementById('content');
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const text = textarea.value;
+    const selected = text.substring(start, end);
+    
+    textarea.value = text.substring(0, start) + before + selected + after + text.substring(end);
+    textarea.focus();
+    textarea.setSelectionRange(start + before.length, start + before.length + selected.length);
+}
+</script>

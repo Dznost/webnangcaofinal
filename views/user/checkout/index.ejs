@@ -1,0 +1,582 @@
+<section class="checkout-section">
+    <div class="container">
+        <h1>Thanh Toan Don Hang</h1>
+        
+        <% if (finalTotal > 100000000) { %>
+        <div class="large-order-banner">
+            <div class="large-order-icon">!</div>
+            <div class="large-order-text">
+                <strong>Don hang gia tri cao (tren 100 trieu dong)</strong>
+                <p>Quan tri vien se duoc thong bao tu dong de ho tro xu ly don hang nay. Ban co the ghi chu yeu cau dac biet o phan ben duoi.</p>
+            </div>
+        </div>
+        <% } %>
+
+        <div class="checkout-content">
+            <div class="order-summary">
+                <h2>Tom Tat Don Hang</h2>
+                <table class="cart-table">
+                    <thead>
+                        <tr>
+                            <th>Ten Mon</th>
+                            <th>So Luong</th>
+                            <th>Don Gia</th>
+                            <th>Giam Gia</th>
+                            <th>Thanh Tien</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    <% cart.forEach(item => { %>
+                        <% const itemTotal = item.price * item.quantity; %>
+                        <% const itemDiscount = (item.discount || 0) / 100 * itemTotal; %>
+                        <% const itemFinal = itemTotal - itemDiscount; %>
+                        <tr>
+                            <td><%= item.name %></td>
+                            <td class="text-center"><%= item.quantity %></td>
+                            <td><%= item.price.toLocaleString('vi-VN') %>d</td>
+                            <td class="discount-cell">
+                                <% if (item.discount > 0) { %>
+                                    -<%= itemDiscount.toLocaleString('vi-VN') %>d (<%= item.discount %>%)
+                                <% } else { %>
+                                    0d
+                                <% } %>
+                            </td>
+                            <td class="text-right"><strong><%= itemFinal.toLocaleString('vi-VN') %>d</strong></td>
+                        </tr>
+                    <% }); %>
+                    </tbody>
+                </table>
+                <div class="price-summary">
+                    <div class="price-row">
+                        <span>Tong Tien:</span>
+                        <span><%= total.toLocaleString('vi-VN') %>d</span>
+                    </div>
+                    <% if (totalDiscount > 0) { %>
+                        <div class="price-row discount-row">
+                            <span>Giam Gia:</span>
+                            <span>-<%= totalDiscount.toLocaleString('vi-VN') %>d</span>
+                        </div>
+                    <% } %>
+                    <div class="price-row final-total">
+                        <span>Thanh Tien:</span>
+                        <span><%= finalTotal.toLocaleString('vi-VN') %>d</span>
+                    </div>
+                </div>
+            </div>
+
+            <form method="POST" action="/user/order" class="checkout-form" id="checkoutForm">
+                <h2>Thong Tin Dat Mon</h2>
+                
+                <!-- Order type selection: Dine-in or Takeaway -->
+                <div class="form-group">
+                    <label>Hinh Thuc Dat Mon <span class="required">*</span></label>
+                    <div class="order-type-options">
+                        <label class="radio-card" id="takeawayCard">
+                            <input type="radio" name="orderType" value="takeaway" checked onchange="updateFormDisplay()">
+                            <div class="radio-card-content">
+                                <div class="radio-card-icon">&#x1F961;</div>
+                                <div class="radio-card-label">Mang Ve (Takeaway)</div>
+                                <div class="radio-card-desc">Giao hang den dia chi cua ban</div>
+                            </div>
+                        </label>
+                        <label class="radio-card" id="dineInCard">
+                            <input type="radio" name="orderType" value="dine-in" onchange="updateFormDisplay()">
+                            <div class="radio-card-content">
+                                <div class="radio-card-icon">&#x1F37D;</div>
+                                <div class="radio-card-label">An Tai Nha Hang (Dine-in)</div>
+                                <div class="radio-card-desc">Chon chi nhanh va so nguoi</div>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Dine-in section -->
+                <div id="dineInSection" style="display: none;">
+                    <div class="form-section-title">Thong Tin An Tai Nha Hang</div>
+                    <div class="form-group">
+                        <label for="branchId">Chon Chi Nhanh <span class="required">*</span></label>
+                        <select id="branchId" name="branchId">
+                            <option value="">-- Chon Chi Nhanh --</option>
+                            <% if (branches && branches.length > 0) { %>
+                                <% branches.forEach(branch => { %>
+                                    <option value="<%= branch._id %>">
+                                        <%= branch.name %> - <%= branch.address %> 
+                                        (Con <%= branch.availableTables %> ban)
+                                    </option>
+                                <% }); %>
+                            <% } else { %>
+                                <option value="" disabled>Khong co chi nhanh nao co du mon</option>
+                            <% } %>
+                        </select>
+                        <% if (!branches || branches.length === 0) { %>
+                            <p class="info-text warning">
+                                Cac mon trong gio hang khong co san tai cung mot chi nhanh. 
+                                Vui long chon "Mang Ve" hoac dieu chinh gio hang.
+                            </p>
+                        <% } %>
+                    </div>
+                    <div class="form-group">
+                        <label for="guests">So Nguoi <span class="required">*</span></label>
+                        <input type="number" id="guests" name="guests" min="1" max="50" placeholder="Nhap so nguoi">
+                    </div>
+                </div>
+
+                <!-- Takeaway section -->
+                <div id="takeawaySection">
+                    <div class="form-section-title">Thong Tin Giao Hang</div>
+                    <div class="form-group">
+                        <label for="deliveryAddress">Dia Chi Giao Hang <span class="required">*</span></label>
+                        <textarea id="deliveryAddress" name="deliveryAddress" placeholder="Nhap dia chi giao hang day du" required></textarea>
+                    </div>
+                </div>
+
+                <!-- Payment method - applies to both dine-in and takeaway -->
+                <div class="form-section-title">Hinh Thuc Thanh Toan</div>
+                
+                <% if (isCODRestricted) { %>
+                <div class="payment-restriction-warning">
+                    <strong>Luu y:</strong> Don hang tren 10,000,000d bat buoc thanh toan bang chuyen khoan ngan hang. Khong ho tro COD cho don hang co gia tri lon.
+                </div>
+                <% } %>
+                
+                <div class="form-group">
+                    <div class="payment-timing-options">
+                        <label class="radio-card small">
+                            <input type="radio" name="paymentTiming" value="prepaid" checked>
+                            <div class="radio-card-content">
+                                <div class="radio-card-icon">&#x1F4B3;</div>
+                                <div class="radio-card-label">Chuyen Khoan / QR</div>
+                                <div class="radio-card-desc">Thanh toan truoc qua ngan hang</div>
+                            </div>
+                        </label>
+                        
+                        <% if (!isCODRestricted) { %>
+                        <label class="radio-card small" id="codOption">
+                            <input type="radio" name="paymentTiming" value="cod">
+                            <div class="radio-card-content">
+                                <div class="radio-card-icon">&#x1F4B5;</div>
+                                <div class="radio-card-label">COD - Thanh Toan Sau</div>
+                                <div class="radio-card-desc">Tra tien khi nhan hang / tai quay</div>
+                            </div>
+                        </label>
+                        <% } %>
+                    </div>
+                </div>
+
+                <!-- Customer info -->
+                <div class="form-section-title">Thong Tin Khach Hang</div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="fullName">Ho va Ten <span class="required">*</span></label>
+                        <input type="text" id="fullName" name="fullName" placeholder="Nhap ho va ten" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="phone">So Dien Thoai <span class="required">*</span></label>
+                        <input type="tel" id="phone" name="phone" placeholder="Nhap so dien thoai" required>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="email">Email <span class="required">*</span></label>
+                    <input type="email" id="email" name="email" placeholder="Nhap email" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="specialRequests">Ghi Chu Them</label>
+                    <textarea id="specialRequests" name="specialRequests" rows="3" placeholder="Yeu cau dac biet, di ung thuc pham, v.v. (tuy chon)"></textarea>
+                </div>
+
+                <% if (finalTotal > 100000000) { %>
+                <div class="form-group">
+                    <label for="largeOrderNote">Yeu Cau Dac Biet (Don Hang Lon) <span class="required">*</span></label>
+                    <textarea id="largeOrderNote" name="largeOrderNote" rows="3" placeholder="Vi du: thoi gian giao hang cu the, sap xep mon an dac biet, so luong khach du kien..." required></textarea>
+                    <p class="info-text">Don hang tren 100 trieu dong se duoc Admin xem xet va lien he xac nhan.</p>
+                </div>
+                <% } %>
+                
+                <div class="checkout-actions">
+                    <a href="/user/cart" class="btn btn-secondary">Quay Lai Gio Hang</a>
+                    <button type="submit" class="btn btn-primary btn-lg">Xac Nhan Dat Hang</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</section>
+
+<script>
+function updateFormDisplay() {
+    var orderType = document.querySelector('input[name="orderType"]:checked').value;
+    var dineInSection = document.getElementById('dineInSection');
+    var takeawaySection = document.getElementById('takeawaySection');
+    var deliveryAddress = document.getElementById('deliveryAddress');
+    var branchId = document.getElementById('branchId');
+    var guests = document.getElementById('guests');
+    var takeawayCard = document.getElementById('takeawayCard');
+    var dineInCard = document.getElementById('dineInCard');
+    
+    if (orderType === 'dine-in') {
+        dineInSection.style.display = 'block';
+        takeawaySection.style.display = 'none';
+        deliveryAddress.required = false;
+        branchId.required = true;
+        guests.required = true;
+        dineInCard.classList.add('selected');
+        takeawayCard.classList.remove('selected');
+        
+        var hasBranches = document.querySelectorAll('#branchId option:not([disabled])').length > 1;
+        if (!hasBranches) {
+            alert('Cac mon trong gio hang khong co san tai cung mot chi nhanh. Vui long chon Mang Ve.');
+            document.querySelector('input[name="orderType"][value="takeaway"]').checked = true;
+            updateFormDisplay();
+            return;
+        }
+    } else {
+        dineInSection.style.display = 'none';
+        takeawaySection.style.display = 'block';
+        deliveryAddress.required = true;
+        branchId.required = false;
+        guests.required = false;
+        takeawayCard.classList.add('selected');
+        dineInCard.classList.remove('selected');
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    updateFormDisplay();
+});
+</script>
+
+<style>
+.checkout-section {
+    padding: 40px 0;
+    background: #f8f6f3;
+    min-height: 100vh;
+}
+
+.checkout-content {
+    display: grid;
+    grid-template-columns: 1fr 1.2fr;
+    gap: 30px;
+    align-items: start;
+}
+
+.order-summary {
+    background: white;
+    border-radius: 12px;
+    padding: 30px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+    position: sticky;
+    top: 100px;
+}
+
+.order-summary h2 {
+    font-size: 1.3rem;
+    color: #2c2c2c;
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid #f0ebe4;
+}
+
+.cart-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+}
+
+.cart-table th {
+    background: #f8f6f3;
+    padding: 10px 8px;
+    text-align: left;
+    font-weight: 600;
+    color: #666;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.cart-table td {
+    padding: 12px 8px;
+    border-bottom: 1px solid #f0f0f0;
+    color: #333;
+}
+
+.text-center { text-align: center; }
+.text-right { text-align: right; }
+
+.discount-cell {
+    color: #28a745;
+    font-weight: 600;
+    font-size: 0.85rem;
+}
+
+.price-summary {
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 2px solid #f0ebe4;
+}
+
+.price-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    font-size: 1rem;
+    color: #555;
+}
+
+.price-row.discount-row {
+    color: #28a745;
+    font-weight: 600;
+}
+
+.price-row.final-total {
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 2px solid #e0d8ce;
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #8B6F47;
+}
+
+.checkout-form {
+    background: white;
+    border-radius: 12px;
+    padding: 30px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+}
+
+.checkout-form h2 {
+    font-size: 1.3rem;
+    color: #2c2c2c;
+    margin-bottom: 24px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid #f0ebe4;
+}
+
+.form-section-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #8B6F47;
+    margin: 28px 0 16px 0;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #f0ebe4;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-size: 0.85rem;
+}
+
+.required { color: #dc3545; }
+
+/* Order type card selection */
+.order-type-options,
+.payment-timing-options {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-top: 8px;
+}
+
+.radio-card {
+    display: block;
+    cursor: pointer;
+    border: 2px solid #e0d8ce;
+    border-radius: 10px;
+    overflow: hidden;
+    transition: all 0.25s;
+}
+
+.radio-card:hover {
+    border-color: #8B6F47;
+    box-shadow: 0 2px 8px rgba(139,111,71,0.15);
+}
+
+.radio-card input[type="radio"] {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.radio-card:has(input:checked) {
+    border-color: #8B6F47;
+    background: #faf7f2;
+    box-shadow: 0 2px 8px rgba(139,111,71,0.2);
+}
+
+.radio-card-content {
+    padding: 18px 16px;
+    text-align: center;
+}
+
+.radio-card-icon {
+    font-size: 2rem;
+    margin-bottom: 8px;
+}
+
+.radio-card.small .radio-card-content {
+    padding: 14px 12px;
+}
+
+.radio-card.small .radio-card-icon {
+    font-size: 1.6rem;
+    margin-bottom: 6px;
+}
+
+.radio-card-label {
+    font-weight: 700;
+    color: #2c2c2c;
+    font-size: 0.95rem;
+    margin-bottom: 4px;
+}
+
+.radio-card-desc {
+    font-size: 0.8rem;
+    color: #888;
+}
+
+.radio-card:has(input:checked) .radio-card-label {
+    color: #8B6F47;
+}
+
+/* Form elements */
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+.form-group {
+    margin-bottom: 18px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: 600;
+    color: #444;
+    font-size: 0.9rem;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 12px 14px;
+    border: 2px solid #e0d8ce;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    transition: border-color 0.25s;
+    box-sizing: border-box;
+    font-family: inherit;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: #8B6F47;
+    box-shadow: 0 0 0 3px rgba(139,111,71,0.1);
+}
+
+/* Warnings */
+.payment-restriction-warning {
+    margin-bottom: 16px;
+    padding: 14px 18px;
+    background: #fff8e1;
+    border-left: 4px solid #f9a825;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    color: #6d4c00;
+    line-height: 1.5;
+}
+
+.large-order-banner {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 20px 24px;
+    background: linear-gradient(135deg, #fff8e1, #fff3cd);
+    border: 2px solid #f9a825;
+    border-radius: 12px;
+    margin-bottom: 24px;
+}
+
+.large-order-icon {
+    width: 48px;
+    height: 48px;
+    background: #f9a825;
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    font-weight: bold;
+    flex-shrink: 0;
+}
+
+.large-order-text strong {
+    display: block;
+    color: #6d4c00;
+    margin-bottom: 4px;
+}
+
+.large-order-text p {
+    margin: 0;
+    color: #8d6e00;
+    font-size: 0.9rem;
+    line-height: 1.4;
+}
+
+.info-text {
+    margin-top: 6px;
+    font-size: 0.82rem;
+    color: #888;
+    font-style: italic;
+}
+
+.info-text.warning {
+    color: #dc3545;
+    background: #fff5f5;
+    padding: 10px 14px;
+    border-radius: 6px;
+    border-left: 3px solid #dc3545;
+    font-style: normal;
+}
+
+/* Actions */
+.checkout-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 28px;
+    padding-top: 20px;
+    border-top: 2px solid #f0ebe4;
+    gap: 16px;
+}
+
+.btn-lg {
+    padding: 14px 32px;
+    font-size: 1.05rem;
+}
+
+@media (max-width: 900px) {
+    .checkout-content {
+        grid-template-columns: 1fr;
+    }
+    .order-summary {
+        position: static;
+    }
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+    .order-type-options,
+    .payment-timing-options {
+        grid-template-columns: 1fr;
+    }
+    .checkout-actions {
+        flex-direction: column;
+    }
+}
+</style>

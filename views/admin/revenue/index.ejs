@@ -1,0 +1,349 @@
+<section class="admin-section">
+  <div class="container">
+    <h1>Thong Ke Doanh Thu</h1>
+
+    <!-- Filter -->
+    <div class="admin-card" style="margin-bottom:24px;">
+      <form method="GET" action="/admin/revenue" style="display:flex;gap:16px;align-items:flex-end;flex-wrap:wrap;">
+        <div class="form-group" style="flex:1;min-width:120px;">
+          <label for="year" style="display:block;font-size:0.85rem;font-weight:600;color:#555;margin-bottom:4px;">Nam:</label>
+          <select id="year" name="year" onchange="this.form.submit()" style="width:100%;padding:10px;border:1px solid #e0d8ce;border-radius:6px;font-size:0.9rem;">
+            <% for (var y = new Date().getFullYear(); y >= 2020; y--) { %>
+              <option value="<%= y %>" <%= y === currentYear ? 'selected' : '' %>><%= y %></option>
+            <% } %>
+          </select>
+        </div>
+        <div class="form-group" style="flex:1;min-width:120px;">
+          <label for="month" style="display:block;font-size:0.85rem;font-weight:600;color:#555;margin-bottom:4px;">Thang:</label>
+          <select id="month" name="month" onchange="this.form.submit()" style="width:100%;padding:10px;border:1px solid #e0d8ce;border-radius:6px;font-size:0.9rem;">
+            <option value="">Ca nam</option>
+            <% for (var m = 1; m <= 12; m++) { %>
+              <option value="<%= m %>" <%= m === currentMonth ? 'selected' : '' %>>Thang <%= m %></option>
+            <% } %>
+          </select>
+        </div>
+        <a href="/admin/revenue" class="btn btn-secondary">Reset</a>
+      </form>
+    </div>
+
+    <!-- ─── TONG DOANH THU HE THONG ───────────────────────────────────────── -->
+    <div style="margin-bottom:32px;">
+      <h2 style="font-size:1.1rem;font-weight:700;color:#5a3e2b;text-transform:uppercase;letter-spacing:0.4px;margin-bottom:12px;border-left:4px solid #8B6F47;padding-left:10px;">Tong Doanh Thu He Thong</h2>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:16px;">
+        <div style="background:linear-gradient(135deg,#d4a574 0%,#8B6F47 100%);color:white;padding:24px;border-radius:12px;text-align:center;">
+          <p style="color:rgba(255,255,255,0.8);font-size:0.78rem;text-transform:uppercase;letter-spacing:0.4px;margin-bottom:6px;">Tong Cong He Thong</p>
+          <p style="font-size:1.9rem;font-weight:800;color:white;margin:0;"><%= systemTotal.toLocaleString('vi-VN') %>d</p>
+          <p style="font-size:0.82rem;color:rgba(255,255,255,0.7);margin-top:4px;"><%= totalTransactions %> giao dich</p>
+        </div>
+        <div style="background:white;padding:24px;border-radius:12px;text-align:center;box-shadow:0 1px 4px rgba(0,0,0,0.08);border-top:4px solid #1976d2;">
+          <p style="color:#888;font-size:0.78rem;text-transform:uppercase;letter-spacing:0.4px;margin-bottom:6px;">Doanh Thu Giao Hang</p>
+          <p style="font-size:1.6rem;font-weight:700;color:#1976d2;margin:0;"><%= deliveryTotal.toLocaleString('vi-VN') %>d</p>
+          <p style="font-size:0.82rem;color:#aaa;margin-top:4px;"><%= deliveryPayments.length %> giao dich</p>
+        </div>
+        <div style="background:white;padding:24px;border-radius:12px;text-align:center;box-shadow:0 1px 4px rgba(0,0,0,0.08);border-top:4px solid #2e7d32;">
+          <p style="color:#888;font-size:0.78rem;text-transform:uppercase;letter-spacing:0.4px;margin-bottom:6px;">Doanh Thu Le Tan</p>
+          <p style="font-size:1.6rem;font-weight:700;color:#2e7d32;margin:0;"><%= receptionTotal.toLocaleString('vi-VN') %>d</p>
+          <p style="font-size:0.82rem;color:#aaa;margin-top:4px;"><%= receptionPayments.length %> giao dich</p>
+        </div>
+        <div style="background:white;padding:24px;border-radius:12px;text-align:center;box-shadow:0 1px 4px rgba(0,0,0,0.08);">
+          <p style="color:#888;font-size:0.78rem;text-transform:uppercase;letter-spacing:0.4px;margin-bottom:6px;">Tong Giam Gia</p>
+          <p style="font-size:1.6rem;font-weight:700;color:#d32f2f;margin:0;">-<%= totalDiscount.toLocaleString('vi-VN') %>d</p>
+        </div>
+        <div style="background:white;padding:24px;border-radius:12px;text-align:center;box-shadow:0 1px 4px rgba(0,0,0,0.08);border-top:4px solid #8B6F47;">
+          <p style="color:#888;font-size:0.78rem;text-transform:uppercase;letter-spacing:0.4px;margin-bottom:6px;">Trung Binh / Ngay</p>
+          <p style="font-size:1.6rem;font-weight:700;color:#8B6F47;margin:0;"><%= dailyAverage.toLocaleString('vi-VN') %>d</p>
+        </div>
+        <div style="background:white;padding:24px;border-radius:12px;text-align:center;box-shadow:0 1px 4px rgba(0,0,0,0.08);border-top:4px solid #ef6c00;">
+          <p style="color:#888;font-size:0.78rem;text-transform:uppercase;letter-spacing:0.4px;margin-bottom:6px;">TB / Giao Dich</p>
+          <p style="font-size:1.6rem;font-weight:700;color:#ef6c00;margin:0;"><%= avgTransactionValue.toLocaleString('vi-VN') %>d</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── DOANH THU GIAO HANG ───────────────────────────────────────────── -->
+    <div class="admin-card" style="margin-bottom:24px;">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:18px;">
+        <div style="width:12px;height:12px;border-radius:50%;background:#1976d2;"></div>
+        <h2 style="font-size:1.05rem;font-weight:700;color:#1565c0;margin:0;">Doanh Thu Giao Hang (Shipper)</h2>
+        <span style="margin-left:auto;font-size:1.1rem;font-weight:700;color:#1976d2;"><%= deliveryTotal.toLocaleString('vi-VN') %>d</span>
+      </div>
+
+      <% if (shipperBreakdown.length === 0) { %>
+        <p style="color:#aaa;font-size:0.9rem;text-align:center;padding:20px 0;">Chua co du lieu giao hang trong khoang thoi gian nay.</p>
+      <% } else { %>
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Shipper</th>
+              <th>Email</th>
+              <th>So Giao Dich</th>
+              <th>Doanh Thu</th>
+              <th>Ti Le</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% shipperBreakdown.forEach(function(shipper) { %>
+            <tr>
+              <td><strong><%= shipper.name %></strong></td>
+              <td style="color:#888;font-size:0.88rem;"><%= shipper.email %></td>
+              <td><span class="status-badge" style="background:#e3f2fd;color:#1565c0;"><%= shipper.count %> GD</span></td>
+              <td><strong style="color:#1976d2;"><%= shipper.total.toLocaleString('vi-VN') %>d</strong></td>
+              <td>
+                <% var deliveryPct = deliveryTotal > 0 ? ((shipper.total / deliveryTotal) * 100).toFixed(1) : 0; %>
+                <div style="display:flex;align-items:center;gap:8px;">
+                  <div style="flex:1;height:6px;background:#e3f2fd;border-radius:3px;overflow:hidden;">
+                    <div style="width:<%= deliveryPct %>%;height:100%;background:#1976d2;border-radius:3px;"></div>
+                  </div>
+                  <span style="font-size:0.82rem;color:#888;min-width:38px;"><%= deliveryPct %>%</span>
+                </div>
+              </td>
+            </tr>
+            <% }); %>
+          </tbody>
+        </table>
+      <% } %>
+    </div>
+
+    <!-- ─── DOANH THU GIAO HANG THEO CHI NHANH ──────────────────────────── -->
+    <% if (typeof deliveryBranchBreakdown !== 'undefined' && deliveryBranchBreakdown.length > 0) { %>
+    <div class="admin-card" style="margin-bottom:24px;">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:18px;">
+        <div style="width:12px;height:12px;border-radius:50%;background:#0d47a1;"></div>
+        <h2 style="font-size:1.05rem;font-weight:700;color:#0d47a1;margin:0;">Doanh Thu Giao Hang Theo Chi Nhanh</h2>
+      </div>
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>Chi Nhanh</th>
+            <th>So Giao Dich</th>
+            <th>Doanh Thu</th>
+            <th>Ti Le</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% deliveryBranchBreakdown.forEach(function(b) { %>
+          <tr>
+            <td><strong><%= b.name %></strong></td>
+            <td><span class="status-badge" style="background:#e3f2fd;color:#1565c0;"><%= b.count %> GD</span></td>
+            <td><strong style="color:#1976d2;"><%= b.total.toLocaleString('vi-VN') %>d</strong></td>
+            <td>
+              <% var dbPct = deliveryTotal > 0 ? ((b.total / deliveryTotal) * 100).toFixed(1) : 0; %>
+              <div style="display:flex;align-items:center;gap:8px;">
+                <div style="flex:1;height:6px;background:#e3f2fd;border-radius:3px;overflow:hidden;">
+                  <div style="width:<%= dbPct %>%;height:100%;background:#1976d2;border-radius:3px;"></div>
+                </div>
+                <span style="font-size:0.82rem;color:#888;min-width:38px;"><%= dbPct %>%</span>
+              </div>
+            </td>
+          </tr>
+          <% }); %>
+        </tbody>
+      </table>
+    </div>
+    <% } %>
+
+    <!-- ─── DOANH THU LE TAN (THEO CHI NHANH) ────────────────────────────── -->
+    <div class="admin-card" style="margin-bottom:24px;">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:18px;">
+        <div style="width:12px;height:12px;border-radius:50%;background:#2e7d32;"></div>
+        <h2 style="font-size:1.05rem;font-weight:700;color:#1b5e20;margin:0;">Doanh Thu Le Tan (Theo Chi Nhanh)</h2>
+        <span style="margin-left:auto;font-size:1.1rem;font-weight:700;color:#2e7d32;"><%= receptionTotal.toLocaleString('vi-VN') %>d</span>
+      </div>
+
+      <% if (branchBreakdown.length === 0) { %>
+        <p style="color:#aaa;font-size:0.9rem;text-align:center;padding:20px 0;">Chua co du lieu le tan trong khoang thoi gian nay.</p>
+      <% } else { %>
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Chi Nhanh</th>
+              <th>Dia Chi</th>
+              <th>So Giao Dich</th>
+              <th>Doanh Thu Chi Nhanh</th>
+              <th>Ti Le</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% branchBreakdown.forEach(function(branch) { %>
+            <tr>
+              <td><strong><%= branch.name %></strong></td>
+              <td style="color:#888;font-size:0.88rem;"><%= branch.address || '—' %></td>
+              <td><span class="status-badge" style="background:#e8f5e9;color:#2e7d32;"><%= branch.count %> GD</span></td>
+              <td><strong style="color:#2e7d32;"><%= branch.total.toLocaleString('vi-VN') %>d</strong></td>
+              <td>
+                <% var recPct = receptionTotal > 0 ? ((branch.total / receptionTotal) * 100).toFixed(1) : 0; %>
+                <div style="display:flex;align-items:center;gap:8px;">
+                  <div style="flex:1;height:6px;background:#e8f5e9;border-radius:3px;overflow:hidden;">
+                    <div style="width:<%= recPct %>%;height:100%;background:#2e7d32;border-radius:3px;"></div>
+                  </div>
+                  <span style="font-size:0.82rem;color:#888;min-width:38px;"><%= recPct %>%</span>
+                </div>
+              </td>
+            </tr>
+            <% }); %>
+            <!-- Tong cong le tan -->
+            <tr style="background:#f0fdf4;font-weight:700;">
+              <td colspan="3" style="text-align:right;color:#1b5e20;">Tong Doanh Thu Le Tan (Tat Ca Chi Nhanh):</td>
+              <td style="color:#2e7d32;font-size:1.05rem;"><%= receptionTotal.toLocaleString('vi-VN') %>d</td>
+              <td>100%</td>
+            </tr>
+          </tbody>
+        </table>
+      <% } %>
+    </div>
+
+    <!-- ─── DOANH THU LE TAN (THEO NGUOI) ───────────────────────────────── -->
+    <div class="admin-card" style="margin-bottom:24px;">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:18px;">
+        <div style="width:12px;height:12px;border-radius:50%;background:#00695c;"></div>
+        <h2 style="font-size:1.05rem;font-weight:700;color:#004d40;margin:0;">Chi Tiet Theo Le Tan</h2>
+      </div>
+
+      <% if (typeof receptionistBreakdown !== 'undefined' && receptionistBreakdown.length > 0) { %>
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Le Tan</th>
+              <th>Email</th>
+              <th>Chi Nhanh</th>
+              <th>So Giao Dich</th>
+              <th>Doanh Thu</th>
+              <th>Ti Le</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% receptionistBreakdown.forEach(function(rec) { %>
+            <tr>
+              <td><strong><%= rec.name %></strong></td>
+              <td style="color:#888;font-size:0.88rem;"><%= rec.email %></td>
+              <td><span class="status-badge" style="background:#e0f2f1;color:#00695c;"><%= rec.branchName %></span></td>
+              <td><span class="status-badge" style="background:#e8f5e9;color:#2e7d32;"><%= rec.count %> GD</span></td>
+              <td><strong style="color:#00695c;"><%= rec.total.toLocaleString('vi-VN') %>d</strong></td>
+              <td>
+                <% var recPersonPct = receptionTotal > 0 ? ((rec.total / receptionTotal) * 100).toFixed(1) : 0; %>
+                <div style="display:flex;align-items:center;gap:8px;">
+                  <div style="flex:1;height:6px;background:#e0f2f1;border-radius:3px;overflow:hidden;">
+                    <div style="width:<%= recPersonPct %>%;height:100%;background:#00695c;border-radius:3px;"></div>
+                  </div>
+                  <span style="font-size:0.82rem;color:#888;min-width:38px;"><%= recPersonPct %>%</span>
+                </div>
+              </td>
+            </tr>
+            <% }); %>
+          </tbody>
+        </table>
+      <% } else { %>
+        <p style="color:#aaa;font-size:0.9rem;text-align:center;padding:20px 0;">Chua co du lieu le tan trong khoang thoi gian nay.</p>
+      <% } %>
+    </div>
+
+    <!-- ─── BIEU DO THEO THANG ──────────────────────────────��──────────────── -->
+    <% if (viewType === 'yearly') { %>
+    <div class="admin-card" style="margin-bottom:24px;">
+      <h3 style="margin-bottom:16px;">Bieu Do Doanh Thu Theo Thang</h3>
+      <div style="display:flex;gap:16px;margin-bottom:12px;font-size:0.82rem;">
+        <span style="display:flex;align-items:center;gap:6px;"><span style="width:12px;height:12px;background:#1976d2;border-radius:2px;display:inline-block;"></span>Giao Hang</span>
+        <span style="display:flex;align-items:center;gap:6px;"><span style="width:12px;height:12px;background:#2e7d32;border-radius:2px;display:inline-block;"></span>Le Tan</span>
+      </div>
+      <div style="display:flex;align-items:flex-end;gap:6px;height:240px;padding:20px 0 0;border-bottom:2px solid #eee;">
+        <% var allMonthValues = []; for (var mi = 0; mi < 12; mi++) { allMonthValues.push(monthlyDelivery[mi] + monthlyReception[mi]); } %>
+        <% var maxVal = Math.max.apply(null, allMonthValues.concat([1])); %>
+        <% for (var i = 0; i < 12; i++) { %>
+          <% var dH = maxVal > 0 ? (monthlyDelivery[i] / maxVal * 190) : 0; %>
+          <% var rH = maxVal > 0 ? (monthlyReception[i] / maxVal * 190) : 0; %>
+          <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;">
+            <div style="width:100%;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;">
+              <div style="width:70%;background:#2e7d32;border-radius:3px 3px 0 0;min-height:<%= rH > 0 ? 4 : 0 %>px;height:<%= rH %>px;"></div>
+              <div style="width:70%;background:#1976d2;min-height:<%= dH > 0 ? 4 : 0 %>px;height:<%= dH %>px;border-radius:0 0 3px 3px;"></div>
+            </div>
+            <span style="font-size:11px;color:#888;margin-top:4px;">T<%= i + 1 %></span>
+          </div>
+        <% } %>
+      </div>
+    </div>
+    <% } %>
+
+    <!-- ─── PHUONG THUC THANH TOAN ─────────────────────────────────────────── -->
+    <div class="admin-card" style="margin-bottom:24px;">
+      <h3 style="margin-bottom:16px;">Phan Bo Phuong Thuc Thanh Toan</h3>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:14px;">
+        <div style="display:flex;align-items:center;gap:14px;padding:18px;background:#faf8f5;border-radius:8px;border-left:4px solid #8B6F47;">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#8B6F47" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+          <div>
+            <p style="margin:0;font-size:0.82rem;color:#666;">Ngan Hang</p>
+            <p style="margin:2px 0 0;font-weight:700;color:#8B6F47;"><%= paymentMethods.bank.toLocaleString('vi-VN') %>d</p>
+          </div>
+        </div>
+
+        <div style="display:flex;align-items:center;gap:14px;padding:18px;background:#fff8f0;border-radius:8px;border-left:4px solid #ef6c00;">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#ef6c00" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+          <div>
+            <p style="margin:0;font-size:0.82rem;color:#666;">Tien Mat / COD</p>
+            <p style="margin:2px 0 0;font-weight:700;color:#ef6c00;"><%= paymentMethods.cash.toLocaleString('vi-VN') %>d</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── CHI TIET GIAO DICH ─────────────────────────────────────────────── -->
+    <div class="admin-card">
+      <h3 style="margin-bottom:16px;">Chi Tiet Giao Dich (<%= payments.length %> giao dich)</h3>
+
+      <% if (payments.length === 0) { %>
+        <div class="empty-state"><p>Khong co giao dich nao trong khoang thoi gian nay.</p></div>
+      <% } else { %>
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Ma GD</th>
+              <th>Phan Loai</th>
+              <th>Loai Giao Dich</th>
+              <th>Khach Hang</th>
+              <th>So Tien</th>
+              <th>Giam Gia</th>
+              <th>PT Thanh Toan</th>
+              <th>Ngay</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% payments.forEach(function(payment) { %>
+            <tr>
+              <td><strong style="font-size:0.83rem;"><%= payment.transactionId || payment._id.toString().slice(-8) %></strong></td>
+              <td>
+                <% if (payment.revenueType === 'delivery') { %>
+                  <span class="status-badge" style="background:#e3f2fd;color:#1565c0;">Giao hang</span>
+                <% } else if (payment.revenueType === 'reception') { %>
+                  <span class="status-badge" style="background:#e8f5e9;color:#1b5e20;">Le tan</span>
+                <% } else { %>
+                  <span class="status-badge" style="background:#f5f5f5;color:#888;">Chua phan loai</span>
+                <% } %>
+              </td>
+              <td>
+                <% if (payment.orderId) { %>
+                  <span class="status-badge" style="background:#e8eaf6;color:#3949ab;">Don hang</span>
+                <% } else if (payment.reservationId) { %>
+                  <span class="status-badge" style="background:#f3e5f5;color:#7b1fa2;">Dat ban</span>
+                <% } else { %>
+                  <span class="status-badge" style="background:#e2e3e5;color:#555;">Khac</span>
+                <% } %>
+              </td>
+              <td style="font-size:0.88rem;"><%= payment.userId?.email || 'Khach vang lai' %></td>
+              <td><strong><%= (payment.finalAmount || payment.amount || 0).toLocaleString('vi-VN') %>d</strong></td>
+              <td style="color:#d32f2f;font-size:0.88rem;">-<%= (payment.discount || 0).toLocaleString('vi-VN') %>d</td>
+              <td>
+                <% if (payment.paymentMethod === 'bank') { %>
+                  <span class="status-badge" style="background:#e8f5e9;color:#2e7d32;">Ngan hang</span>
+                <% } else { %>
+                  <span class="status-badge" style="background:#fff3e0;color:#ef6c00;">Tien mat</span>
+                <% } %>
+              </td>
+              <td style="font-size:0.85rem;color:#888;"><%= new Date(payment.createdAt).toLocaleString('vi-VN') %></td>
+            </tr>
+            <% }); %>
+          </tbody>
+        </table>
+      <% } %>
+    </div>
+
+  </div>
+</section>

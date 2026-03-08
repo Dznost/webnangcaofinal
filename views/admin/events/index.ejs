@@ -1,0 +1,150 @@
+<section class="admin-section">
+    <div class="container">
+        <div class="section-header">
+            <h1>Quan Ly Su Kien</h1>
+            <a href="/admin/events/new" class="btn btn-primary">Them Su Kien Moi</a>
+        </div>
+
+        <% if (typeof success !== 'undefined' && success) { %>
+            <div class="alert alert-success"><%= success %></div>
+        <% } %>
+
+        <% if (events && events.length > 0) { %>
+            <div class="admin-card">
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>Hinh Anh</th>
+                            <th>Tieu De</th>
+                            <th>Giam Gia</th>
+                            <th>Pham Vi</th>
+                            <th>Ngay Bat Dau</th>
+                            <th>Ngay Ket Thuc</th>
+                            <th>Trang Thai</th>
+                            <th>Hanh Dong</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% events.forEach(event => { %>
+                            <tr>
+                                <td>
+                                    <img src="<%= event.image %>" alt="<%= event.title %>" 
+                                         style="width: 60px; height: 60px; object-fit: cover; border-radius: 8px;"
+                                         onerror="this.src='https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=60&h=60&fit=crop'">
+                                </td>
+                                <td><strong><%= event.title %></strong></td>
+                                <td><span class="discount-badge"><%= event.discount %>%</span></td>
+                                <td>
+                                    <% if (event.discountScope === 'global') { %>
+                                        <span class="scope-badge global">Toan Bo Chi Nhanh</span>
+                                    <% } else if (event.discountScope === 'branch' && event.branches && event.branches.length > 0) { %>
+                                        <span class="scope-badge specific"><%= event.branches.length %> Chi Nhanh</span>
+                                        <div class="branch-names">
+                                            <% event.branches.forEach(function(b) { %>
+                                                <small><%= b.name %></small>
+                                            <% }); %>
+                                        </div>
+                                    <% } else { %>
+                                        <span class="scope-badge none">Chua Gan</span>
+                                    <% } %>
+                                </td>
+                                <td><%= new Date(event.startDate).toLocaleDateString('vi-VN') %></td>
+                                <td><%= new Date(event.endDate).toLocaleDateString('vi-VN') %></td>
+                                <td>
+                                    <% const now = new Date(); %>
+                                    <% const start = new Date(event.startDate); %>
+                                    <% const end = new Date(event.endDate); %>
+                                    <% if (now < start) { %>
+                                        <span class="status-badge upcoming">Sap Dien Ra</span>
+                                    <% } else if (now >= start && now <= end) { %>
+                                        <span class="status-badge active">Dang Dien Ra</span>
+                                    <% } else { %>
+                                        <span class="status-badge expired">Da Ket Thuc</span>
+                                    <% } %>
+                                </td>
+                                <td class="action-buttons">
+                                    <a href="/admin/events/<%= event._id %>/edit" class="btn btn-small btn-primary">Sua</a>
+                                    <a href="/admin/events/<%= event._id %>/delete" class="btn btn-small btn-danger" onclick="return confirm('Ban chac chan muon xoa?')">Xoa</a>
+                                </td>
+                            </tr>
+                        <% }); %>
+                    </tbody>
+                </table>
+            </div>
+        <% } else { %>
+            <div class="empty-message">
+                <p>Chua co su kien nao. <a href="/admin/events/new" class="btn btn-primary">Them ngay</a></p>
+            </div>
+        <% } %>
+    </div>
+</section>
+
+<style>
+    
+    .discount-badge {
+        background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+        color: white;
+        padding: 0.25rem 0.75rem;
+        border-radius: 15px;
+        font-weight: bold;
+        font-size: 0.9rem;
+    }
+    
+    .scope-badge {
+        padding: 0.25rem 0.75rem;
+        border-radius: 15px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+    
+    .scope-badge.global {
+        background: #d4edda;
+        color: #155724;
+    }
+    
+    .scope-badge.specific {
+        background: #d1ecf1;
+        color: #0c5460;
+    }
+    
+    .scope-badge.none {
+        background: #fff3cd;
+        color: #856404;
+    }
+    
+    .status-badge {
+        padding: 0.25rem 0.75rem;
+        border-radius: 15px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+    
+    .status-badge.upcoming {
+        background: #fff3cd;
+        color: #856404;
+    }
+    
+    .status-badge.active {
+        background: #d4edda;
+        color: #155724;
+    }
+    
+    .status-badge.expired {
+        background: #f8d7da;
+        color: #721c24;
+    }
+
+    .branch-names {
+        margin-top: 4px;
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+    }
+
+    .branch-names small {
+        color: #666;
+        font-size: 0.78rem;
+    }
+</style>

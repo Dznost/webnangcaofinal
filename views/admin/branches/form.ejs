@@ -1,0 +1,917 @@
+<!-- SEO Meta for Admin Pages -->
+<section class="admin-form-page">
+    <div class="form-container">
+        <!-- Breadcrumb Navigation -->
+        <nav class="breadcrumb" aria-label="Breadcrumb">
+            <ol>
+                <li><a href="/admin">Dashboard</a></li>
+                <li><a href="/admin/branches">Quan Ly Chi Nhanh</a></li>
+                <li aria-current="page"><%= branch ? 'Chinh Sua' : 'Them Moi' %></li>
+            </ol>
+        </nav>
+
+        <!-- Page Header -->
+        <header class="page-header">
+            <div class="header-content">
+                <div class="header-icon">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+                        <circle cx="12" cy="10" r="3"/>
+                    </svg>
+                </div>
+                <div class="header-text">
+                    <h1><%= branch ? 'Chinh Sua Chi Nhanh' : 'Them Chi Nhanh Moi' %></h1>
+                    <p class="header-description">Quan ly thong tin va hinh anh chi nhanh nha hang</p>
+                </div>
+            </div>
+            <div class="header-actions">
+                <a href="/admin/branches" class="btn btn-ghost">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M19 12H5M12 19l-7-7 7-7"/>
+                    </svg>
+                    Quay Lai
+                </a>
+            </div>
+        </header>
+        
+        <% if (typeof error !== 'undefined' && error) { %>
+            <div class="alert alert-error" role="alert">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/>
+                </svg>
+                <span><%= error %></span>
+            </div>
+        <% } %>
+        
+        <form method="POST" action="<%= branch ? '/admin/branches/' + branch._id : '/admin/branches' %>" class="modern-form" id="branchForm">
+            <div class="form-layout">
+                <!-- Main Content Column -->
+                <div class="form-main">
+                    <!-- Basic Information Card -->
+                    <div class="form-card">
+                        <div class="card-header">
+                            <h2>Thong Tin Co Ban</h2>
+                            <span class="card-badge">Bat Buoc</span>
+                        </div>
+                        <div class="card-body">
+                            <div class="field-row">
+                                <div class="field-group">
+                                    <label for="name" class="field-label">
+                                        Ten Chi Nhanh
+                                        <span class="required" aria-label="Bat buoc">*</span>
+                                    </label>
+                                    <input type="text" id="name" name="name" value="<%= branch?.name || '' %>" 
+                                           placeholder="Vi du: Chi Nhanh Quan 1" required class="field-input">
+                                </div>
+                                <div class="field-group">
+                                    <label for="phone" class="field-label">
+                                        So Dien Thoai
+                                        <span class="required" aria-label="Bat buoc">*</span>
+                                    </label>
+                                    <input type="tel" id="phone" name="phone" value="<%= branch?.phone || '' %>" 
+                                           placeholder="0912 345 678" required class="field-input">
+                                </div>
+                            </div>
+
+                            <div class="field-group">
+                                <label for="address" class="field-label">
+                                    Dia Chi Day Du
+                                    <span class="required" aria-label="Bat buoc">*</span>
+                                </label>
+                                <input type="text" id="address" name="address" value="<%= branch?.address || '' %>" 
+                                       placeholder="123 Duong Nguyen Hue, Quan 1, TP.HCM" required class="field-input">
+                            </div>
+
+                            <div class="field-row">
+                                <div class="field-group">
+                                    <label for="email" class="field-label">Email Lien He</label>
+                                    <input type="email" id="email" name="email" value="<%= branch?.email || '' %>" 
+                                           placeholder="chinhanh@lamaison.vn" class="field-input">
+                                </div>
+                                <div class="field-group">
+                                    <label for="openingHours" class="field-label">
+                                        Gio Mo Cua
+                                        <span class="required" aria-label="Bat buoc">*</span>
+                                    </label>
+                                    <input type="text" id="openingHours" name="openingHours" 
+                                           value="<%= branch?.openingHours || '10:00 - 22:00' %>" 
+                                           placeholder="10:00 - 22:00" required class="field-input">
+                                </div>
+                            </div>
+
+                            <div class="field-group">
+                                <label for="description" class="field-label">
+                                    Mo Ta Chi Nhanh
+                                    <span class="required" aria-label="Bat buoc">*</span>
+                                </label>
+                                <textarea id="description" name="description" rows="4" 
+                                          placeholder="Mo ta ve chi nhanh, khong gian, dac diem noi bat..." 
+                                          required class="field-textarea"><%= branch?.description || '' %></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Table Management Card -->
+                    <div class="form-card">
+                        <div class="card-header">
+                            <h2>Quan Ly Ban An</h2>
+                        </div>
+                        <div class="card-body">
+                            <div class="field-row">
+                                <div class="field-group">
+                                    <label for="totalTables" class="field-label">
+                                        Tong So Ban
+                                        <span class="required" aria-label="Bat buoc">*</span>
+                                    </label>
+                                    <div class="input-with-addon">
+                                        <input type="number" id="totalTables" name="totalTables" 
+                                               value="<%= branch?.totalTables || 20 %>" min="1" required class="field-input">
+                                        <span class="input-addon">Ban</span>
+                                    </div>
+                                    <span class="field-hint">Tong so ban co san tai chi nhanh</span>
+                                </div>
+                                <div class="field-group">
+                                    <label for="availableTables" class="field-label">
+                                        So Ban Con Trong
+                                        <span class="required" aria-label="Bat buoc">*</span>
+                                    </label>
+                                    <div class="input-with-addon">
+                                        <input type="number" id="availableTables" name="availableTables" 
+                                               value="<%= branch?.availableTables || 20 %>" min="0" required class="field-input">
+                                        <span class="input-addon">Ban</span>
+                                    </div>
+                                    <span class="field-hint">So ban hien co san de dat</span>
+                                </div>
+                            </div>
+
+                            <!-- Table Status Visual -->
+                            <div class="table-status-visual">
+                                <div class="status-bar">
+                                    <div class="status-filled" id="filledBar" style="width: <%= branch ? Math.round(((branch.totalTables - branch.availableTables) / branch.totalTables) * 100) : 0 %>%"></div>
+                                </div>
+                                <div class="status-legend">
+                                    <span class="legend-item"><span class="dot occupied"></span> Da dat</span>
+                                    <span class="legend-item"><span class="dot available"></span> Con trong</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Images Card -->
+                    <div class="form-card">
+                        <div class="card-header">
+                            <h2>Hinh Anh Chi Nhanh</h2>
+                        </div>
+                        <div class="card-body">
+                            <div class="field-group">
+                                <label for="image" class="field-label">
+                                    Hinh Anh Chinh (URL)
+                                    <span class="required" aria-label="Bat buoc">*</span>
+                                </label>
+                                <input type="url" id="image" name="image" value="<%= branch?.image || '' %>" 
+                                       placeholder="https://example.com/main-image.jpg" required 
+                                       onchange="previewMainImage(this.value)" class="field-input">
+                                <span class="field-hint">Hinh anh dai dien cho chi nhanh</span>
+                            </div>
+
+                            <div class="image-preview-container" id="mainImagePreview">
+                                <% if (branch?.image) { %>
+                                    <img src="<%= branch.image %>" alt="<%= branch.name %>">
+                                <% } else { %>
+                                    <div class="preview-placeholder">
+                                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                            <rect x="3" y="3" width="18" height="18" rx="2"/>
+                                            <circle cx="8.5" cy="8.5" r="1.5"/>
+                                            <path d="M21 15l-5-5L5 21"/>
+                                        </svg>
+                                        <span>Hinh anh chinh se hien thi o day</span>
+                                    </div>
+                                <% } %>
+                            </div>
+
+                            <!-- Gallery Images -->
+                            <div class="gallery-section">
+                                <label class="field-label">Thu Vien Hinh Anh</label>
+                                <div id="imagesContainer" class="gallery-container">
+                                    <% if (branch?.images && branch.images.length > 0) { %>
+                                        <% branch.images.forEach((img, index) => { %>
+                                            <div class="gallery-item">
+                                                <div class="gallery-preview">
+                                                    <img src="<%= img %>" alt="Gallery <%= index + 1 %>">
+                                                </div>
+                                                <input type="text" name="images" value="<%= img %>" class="field-input">
+                                                <button type="button" class="btn-remove-gallery" onclick="removeImageField(this)">
+                                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                        <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                                                    </svg>
+                                                </button>
+                                            </div>
+                                        <% }) %>
+                                    <% } %>
+                                </div>
+                                <button type="button" class="btn btn-secondary btn-add" onclick="addImageField()">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+                                    </svg>
+                                    Them Hinh Anh
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sidebar Column -->
+                <div class="form-sidebar">
+                    <!-- Dishes Selection Card -->
+                    <div class="form-card">
+                        <div class="card-header">
+                            <h2>Mon An Co San</h2>
+                            <span class="card-badge secondary">Tuy Chon</span>
+                        </div>
+                        <div class="card-body">
+                            <div class="field-group">
+                                <input type="text" placeholder="Tim kiem mon an..." class="field-input search-input" 
+                                       onkeyup="filterDishes(this.value)">
+                            </div>
+                            <div class="dishes-checklist" id="dishesList">
+                                <% if (dishes && dishes.length > 0) { %>
+                                    <% dishes.forEach(dish => { %>
+                                        <label class="checklist-item" data-name="<%= dish.name.toLowerCase() %>">
+                                            <input type="checkbox" name="dishes" value="<%= dish._id %>"
+                                                <%= branch?.dishes?.some(d => d._id?.toString() === dish._id.toString()) ? 'checked' : '' %>>
+                                            <span class="checkmark"></span>
+                                            <span class="item-info">
+                                                <span class="item-name"><%= dish.name %></span>
+                                                <span class="item-price"><%= dish.price.toLocaleString('vi-VN') %>d</span>
+                                            </span>
+                                        </label>
+                                    <% }) %>
+                                <% } else { %>
+                                    <p class="empty-note">Chua co mon an nao</p>
+                                <% } %>
+                            </div>
+                            <span class="field-hint">Giu Ctrl/Cmd de chon nhieu mon</span>
+                        </div>
+                    </div>
+
+                    <!-- Status Card -->
+                    <div class="form-card">
+                        <div class="card-header">
+                            <h2>Trang Thai</h2>
+                        </div>
+                        <div class="card-body">
+                            <div class="status-indicator">
+                                <div class="status-dot <%= branch ? 'active' : 'new' %>"></div>
+                                <span><%= branch ? 'Dang hoat dong' : 'Chi nhanh moi' %></span>
+                            </div>
+                            <% if (branch) { %>
+                                <div class="meta-info">
+                                    <div class="meta-item">
+                                        <span class="meta-label">Tao luc:</span>
+                                        <span class="meta-value"><%= branch.createdAt ? new Date(branch.createdAt).toLocaleDateString('vi-VN') : 'N/A' %></span>
+                                    </div>
+                                </div>
+                            <% } %>
+                        </div>
+                    </div>
+
+                    <!-- Actions Card -->
+                    <div class="form-card actions-card">
+                        <button type="submit" class="btn btn-primary btn-full">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+                                <polyline points="17 21 17 13 7 13 7 21"/>
+                                <polyline points="7 3 7 8 15 8"/>
+                            </svg>
+                            <%= branch ? 'Cap Nhat Chi Nhanh' : 'Them Chi Nhanh' %>
+                        </button>
+                        <a href="/admin/branches" class="btn btn-secondary btn-full">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                            </svg>
+                            Huy Bo
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</section>
+
+<style>
+/* Modern Admin Form Styles */
+.admin-form-page {
+    background: linear-gradient(180deg, #f8f6f3 0%, #faf9f7 100%);
+    min-height: 100vh;
+    padding: 24px;
+}
+
+.form-container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* Breadcrumb */
+.breadcrumb {
+    margin-bottom: 24px;
+}
+
+.breadcrumb ol {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    font-size: 0.875rem;
+}
+
+.breadcrumb li {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #6b7280;
+}
+
+.breadcrumb li:not(:last-child)::after {
+    content: '/';
+    color: #d1d5db;
+}
+
+.breadcrumb a {
+    color: #8B6F47;
+    text-decoration: none;
+}
+
+.breadcrumb a:hover {
+    text-decoration: underline;
+}
+
+.breadcrumb li[aria-current="page"] {
+    color: #374151;
+    font-weight: 500;
+}
+
+/* Page Header */
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 32px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.header-content {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+}
+
+.header-icon {
+    width: 56px;
+    height: 56px;
+    background: linear-gradient(135deg, #8B6F47 0%, #6b5438 100%);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+}
+
+.header-text h1 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #1f2937;
+    margin: 0 0 4px 0;
+    font-family: 'Playfair Display', serif;
+}
+
+.header-description {
+    color: #6b7280;
+    margin: 0;
+}
+
+/* Form Layout */
+.form-layout {
+    display: grid;
+    grid-template-columns: 1fr 360px;
+    gap: 24px;
+}
+
+.form-main, .form-sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+/* Form Card */
+.form-card {
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 24px;
+    border-bottom: 1px solid #f3f4f6;
+    background: #fafafa;
+}
+
+.card-header h2 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #374151;
+    margin: 0;
+}
+
+.card-badge {
+    font-size: 0.75rem;
+    font-weight: 500;
+    padding: 4px 10px;
+    border-radius: 20px;
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.card-badge.secondary {
+    background: #e5e7eb;
+    color: #6b7280;
+}
+
+.card-body {
+    padding: 24px;
+}
+
+/* Field Styles */
+.field-group {
+    margin-bottom: 20px;
+}
+
+.field-group:last-child {
+    margin-bottom: 0;
+}
+
+.field-label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 8px;
+}
+
+.required {
+    color: #dc2626;
+}
+
+.field-input, .field-select, .field-textarea {
+    width: 100%;
+    padding: 12px 16px;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.9375rem;
+    color: #1f2937;
+    background: #fafafa;
+    transition: all 0.2s ease;
+}
+
+.field-input:focus, .field-select:focus, .field-textarea:focus {
+    outline: none;
+    border-color: #8B6F47;
+    background: white;
+    box-shadow: 0 0 0 4px rgba(139, 111, 71, 0.1);
+}
+
+.field-textarea {
+    resize: vertical;
+    min-height: 100px;
+}
+
+.field-hint {
+    display: block;
+    font-size: 0.8125rem;
+    color: #6b7280;
+    margin-top: 6px;
+}
+
+.field-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+/* Input with Addon */
+.input-with-addon {
+    display: flex;
+}
+
+.input-with-addon .field-input {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+    border-right: none;
+}
+
+.input-addon {
+    display: flex;
+    align-items: center;
+    padding: 0 16px;
+    background: #f3f4f6;
+    border: 1px solid #e5e7eb;
+    border-left: none;
+    border-radius: 0 10px 10px 0;
+    font-size: 0.875rem;
+    color: #6b7280;
+}
+
+/* Table Status Visual */
+.table-status-visual {
+    margin-top: 20px;
+    padding: 16px;
+    background: #f9fafb;
+    border-radius: 10px;
+}
+
+.status-bar {
+    height: 12px;
+    background: #dcfce7;
+    border-radius: 6px;
+    overflow: hidden;
+    margin-bottom: 12px;
+}
+
+.status-filled {
+    height: 100%;
+    background: linear-gradient(90deg, #f97316 0%, #ea580c 100%);
+    border-radius: 6px;
+    transition: width 0.3s ease;
+}
+
+.status-legend {
+    display: flex;
+    gap: 20px;
+    font-size: 0.8125rem;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #6b7280;
+}
+
+.dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+}
+
+.dot.occupied {
+    background: #f97316;
+}
+
+.dot.available {
+    background: #22c55e;
+}
+
+/* Image Preview */
+.image-preview-container {
+    border: 2px dashed #d1d5db;
+    border-radius: 12px;
+    padding: 24px;
+    text-align: center;
+    background: #fafafa;
+    min-height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 24px;
+}
+
+.image-preview-container img {
+    max-width: 100%;
+    max-height: 250px;
+    border-radius: 8px;
+}
+
+.preview-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    color: #9ca3af;
+}
+
+/* Gallery Section */
+.gallery-section {
+    margin-top: 24px;
+    padding-top: 24px;
+    border-top: 1px solid #e5e7eb;
+}
+
+.gallery-container {
+    display: grid;
+    gap: 16px;
+    margin-bottom: 16px;
+}
+
+.gallery-item {
+    display: grid;
+    grid-template-columns: 80px 1fr auto;
+    gap: 12px;
+    align-items: center;
+    padding: 12px;
+    background: #f9fafb;
+    border-radius: 10px;
+}
+
+.gallery-preview {
+    width: 80px;
+    height: 60px;
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.gallery-preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.btn-remove-gallery {
+    width: 36px;
+    height: 36px;
+    border: none;
+    background: #fee2e2;
+    color: #dc2626;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.btn-remove-gallery:hover {
+    background: #fecaca;
+}
+
+/* Dishes Checklist */
+.dishes-checklist {
+    max-height: 300px;
+    overflow-y: auto;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    margin-bottom: 12px;
+}
+
+.checklist-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    border-bottom: 1px solid #f3f4f6;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.checklist-item:last-child {
+    border-bottom: none;
+}
+
+.checklist-item:hover {
+    background: #f9fafb;
+}
+
+.checklist-item input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: #8B6F47;
+}
+
+.item-info {
+    display: flex;
+    justify-content: space-between;
+    flex: 1;
+}
+
+.item-name {
+    font-weight: 500;
+    color: #374151;
+}
+
+.item-price {
+    color: #8B6F47;
+    font-size: 0.875rem;
+}
+
+/* Status Indicator */
+.status-indicator {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 16px;
+    background: #f0fdf4;
+    border-radius: 8px;
+    margin-bottom: 16px;
+}
+
+.status-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+}
+
+.status-dot.active {
+    background: #22c55e;
+}
+
+.status-dot.new {
+    background: #3b82f6;
+}
+
+.meta-info {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.meta-item {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.8125rem;
+}
+
+.meta-label {
+    color: #6b7280;
+}
+
+.meta-value {
+    color: #374151;
+    font-weight: 500;
+}
+
+/* Actions Card */
+.actions-card {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+/* Buttons */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 20px;
+    border-radius: 10px;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #8B6F47 0%, #6b5438 100%);
+    color: white;
+    box-shadow: 0 4px 12px rgba(139, 111, 71, 0.25);
+}
+
+.btn-primary:hover {
+    box-shadow: 0 6px 16px rgba(139, 111, 71, 0.35);
+    transform: translateY(-1px);
+}
+
+.btn-secondary {
+    background: #f3f4f6;
+    color: #374151;
+    border: 1px solid #e5e7eb;
+}
+
+.btn-secondary:hover {
+    background: #e5e7eb;
+}
+
+.btn-ghost {
+    background: transparent;
+    color: #6b7280;
+    padding: 8px 16px;
+}
+
+.btn-ghost:hover {
+    background: #f3f4f6;
+}
+
+.btn-full {
+    width: 100%;
+}
+
+.btn-add {
+    margin-top: 8px;
+}
+
+/* Alert */
+.alert {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 20px;
+    border-radius: 12px;
+    margin-bottom: 24px;
+}
+
+.alert-error {
+    background: #fef2f2;
+    color: #991b1b;
+    border: 1px solid #fecaca;
+}
+
+.empty-note {
+    padding: 20px;
+    text-align: center;
+    color: #9ca3af;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+    .form-layout {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 640px) {
+    .admin-form-page {
+        padding: 16px;
+    }
+
+    .page-header {
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    .field-row {
+        grid-template-columns: 1fr;
+    }
+
+    .gallery-item {
+        grid-template-columns: 60px 1fr auto;
+    }
+}
+</style>
+
+<script>
+function previewMainImage(url) {
+    const preview = document.getElementById('mainImagePreview');
+    if (url) {
+        preview.innerHTML = '<img src="' + url + '" alt="Preview">';
+    }
+}
+
+function addImageField() {
+    const container = document.getElementById('imagesContainer');
+    const div = document.createElement('div');
+    div.className = 'gallery-item';
+    div.innerHTML = '<div class="gallery-preview"><img src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=80&h=60&fit=crop"></div><input type="text" name="images" placeholder="https://example.com/image.jpg" class="field-input" onchange="updateGalleryPreview(this)"><button type="button" class="btn-remove-gallery" onclick="removeImageField(this)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>';
+    container.appendChild(div);
+}
+
+function removeImageField(btn) {
+    btn.closest('.gallery-item').remove();
+}
+
+function updateGalleryPreview(input) {
+    const preview = input.parentElement.querySelector('.gallery-preview img');
+    if (input.value) {
+        preview.src = input.value;
+    }
+}
+
+function filterDishes(search) {
+    const items = document.querySelectorAll('.checklist-item');
+    search = search.toLowerCase();
+    items.forEach(item => {
+        const name = item.getAttribute('data-name');
+        item.style.display = name.includes(search) ? 'flex' : 'none';
+    });
+}
+
+// Update table status bar
+document.getElementById('totalTables')?.addEventListener('input', updateStatusBar);
+document.getElementById('availableTables')?.addEventListener('input', updateStatusBar);
+
+function updateStatusBar() {
+    const total = parseInt(document.getElementById('totalTables').value) || 1;
+    const available = parseInt(document.getElementById('availableTables').value) || 0;
+    const filled = Math.round(((total - available) / total) * 100);
+    document.getElementById('filledBar').style.width = filled + '%';
+}
+</script>

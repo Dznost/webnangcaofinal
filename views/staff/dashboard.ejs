@@ -1,0 +1,184 @@
+<section class="staff-dashboard">
+    <div class="container">
+        <h1>Trang Nhan Vien</h1>
+        <p class="staff-welcome">Xin chao, <strong><%= user.name %></strong></p>
+
+        <div class="staff-stats">
+            <div class="stat-card stat-processing">
+                <div class="stat-icon">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                </div>
+                <div class="stat-info">
+                    <span class="stat-number"><%= processingOrders %></span>
+                    <span class="stat-label">Don Dang Xu Ly</span>
+                </div>
+            </div>
+            <div class="stat-card stat-completed">
+                <div class="stat-icon">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                </div>
+                <div class="stat-info">
+                    <span class="stat-number"><%= completedOrders %></span>
+                    <span class="stat-label">Don Hoan Thanh</span>
+                </div>
+            </div>
+            <div class="stat-card stat-reservations">
+                <div class="stat-icon">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                </div>
+                <div class="stat-info">
+                    <span class="stat-number"><%= processingReservations %></span>
+                    <span class="stat-label">Dat Ban Dang Xu Ly</span>
+                </div>
+            </div>
+            <div class="stat-card stat-res-done">
+                <div class="stat-icon">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                </div>
+                <div class="stat-info">
+                    <span class="stat-number"><%= completedReservations %></span>
+                    <span class="stat-label">Dat Ban Hoan Thanh</span>
+                </div>
+            </div>
+        </div>
+
+        <% if (activeOrders && activeOrders.length > 0) { %>
+        <div class="staff-section">
+            <div class="section-header">
+                <h2>Don An Tai Quan Can Xu Ly</h2>
+                <a href="/staff/orders" class="btn btn-small">Xem Tat Ca</a>
+            </div>
+            <div class="staff-orders-list">
+                <% activeOrders.forEach(function(order) { %>
+                <div class="staff-order-card">
+                    <div class="order-top">
+                        <span class="order-code">#<%= order._id.toString().slice(-6).toUpperCase() %></span>
+                        <span class="status-tag status-processing">Dang xu ly</span>
+                    </div>
+                    <div class="order-customer">
+                        <strong><%= order.fullName || (order.userId ? order.userId.name : 'N/A') %></strong>
+                        <span><%= order.phone || (order.userId ? order.userId.phone : '') %></span>
+                    </div>
+                    <% if (order.branchId) { %>
+                    <div class="order-branch">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                        <%= order.branchId.name %>
+                    </div>
+                    <% } %>
+                    <div class="order-bottom">
+                        <span class="order-total"><%= order.finalPrice ? order.finalPrice.toLocaleString('vi-VN') : order.totalPrice.toLocaleString('vi-VN') %>d</span>
+                        <a href="/staff/orders/<%= order._id %>" class="btn btn-primary btn-small">Chi Tiet</a>
+                    </div>
+                </div>
+                <% }); %>
+            </div>
+        </div>
+        <% } %>
+
+        <% if (activeReservations && activeReservations.length > 0) { %>
+        <div class="staff-section">
+            <div class="section-header">
+                <h2>Dat Ban Can Xu Ly</h2>
+                <a href="/staff/reservations" class="btn btn-small">Xem Tat Ca</a>
+            </div>
+            <div class="staff-orders-list">
+                <% activeReservations.forEach(function(res) { %>
+                <div class="staff-order-card">
+                    <div class="order-top">
+                        <span class="order-code">#<%= res._id.toString().slice(-6).toUpperCase() %></span>
+                        <span class="status-tag status-<%= res.status %>">
+                            <%= res.status === 'confirmed' ? 'Da xac nhan' : res.status === 'paid' ? 'Da thanh toan' : 'Dang xu ly' %>
+                        </span>
+                    </div>
+                    <div class="order-customer">
+                        <strong><%= res.userId ? res.userId.name : 'N/A' %></strong>
+                        <span><%= res.guests %> khach - <%= new Date(res.date).toLocaleDateString('vi-VN') %> <%= res.time || '' %></span>
+                    </div>
+                    <div class="order-bottom">
+                        <span class="order-total"><%= res.totalAmount ? res.totalAmount.toLocaleString('vi-VN') : '0' %>d</span>
+                        <a href="/staff/reservations/<%= res._id %>" class="btn btn-primary btn-small">Chi Tiet</a>
+                    </div>
+                </div>
+                <% }); %>
+            </div>
+        </div>
+        <% } %>
+
+        <% if ((!activeOrders || activeOrders.length === 0) && (!activeReservations || activeReservations.length === 0)) { %>
+        <div class="staff-empty">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#ccc" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+            <p>Hien tai khong co don hang hoac dat ban nao can xu ly</p>
+        </div>
+        <% } %>
+
+        <div class="staff-nav">
+            <a href="/staff/orders" class="nav-card">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                <span>Don An Tai Quan</span>
+            </a>
+            <a href="/staff/reservations" class="nav-card">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                <span>Dat Ban</span>
+            </a>
+            <a href="/staff/profile" class="nav-card">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                <span>Ho So Ca Nhan</span>
+            </a>
+        </div>
+    </div>
+</section>
+
+<style>
+.staff-dashboard { padding: 40px 0; background: #f8f6f3; min-height: 80vh; }
+.staff-dashboard h1 { font-family: 'Playfair Display', serif; font-size: 1.8rem; color: #2c2c2c; margin-bottom: 4px; }
+.staff-welcome { color: #888; margin-bottom: 24px; }
+.staff-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 32px; }
+.staff-stats .stat-card { display: flex; align-items: center; gap: 16px; background: white; border-radius: 10px; padding: 20px; box-shadow: 0 1px 8px rgba(0,0,0,0.06); }
+.stat-processing .stat-icon { color: #1565c0; }
+.stat-completed .stat-icon { color: #2e7d32; }
+.stat-reservations .stat-icon { color: #e65100; }
+.stat-res-done .stat-icon { color: #6a1b9a; }
+.stat-info { display: flex; flex-direction: column; }
+.stat-info .stat-number { font-size: 1.6rem; font-weight: 700; color: #2c2c2c; line-height: 1; }
+.stat-info .stat-label { font-size: 0.8rem; color: #888; margin-top: 2px; }
+
+.staff-section { margin-bottom: 32px; }
+.section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+.section-header h2 { font-family: 'Playfair Display', serif; font-size: 1.2rem; color: #2c2c2c; }
+
+.staff-orders-list { display: flex; flex-direction: column; gap: 12px; }
+.staff-order-card { background: white; border-radius: 10px; padding: 18px 20px; box-shadow: 0 1px 6px rgba(0,0,0,0.05); }
+.order-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+.order-code { font-weight: 700; color: #2c2c2c; font-size: 0.95rem; }
+.order-customer { display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 0.9rem; color: #555; }
+.order-branch { display: flex; align-items: center; gap: 6px; font-size: 0.85rem; color: #888; margin-bottom: 12px; }
+.order-bottom { display: flex; justify-content: space-between; align-items: center; padding-top: 12px; border-top: 1px solid #f0ebe4; }
+.order-total { font-weight: 700; color: #8B6F47; font-size: 1rem; }
+
+.staff-empty { text-align: center; padding: 60px 20px; background: white; border-radius: 10px; box-shadow: 0 1px 8px rgba(0,0,0,0.06); margin-bottom: 32px; }
+.staff-empty p { color: #999; margin-top: 12px; }
+
+.staff-nav { display: flex; gap: 16px; }
+.nav-card { flex: 1; display: flex; align-items: center; gap: 12px; padding: 18px 20px; background: white; border-radius: 10px; box-shadow: 0 1px 6px rgba(0,0,0,0.05); color: #2c2c2c; text-decoration: none; font-weight: 600; transition: all 0.2s; }
+.nav-card:hover { background: #f3efe8; transform: translateY(-1px); }
+
+.status-tag { padding: 3px 10px; border-radius: 10px; font-size: 0.78rem; font-weight: 600; }
+.status-processing { background: #e3f2fd; color: #1565c0; }
+.status-completed { background: #d4edda; color: #155724; }
+.status-confirmed { background: #fff3e0; color: #e65100; }
+.status-paid { background: #e8f5e9; color: #2e7d32; }
+
+.btn { display: inline-block; padding: 8px 18px; border-radius: 6px; text-decoration: none; font-size: 0.85rem; font-weight: 600; border: none; cursor: pointer; transition: all 0.2s; }
+.btn-primary { background: #8B6F47; color: white; }
+.btn-primary:hover { background: #7a5f3a; }
+.btn-secondary { background: #e0d8ce; color: #555; }
+.btn-small { padding: 6px 14px; font-size: 0.82rem; }
+
+@media (max-width: 768px) {
+    .staff-stats { grid-template-columns: 1fr 1fr; }
+    .staff-nav { flex-direction: column; }
+}
+@media (max-width: 480px) {
+    .staff-stats { grid-template-columns: 1fr; }
+}
+</style>

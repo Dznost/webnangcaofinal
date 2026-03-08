@@ -1,0 +1,421 @@
+<style>
+  .order-detail { padding: 32px 0; background: #f8f6f3; min-height: 100vh; }
+  .order-detail .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+  .back-link { display: inline-flex; align-items: center; gap: 6px; color: #8B6F47; font-size: 0.88rem; text-decoration: none; margin-bottom: 16px; }
+  .back-link:hover { text-decoration: underline; }
+
+  /* Header */
+  .order-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; flex-wrap: wrap; gap: 16px; }
+  .order-header h1 { font-size: 1.6rem; color: #3e3328; margin: 0; }
+  .order-header .badges { display: flex; gap: 10px; flex-wrap: wrap; }
+  .order-header .badge { padding: 6px 14px; border-radius: 20px; font-size: 0.82rem; font-weight: 600; }
+  .badge-type { background: #e3f2fd; color: #1565c0; }
+  .badge-type.takeaway { background: #fff3e0; color: #e65100; }
+  .badge-status { background: #fff3e0; color: #e65100; }
+  .badge-status.pending { background: #fff3e0; color: #e65100; }
+  .badge-status.confirmed, .badge-status.paid, .badge-status.approved { background: #e3f2fd; color: #1565c0; }
+  .badge-status.processing { background: #f3e5f5; color: #7b1fa2; }
+  .badge-status.shipping { background: #e8f5e9; color: #2e7d32; }
+  .badge-status.completed, .badge-status.delivered { background: #e8f5e9; color: #1b5e20; }
+  .badge-status.cancelled { background: #fce4ec; color: #c62828; }
+
+  .alert { padding: 12px 18px; border-radius: 8px; margin-bottom: 20px; font-size: 0.88rem; }
+  .alert-success { background: #e8f5e9; color: #1b5e20; border: 1px solid #c8e6c9; }
+
+  /* Main grid */
+  .order-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 24px; }
+  @media (max-width: 900px) { .order-grid { grid-template-columns: 1fr; } }
+
+  /* Cards */
+  .card { background: #fff; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); border: 1px solid #ebe6df; margin-bottom: 20px; }
+  .card h3 { margin: 0 0 16px; font-size: 1rem; color: #3e3328; display: flex; align-items: center; gap: 8px; }
+  .card h3 svg { color: #8B6F47; }
+
+  /* Timeline */
+  .timeline { position: relative; padding-left: 24px; }
+  .timeline::before { content: ''; position: absolute; left: 8px; top: 4px; bottom: 4px; width: 2px; background: #e0d8ce; }
+  .timeline-item { position: relative; padding-bottom: 16px; }
+  .timeline-item:last-child { padding-bottom: 0; }
+  .timeline-item::before { content: ''; position: absolute; left: -20px; top: 4px; width: 10px; height: 10px; background: #8B6F47; border-radius: 50%; border: 2px solid #fff; box-shadow: 0 0 0 2px #8B6F47; }
+  .timeline-item.completed::before { background: #2e7d32; box-shadow: 0 0 0 2px #2e7d32; }
+  .timeline-item .event { font-size: 0.88rem; color: #3e3328; font-weight: 500; }
+  .timeline-item .time { font-size: 0.78rem; color: #888; margin-top: 2px; }
+
+  /* Customer card */
+  .customer-card { border-left: 4px solid #8B6F47; }
+  .customer-info { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
+  .customer-info .row { display: flex; align-items: center; gap: 8px; font-size: 0.88rem; }
+  .customer-info .label { color: #888; min-width: 70px; }
+  .customer-info .value { color: #3e3328; font-weight: 500; }
+  .customer-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; padding-top: 12px; border-top: 1px solid #f0ebe4; }
+  .customer-stats .stat { text-align: center; }
+  .customer-stats .stat .num { font-size: 1.2rem; font-weight: 700; color: #8B6F47; }
+  .customer-stats .stat .lbl { font-size: 0.72rem; color: #888; text-transform: uppercase; }
+
+  /* Recent orders */
+  .recent-orders { margin-top: 12px; }
+  .recent-orders h4 { font-size: 0.82rem; color: #888; margin: 0 0 8px; font-weight: 500; }
+  .recent-order-item { display: flex; align-items: center; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #f0ebe4; font-size: 0.82rem; }
+  .recent-order-item:last-child { border-bottom: none; }
+  .recent-order-item a { color: #8B6F47; text-decoration: none; font-weight: 600; }
+  .recent-order-item a:hover { text-decoration: underline; }
+  .recent-order-item .amt { color: #3e3328; }
+
+  /* Branch card */
+  .branch-card { border-left: 4px solid #1565c0; }
+  .branch-info { display: flex; flex-direction: column; gap: 6px; }
+  .branch-info .row { display: flex; align-items: center; gap: 8px; font-size: 0.88rem; }
+  .branch-info .label { color: #888; min-width: 70px; }
+  .branch-info .value { color: #3e3328; }
+
+  /* Items table */
+  .items-table { width: 100%; border-collapse: collapse; }
+  .items-table th, .items-table td { padding: 12px; text-align: left; border-bottom: 1px solid #f0ebe4; font-size: 0.88rem; }
+  .items-table th { font-weight: 600; color: #888; text-transform: uppercase; font-size: 0.75rem; }
+  .items-table td { color: #3e3328; }
+  .items-table .total-row td { font-weight: 700; border-top: 2px solid #e0d8ce; }
+  .items-table .discount { color: #2e7d32; }
+
+  /* Payment card */
+  .payment-card { border-left: 4px solid #2e7d32; }
+  .payment-info { display: flex; flex-direction: column; gap: 8px; }
+  .payment-info .row { display: flex; justify-content: space-between; font-size: 0.88rem; }
+  .payment-info .label { color: #888; }
+  .payment-info .value { color: #3e3328; font-weight: 500; }
+  .payment-info .value.success { color: #2e7d32; }
+
+  /* Handler card */
+  .handler-card { border-left: 4px solid #e65100; }
+  .handler-card.staff { border-left-color: #7b1fa2; }
+  .handler-badge { display: inline-block; padding: 4px 10px; border-radius: 12px; font-size: 0.75rem; font-weight: 600; margin-bottom: 12px; }
+  .handler-badge.shipper { background: #fff3e0; color: #e65100; }
+  .handler-badge.staff { background: #f3e5f5; color: #7b1fa2; }
+  .handler-info { display: flex; flex-direction: column; gap: 6px; }
+  .handler-info .row { display: flex; align-items: center; gap: 8px; font-size: 0.88rem; }
+  .handler-info .label { color: #888; min-width: 70px; }
+  .handler-info .value { color: #3e3328; }
+
+  /* Confirm box */
+  .confirm-box { background: #e8f5e9; border-radius: 8px; padding: 12px 16px; margin-top: 12px; }
+  .confirm-box .title { font-weight: 600; color: #1b5e20; font-size: 0.88rem; display: flex; align-items: center; gap: 6px; }
+  .confirm-box .meta { font-size: 0.82rem; color: #2e7d32; margin-top: 4px; }
+
+  /* Rating card */
+  .rating-card { border-left: 4px solid #ffc107; }
+  .stars { display: flex; gap: 4px; margin-bottom: 8px; }
+  .stars .star { font-size: 1.4rem; color: #e0d8ce; }
+  .stars .star.filled { color: #ffc107; }
+  .rating-comment { background: #fffbeb; padding: 12px 16px; border-radius: 8px; font-style: italic; color: #5d4e37; font-size: 0.88rem; margin-top: 8px; }
+  .rating-date { font-size: 0.78rem; color: #888; margin-top: 8px; }
+
+  /* Assign card */
+  .assign-card { background: #fffbeb; border: 2px dashed #ffc107; }
+  .assign-card h3 { color: #b8860b; }
+  .assign-methods { display: flex; flex-direction: column; gap: 16px; }
+  .auto-btn { background: #8B6F47; color: #fff; border: none; padding: 12px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; width: 100%; font-size: 0.9rem; }
+  .auto-btn:hover { background: #7a5f3a; }
+  .divider { text-align: center; color: #bbb; font-size: 0.82rem; position: relative; }
+  .divider::before, .divider::after { content: ''; position: absolute; top: 50%; height: 1px; background: #e0d8ce; width: 40%; }
+  .divider::before { left: 0; }
+  .divider::after { right: 0; }
+  .manual-assign { display: flex; gap: 10px; }
+  .manual-assign select { flex: 1; padding: 10px 12px; border: 1px solid #e0d8ce; border-radius: 6px; font-size: 0.88rem; }
+  .manual-assign button { background: #2e7d32; color: #fff; border: none; padding: 10px 18px; border-radius: 6px; font-weight: 600; cursor: pointer; }
+  .manual-assign button:hover { background: #1b5e20; }
+
+  /* COD card */
+  .cod-card { background: #e3f2fd; border: 2px solid #1565c0; }
+  .cod-card h3 { color: #1565c0; }
+  .cod-btn { background: #1565c0; color: #fff; border: none; padding: 12px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; width: 100%; font-size: 0.9rem; }
+  .cod-btn:hover { background: #0d47a1; }
+</style>
+
+<section class="order-detail">
+  <div class="container">
+    <a href="/admin/orders" class="back-link">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+      Quay lai danh sach
+    </a>
+
+    <div class="order-header">
+      <h1>Don Hang #<%= order._id.toString().slice(-6).toUpperCase() %></h1>
+      <div class="badges">
+        <span class="badge badge-type <%= order.orderType %>"><%= order.orderType === 'dine-in' ? 'An tai quan' : 'Giao hang' %></span>
+        <span class="badge badge-status <%= order.status %>">
+          <%= order.status === 'pending' ? 'Cho xu ly' :
+              order.status === 'confirmed' || order.status === 'approved' ? 'Da duyet' :
+              order.status === 'paid' ? 'Da thanh toan' :
+              order.status === 'processing' ? 'Dang xu ly' :
+              order.status === 'shipping' ? 'Dang giao' :
+              order.status === 'delivered' ? 'Da giao' :
+              order.status === 'completed' ? 'Hoan thanh' : 'Da huy' %>
+        </span>
+      </div>
+    </div>
+
+    <% if (success) { %>
+    <div class="alert alert-success"><%= success %></div>
+    <% } %>
+
+    <div class="order-grid">
+      <!-- Left column -->
+      <div class="left-col">
+        <!-- Timeline -->
+        <div class="card">
+          <h3>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            Tien Trinh Don Hang
+          </h3>
+          <div class="timeline">
+            <% timeline.forEach(t => { %>
+            <div class="timeline-item <%= t.status === 'completed' ? 'completed' : '' %>">
+              <div class="event"><%= t.event %></div>
+              <div class="time"><%= new Date(t.time).toLocaleString('vi-VN') %></div>
+            </div>
+            <% }) %>
+          </div>
+        </div>
+
+        <!-- Items -->
+        <div class="card">
+          <h3>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8h1a4 4 0 010 8h-1"/><path d="M2 8h16v9a4 4 0 01-4 4H6a4 4 0 01-4-4V8z"/></svg>
+            Chi Tiet Mon An
+          </h3>
+          <table class="items-table">
+            <thead>
+              <tr>
+                <th>Mon</th>
+                <th>SL</th>
+                <th>Gia</th>
+                <th>Giam</th>
+                <th>Tong</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% (order.items || []).forEach(item => { %>
+              <tr>
+                <td><%= item.dishId?.name || item.name || 'N/A' %></td>
+                <td><%= item.quantity %></td>
+                <td><%= (item.price || 0).toLocaleString('vi-VN') %>d</td>
+                <td class="discount"><%= item.discount ? item.discount + '%' : '-' %></td>
+                <td><%= ((item.quantity * item.price * (1 - (item.discount || 0) / 100))).toLocaleString('vi-VN') %>d</td>
+              </tr>
+              <% }) %>
+              <% if (order.discount > 0) { %>
+              <tr>
+                <td colspan="4" style="text-align:right;color:#888;">Giam gia:</td>
+                <td class="discount">-<%= order.discount.toLocaleString('vi-VN') %>d</td>
+              </tr>
+              <% } %>
+              <tr class="total-row">
+                <td colspan="4" style="text-align:right;">Thanh tien:</td>
+                <td><%= (order.finalPrice || order.totalPrice || 0).toLocaleString('vi-VN') %>d</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Handler -->
+        <% if (order.shipperId || order.staffId) { %>
+        <div class="card handler-card <%= order.staffId ? 'staff' : '' %>">
+          <h3>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+            <%= order.shipperId ? 'Shipper Phu Trach' : 'Nhan Vien Phu Trach' %>
+          </h3>
+          <% const handler = order.shipperId || order.staffId; %>
+          <span class="handler-badge <%= order.shipperId ? 'shipper' : 'staff' %>"><%= order.shipperId ? 'Shipper' : (handler.role === 'reception' ? 'Le tan' : 'Nhan vien') %></span>
+          <div class="handler-info">
+            <div class="row"><span class="label">Ten:</span><span class="value"><%= handler.name %></span></div>
+            <div class="row"><span class="label">Email:</span><span class="value"><%= handler.email %></span></div>
+            <div class="row"><span class="label">SDT:</span><span class="value"><%= handler.phone || 'N/A' %></span></div>
+          </div>
+          <% if (order.confirmedBy && order.confirmedAt) { %>
+          <div class="confirm-box">
+            <div class="title">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+              Da xac nhan hoan thanh
+            </div>
+            <div class="meta">Boi <%= order.confirmedBy.name %> luc <%= new Date(order.confirmedAt).toLocaleString('vi-VN') %></div>
+          </div>
+          <% } %>
+        </div>
+        <% } %>
+
+        <!-- Rating -->
+        <% if (order.rating) { %>
+        <div class="card rating-card">
+          <h3>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            Danh Gia
+          </h3>
+          <div class="stars">
+            <% for (let i = 1; i <= 5; i++) { %>
+            <span class="star <%= i <= order.rating ? 'filled' : '' %>">&#9733;</span>
+            <% } %>
+          </div>
+          <% if (order.ratingComment) { %>
+          <div class="rating-comment">"<%= order.ratingComment %>"</div>
+          <% } %>
+          <% if (order.ratedAt) { %>
+          <div class="rating-date">Danh gia luc <%= new Date(order.ratedAt).toLocaleString('vi-VN') %></div>
+          <% } %>
+        </div>
+        <% } %>
+
+        <!-- Assign shipper -->
+        <% if (order.orderType === 'takeaway' && ['pending', 'approved', 'paid', 'processing'].includes(order.status) && !order.shipperId) { %>
+        <div class="card assign-card">
+          <h3>Phan Cong Shipper</h3>
+          <div class="assign-methods">
+            <form method="POST" action="/admin/orders/<%= order._id %>/auto-assign-shipper">
+              <button type="submit" class="auto-btn" onclick="return confirm('Tu dong phan cong shipper?')">Tu Dong Phan Cong</button>
+            </form>
+            <div class="divider">hoac chon thu cong</div>
+            <form method="POST" action="/admin/orders/<%= order._id %>/assign-shipper" class="manual-assign">
+              <select name="shipperId" required>
+                <option value="">-- Chon shipper --</option>
+                <% (shippers || []).forEach(s => { %>
+                <option value="<%= s._id %>"><%= s.name %> (<%= s.phone || s.email %>)</option>
+                <% }) %>
+              </select>
+              <button type="submit">Gui</button>
+            </form>
+          </div>
+        </div>
+        <% } %>
+
+        <!-- Assign staff -->
+        <% if (order.orderType === 'dine-in' && ['pending', 'approved', 'paid', 'processing'].includes(order.status) && !order.staffId) { %>
+        <div class="card assign-card">
+          <h3>Phan Cong Nhan Vien</h3>
+          <div class="assign-methods">
+            <form method="POST" action="/admin/orders/<%= order._id %>/auto-assign-staff">
+              <button type="submit" class="auto-btn" onclick="return confirm('Tu dong phan cong nhan vien?')">Tu Dong Phan Cong</button>
+            </form>
+            <div class="divider">hoac chon thu cong</div>
+            <form method="POST" action="/admin/orders/<%= order._id %>/assign-staff" class="manual-assign">
+              <select name="staffId" required>
+                <option value="">-- Chon nhan vien --</option>
+                <% (staffMembers || []).forEach(s => { %>
+                <option value="<%= s._id %>"><%= s.name %> (<%= s.role === 'reception' ? 'Le tan' : 'NV' %> - <%= s.phone || s.email %>)</option>
+                <% }) %>
+              </select>
+              <button type="submit">Gui</button>
+            </form>
+          </div>
+        </div>
+        <% } %>
+
+        <!-- COD -->
+        <% if (order.paymentTiming === 'cod' && order.paymentStatus !== 'paid' && order.status !== 'cancelled') { %>
+        <div class="card cod-card">
+          <h3>Thanh Toan COD</h3>
+          <form method="POST" action="/admin/orders/<%= order._id %>/complete-cod">
+            <button type="submit" class="cod-btn" onclick="return confirm('Xac nhan da nhan tien COD?')">Xac Nhan Da Nhan Tien</button>
+          </form>
+        </div>
+        <% } %>
+      </div>
+
+      <!-- Right column -->
+      <div class="right-col">
+        <!-- Customer -->
+        <div class="card customer-card">
+          <h3>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            Khach Hang
+          </h3>
+          <div class="customer-info">
+            <div class="row"><span class="label">Ten:</span><span class="value"><%= order.user?.name || order.fullName || 'N/A' %></span></div>
+            <div class="row"><span class="label">Email:</span><span class="value"><%= order.user?.email || order.email || 'N/A' %></span></div>
+            <div class="row"><span class="label">SDT:</span><span class="value"><%= order.user?.phone || order.phone || 'N/A' %></span></div>
+            <% if (order.deliveryAddress) { %>
+            <div class="row"><span class="label">Dia chi:</span><span class="value"><%= order.deliveryAddress %></span></div>
+            <% } %>
+          </div>
+          <% if (customerStats) { %>
+          <div class="customer-stats">
+            <div class="stat">
+              <div class="num"><%= customerStats.totalOrders %></div>
+              <div class="lbl">Don hang</div>
+            </div>
+            <div class="stat">
+              <div class="num"><%= (customerStats.totalSpent / 1000000).toFixed(1) %>M</div>
+              <div class="lbl">Tong chi</div>
+            </div>
+            <div class="stat">
+              <div class="num"><%= customerStats.memberSince ? Math.floor((Date.now() - new Date(customerStats.memberSince)) / (1000 * 60 * 60 * 24)) : 0 %></div>
+              <div class="lbl">Ngay</div>
+            </div>
+          </div>
+          <% if (customerStats.recentOrders && customerStats.recentOrders.length > 0) { %>
+          <div class="recent-orders">
+            <h4>Don hang gan day</h4>
+            <% customerStats.recentOrders.forEach(ro => { %>
+            <div class="recent-order-item">
+              <a href="/admin/orders/<%= ro._id %>">#<%= ro._id.toString().slice(-6).toUpperCase() %></a>
+              <span class="amt"><%= (ro.totalPrice || 0).toLocaleString('vi-VN') %>d</span>
+            </div>
+            <% }) %>
+          </div>
+          <% } %>
+          <% } %>
+        </div>
+
+        <!-- Branch -->
+        <% if (order.branchId) { %>
+        <div class="card branch-card">
+          <h3>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
+            Chi Nhanh
+          </h3>
+          <div class="branch-info">
+            <div class="row"><span class="label">Ten:</span><span class="value"><%= order.branchId.name %></span></div>
+            <% if (order.branchId.address) { %>
+            <div class="row"><span class="label">Dia chi:</span><span class="value"><%= order.branchId.address %></span></div>
+            <% } %>
+            <% if (order.branchId.phone) { %>
+            <div class="row"><span class="label">SDT:</span><span class="value"><%= order.branchId.phone %></span></div>
+            <% } %>
+          </div>
+        </div>
+        <% } %>
+
+        <!-- Payment -->
+        <div class="card payment-card">
+          <h3>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+            Thanh Toan
+          </h3>
+          <div class="payment-info">
+            <div class="row">
+              <span class="label">Trang thai:</span>
+              <span class="value <%= order.paymentStatus === 'paid' ? 'success' : '' %>"><%= order.paymentStatus === 'paid' ? 'Da thanh toan' : 'Chua thanh toan' %></span>
+            </div>
+            <div class="row">
+              <span class="label">Phuong thuc:</span>
+              <span class="value"><%= order.paymentMethod === 'bank' ? 'Chuyen khoan' : order.paymentTiming === 'cod' ? 'COD (Tien mat)' : 'Tien mat' %></span>
+            </div>
+            <% if (payment) { %>
+            <div class="row">
+              <span class="label">Ma GD:</span>
+              <span class="value"><%= payment.transactionId || 'N/A' %></span>
+            </div>
+            <div class="row">
+              <span class="label">So tien:</span>
+              <span class="value"><%= (payment.finalAmount || payment.amount || 0).toLocaleString('vi-VN') %>d</span>
+            </div>
+            <% if (payment.paidAt) { %>
+            <div class="row">
+              <span class="label">Luc:</span>
+              <span class="value"><%= new Date(payment.paidAt).toLocaleString('vi-VN') %></span>
+            </div>
+            <% } %>
+            <% } %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

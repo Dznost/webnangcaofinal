@@ -1,0 +1,63 @@
+<section class="events-section">
+    <div class="container">
+        <h1>Su Kien & Khuyen Mai</h1>
+        <div class="events-grid">
+            <% events.forEach(function(event) { %>
+                <div class="event-card">
+                    <div class="event-image-wrapper">
+                        <img src="<%= event.image || 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=300&h=250&fit=crop' %>" alt="<%= event.title %>" onerror="this.src='https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=300&h=250&fit=crop'">
+                        <% if (event.discount > 0) { %>
+                            <span class="discount-badge-card">-<%= event.discount %>%</span>
+                        <% } %>
+                    </div>
+                    <div class="event-card-content">
+                        <h3><%= event.title %></h3>
+                        <div class="event-card-meta">
+                            <span class="event-date"><%= new Date(event.startDate).toLocaleDateString('vi-VN') %> - <%= new Date(event.endDate).toLocaleDateString('vi-VN') %></span>
+                            <% if (event.discountScope === 'global') { %>
+                                <span class="scope-tag global">Toan bo chi nhanh</span>
+                            <% } else { %>
+                                <span class="scope-tag branch">Chi nhanh cu the</span>
+                            <% } %>
+                        </div>
+                        <p class="event-description"><%= event.description ? event.description.substring(0, 80) + '...' : '' %></p>
+                        <a href="/event/<%= event._id %>" class="btn btn-small">Xem Chi Tiet</a>
+                    </div>
+                </div>
+            <% }); %>
+        </div>
+    </div>
+</section>
+
+<style>
+    .event-card-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        align-items: center;
+        margin-bottom: 10px;
+    }
+
+    .event-date {
+        font-size: 0.85rem;
+        color: #888;
+    }
+
+    .scope-tag {
+        display: inline-block;
+        padding: 2px 10px;
+        border-radius: 12px;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+
+    .scope-tag.global {
+        background: #d4edda;
+        color: #155724;
+    }
+
+    .scope-tag.branch {
+        background: #d1ecf1;
+        color: #0c5460;
+    }
+</style>

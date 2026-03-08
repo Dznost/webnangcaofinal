@@ -1,0 +1,101 @@
+<section class="admin-section">
+  <div class="container">
+    <div class="section-header" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;">
+      <h1 style="margin:0;font-size:1.6rem;color:#333;">Quan Ly Dat Ban</h1>
+      <span style="font-size:0.85rem;color:#888;"><%= reservations.length %> dat ban</span>
+    </div>
+
+    <!-- Search & Filter Bar -->
+    <form method="GET" action="/admin/reservations" style="display:flex;flex-wrap:wrap;gap:12px;margin-bottom:24px;padding:16px;background:#f9f8f6;border-radius:10px;">
+      <input type="text" name="q" value="<%= typeof searchQuery !== 'undefined' ? searchQuery : '' %>" placeholder="Tim kiem ten, SĐT, email..."
+        style="flex:1;min-width:200px;padding:10px 14px;border:1px solid #e0d8ce;border-radius:6px;font-size:0.9rem;">
+      <select name="status" style="padding:10px 14px;border:1px solid #e0d8ce;border-radius:6px;font-size:0.9rem;min-width:150px;">
+        <option value="">-- Trang thai --</option>
+        <option value="pending" <%= (typeof statusFilter !== 'undefined' && statusFilter === 'pending') ? 'selected' : '' %>>Cho xac nhan</option>
+        <option value="confirmed" <%= (typeof statusFilter !== 'undefined' && statusFilter === 'confirmed') ? 'selected' : '' %>>Da xac nhan</option>
+        <option value="completed" <%= (typeof statusFilter !== 'undefined' && statusFilter === 'completed') ? 'selected' : '' %>>Hoan thanh</option>
+        <option value="cancelled" <%= (typeof statusFilter !== 'undefined' && statusFilter === 'cancelled') ? 'selected' : '' %>>Da huy</option>
+      </select>
+      <select name="branchId" style="padding:10px 14px;border:1px solid #e0d8ce;border-radius:6px;font-size:0.9rem;min-width:160px;">
+        <option value="">-- Chi nhanh --</option>
+        <% if (typeof branches !== 'undefined' && branches) { %>
+          <% branches.forEach(function(b) { %>
+            <option value="<%= b._id %>" <%= (typeof branchFilter !== 'undefined' && branchFilter === b._id.toString()) ? 'selected' : '' %>><%= b.name %></option>
+          <% }); %>
+        <% } %>
+      </select>
+      <button type="submit" style="padding:10px 20px;background:#b8860b;color:#fff;border:none;border-radius:6px;font-weight:600;cursor:pointer;">Tim Kiem</button>
+      <a href="/admin/reservations" style="padding:10px 16px;background:#f5f5f5;color:#666;border-radius:6px;text-decoration:none;font-size:0.9rem;">Xoa loc</a>
+    </form>
+
+    <% if (reservations && reservations.length > 0) { %>
+    <div style="background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,0.06);">
+      <table class="admin-table" style="width:100%;border-collapse:collapse;">
+        <thead>
+          <tr style="background:#f9f8f6;">
+            <th style="padding:14px 16px;text-align:left;font-size:0.8rem;font-weight:600;color:#666;text-transform:uppercase;letter-spacing:0.5px;">Ma</th>
+            <th style="padding:14px 16px;text-align:left;font-size:0.8rem;font-weight:600;color:#666;text-transform:uppercase;letter-spacing:0.5px;">Khach Hang</th>
+            <th style="padding:14px 16px;text-align:left;font-size:0.8rem;font-weight:600;color:#666;text-transform:uppercase;letter-spacing:0.5px;">Chi Nhanh</th>
+            <th style="padding:14px 16px;text-align:left;font-size:0.8rem;font-weight:600;color:#666;text-transform:uppercase;letter-spacing:0.5px;">Ngay & Gio</th>
+            <th style="padding:14px 16px;text-align:center;font-size:0.8rem;font-weight:600;color:#666;text-transform:uppercase;letter-spacing:0.5px;">Khach</th>
+            <th style="padding:14px 16px;text-align:right;font-size:0.8rem;font-weight:600;color:#666;text-transform:uppercase;letter-spacing:0.5px;">Tong Tien</th>
+            <th style="padding:14px 16px;text-align:center;font-size:0.8rem;font-weight:600;color:#666;text-transform:uppercase;letter-spacing:0.5px;">Trang Thai</th>
+            <th style="padding:14px 16px;text-align:center;font-size:0.8rem;font-weight:600;color:#666;text-transform:uppercase;letter-spacing:0.5px;">Hanh Dong</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% reservations.forEach(function(res) { %>
+          <tr style="border-bottom:1px solid #f0ebe3;transition:background 0.15s;" onmouseover="this.style.background='#fdfcfa'" onmouseout="this.style.background='transparent'">
+            <td style="padding:14px 16px;">
+              <span style="font-family:monospace;font-weight:600;color:#b8860b;">#<%= res._id.toString().slice(-6).toUpperCase() %></span>
+            </td>
+            <td style="padding:14px 16px;">
+              <div style="font-weight:600;color:#333;"><%= res.user?.name || res.fullName || 'N/A' %></div>
+              <div style="font-size:0.8rem;color:#888;margin-top:2px;"><%= res.user?.phone || res.phone || '' %></div>
+            </td>
+            <td style="padding:14px 16px;">
+              <div style="font-weight:500;color:#333;"><%= res.branch?.name || 'N/A' %></div>
+            </td>
+            <td style="padding:14px 16px;">
+              <div style="font-weight:600;color:#333;"><%= new Date(res.date).toLocaleDateString('vi-VN') %></div>
+              <div style="font-size:0.85rem;color:#666;"><%= res.time %></div>
+            </td>
+            <td style="padding:14px 16px;text-align:center;">
+              <span style="display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;background:#e3f2fd;border-radius:50%;font-weight:700;color:#1565c0;font-size:0.9rem;"><%= res.guests || res.numberOfGuests || 0 %></span>
+            </td>
+            <td style="padding:14px 16px;text-align:right;">
+              <div style="font-weight:700;color:#2e7d32;"><%= (res.totalAmount || 0).toLocaleString('vi-VN') %>d</div>
+              <% if (res.depositAmount) { %>
+              <div style="font-size:0.75rem;color:#888;margin-top:2px;">Coc: <%= res.depositAmount.toLocaleString('vi-VN') %>d</div>
+              <% } %>
+            </td>
+            <td style="padding:14px 16px;text-align:center;">
+              <% if (res.status === 'pending') { %>
+                <span style="display:inline-block;padding:4px 10px;background:#fff3e0;color:#e65100;border-radius:12px;font-size:0.75rem;font-weight:600;">Cho xac nhan</span>
+              <% } else if (res.status === 'confirmed') { %>
+                <span style="display:inline-block;padding:4px 10px;background:#e3f2fd;color:#1565c0;border-radius:12px;font-size:0.75rem;font-weight:600;">Da xac nhan</span>
+              <% } else if (res.status === 'completed') { %>
+                <span style="display:inline-block;padding:4px 10px;background:#e8f5e9;color:#2e7d32;border-radius:12px;font-size:0.75rem;font-weight:600;">Hoan thanh</span>
+              <% } else { %>
+                <span style="display:inline-block;padding:4px 10px;background:#ffebee;color:#c62828;border-radius:12px;font-size:0.75rem;font-weight:600;">Da huy</span>
+              <% } %>
+            </td>
+            <td style="padding:14px 16px;text-align:center;">
+              <a href="/admin/reservations/<%= res._id %>" style="display:inline-block;padding:6px 14px;background:#b8860b;color:#fff;border-radius:6px;font-size:0.8rem;font-weight:600;text-decoration:none;">Chi Tiet</a>
+            </td>
+          </tr>
+          <% }); %>
+        </tbody>
+      </table>
+    </div>
+    <% } else { %>
+    <div style="text-align:center;padding:60px 20px;background:#fff;border-radius:12px;box-shadow:0 2px 12px rgba(0,0,0,0.06);">
+      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#ccc" stroke-width="1.5" style="margin-bottom:16px;">
+        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+      </svg>
+      <p style="color:#888;font-size:0.95rem;">Khong tim thay dat ban nao.</p>
+      <a href="/admin/reservations" style="display:inline-block;margin-top:12px;padding:8px 16px;background:#f5f5f5;color:#666;border-radius:6px;font-size:0.85rem;text-decoration:none;">Xoa bo loc</a>
+    </div>
+    <% } %>
+  </div>
+</section>

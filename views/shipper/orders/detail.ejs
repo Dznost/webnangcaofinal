@@ -1,0 +1,196 @@
+<section class="shipper-order-detail">
+    <div class="container">
+        <div class="page-header">
+            <h1>Chi Tiet Don Hang #<%= order._id.toString().slice(-6).toUpperCase() %></h1>
+            <a href="/shipper/orders" class="btn btn-secondary btn-small">Quay Lai</a>
+        </div>
+
+        <% if (success === 'completed') { %>
+        <div class="alert alert-success">Da xac nhan hoan thanh don hang!</div>
+        <% } %>
+
+        <div class="detail-grid">
+            <div class="detail-main">
+                <div class="detail-card">
+                    <h3>Thong Tin Khach Hang</h3>
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <span class="info-label">Ho ten</span>
+                            <span class="info-value"><%= order.fullName || (order.userId ? order.userId.name : 'N/A') %></span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">SDT</span>
+                            <span class="info-value"><%= order.phone || (order.userId ? order.userId.phone : 'N/A') %></span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Email</span>
+                            <span class="info-value"><%= order.email || (order.userId ? order.userId.email : 'N/A') %></span>
+                        </div>
+                        <div class="info-item full-width">
+                            <span class="info-label">Dia chi giao hang</span>
+                            <span class="info-value highlight"><%= order.deliveryAddress || 'Chua co dia chi' %></span>
+                        </div>
+                        <% if (order.specialRequests) { %>
+                        <div class="info-item full-width">
+                            <span class="info-label">Ghi chu</span>
+                            <span class="info-value"><%= order.specialRequests %></span>
+                        </div>
+                        <% } %>
+                    </div>
+                </div>
+
+                <div class="detail-card">
+                    <h3>Mon An (<%= order.items.length %> mon)</h3>
+                    <div class="items-list">
+                        <% order.items.forEach(function(item) { %>
+                        <div class="item-row">
+                            <div class="item-info">
+                                <span class="item-name"><%= item.name %></span>
+                                <span class="item-qty">x<%= item.quantity %></span>
+                            </div>
+                            <span class="item-price"><%= (item.price * item.quantity).toLocaleString('vi-VN') %>d</span>
+                        </div>
+                        <% }); %>
+                    </div>
+                    <div class="total-section">
+                        <% if (order.discount > 0) { %>
+                        <div class="total-row">
+                            <span>Tam tinh</span>
+                            <span><%= order.totalPrice.toLocaleString('vi-VN') %>d</span>
+                        </div>
+                        <div class="total-row">
+                            <span>Giam gia</span>
+                            <span>-<%= order.discount.toLocaleString('vi-VN') %>d</span>
+                        </div>
+                        <% } %>
+                        <div class="total-row total-final">
+                            <span>Tong cong</span>
+                            <strong><%= order.finalPrice ? order.finalPrice.toLocaleString('vi-VN') : order.totalPrice.toLocaleString('vi-VN') %>d</strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="detail-sidebar">
+                <div class="detail-card">
+                    <h3>Trang Thai</h3>
+                    <div class="status-display">
+                        <span class="status-tag-lg status-<%= order.status === 'shipping' ? 'processing' : order.status %>">
+                            <%= (order.status === 'processing' || order.status === 'shipping') ? 'Dang Xu Ly' : order.status === 'completed' ? 'Hoan Thanh' : order.status %>
+                        </span>
+                    </div>
+                    <div class="order-meta">
+                        <div class="meta-row">
+                            <span>Loai don</span>
+                            <span class="meta-highlight">Giao tai nha</span>
+                        </div>
+                        <div class="meta-row">
+                            <span>Thanh toan</span>
+                            <span class="<%= order.paymentStatus === 'paid' ? 'text-success' : 'text-warning' %>">
+                                <%= order.paymentStatus === 'paid' ? 'Da thanh toan' : 'Chua thanh toan' %>
+                            </span>
+                        </div>
+                        <div class="meta-row">
+                            <span>Hinh thuc</span>
+                            <span><%= order.paymentTiming === 'cod' ? 'Thanh toan khi nhan' : 'Da tra truoc' %></span>
+                        </div>
+                        <div class="meta-row">
+                            <span>Ngay dat</span>
+                            <span><%= new Date(order.createdAt).toLocaleString('vi-VN') %></span>
+                        </div>
+                    </div>
+                </div>
+
+                <% if (order.status === 'processing' || order.status === 'shipping') { %>
+                <div class="detail-card confirm-card">
+                    <h3>Xac Nhan Hoan Thanh</h3>
+                    <p class="confirm-note">Xac nhan khi khach hang da nhan hang va thanh toan day du. Hanh dong nay khong the hoan tac.</p>
+                    <button type="button" class="btn btn-success btn-block" id="confirmBtn">
+                        Xac Nhan Hoan Thanh Don Hang
+                    </button>
+                </div>
+                <% } %>
+            </div>
+        </div>
+    </div>
+</section>
+
+<% if (order.status === 'processing' || order.status === 'shipping') { %>
+<div class="modal-overlay" id="confirmModal" style="display:none">
+    <div class="modal-content">
+        <h3>Xac Nhan Hoan Thanh Don Hang</h3>
+        <p>Ban co chac chan khach hang da nhan hang va thanh toan day du?</p>
+        <p class="modal-warning">Hanh dong nay khong the hoan tac.</p>
+        <div class="modal-actions">
+            <button type="button" class="btn btn-secondary" id="cancelConfirm">Huy</button>
+            <form method="POST" action="/shipper/orders/<%= order._id %>/confirm-completed" style="display:inline">
+                <input type="hidden" name="confirmCode" value="CONFIRMED">
+                <button type="submit" class="btn btn-success">Chac Chan Hoan Thanh</button>
+            </form>
+        </div>
+    </div>
+</div>
+<script>
+(function() {
+    var btn = document.getElementById('confirmBtn');
+    var modal = document.getElementById('confirmModal');
+    var cancelBtn = document.getElementById('cancelConfirm');
+    if (btn && modal) {
+        btn.addEventListener('click', function() { modal.style.display = 'flex'; });
+        cancelBtn.addEventListener('click', function() { modal.style.display = 'none'; });
+        modal.addEventListener('click', function(e) { if (e.target === modal) modal.style.display = 'none'; });
+    }
+})();
+</script>
+<% } %>
+
+<style>
+.shipper-order-detail { padding: 40px 0; background: #f8f6f3; min-height: 80vh; }
+.shipper-order-detail h1 { font-family: 'Playfair Display', serif; font-size: 1.5rem; color: #2c2c2c; }
+.page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+.detail-grid { display: grid; grid-template-columns: 1fr 340px; gap: 24px; align-items: start; }
+.detail-card { background: white; border-radius: 10px; padding: 24px; box-shadow: 0 1px 8px rgba(0,0,0,0.06); margin-bottom: 20px; }
+.detail-card h3 { font-family: 'Playfair Display', serif; font-size: 1.05rem; color: #2c2c2c; margin-bottom: 16px; padding-bottom: 10px; border-bottom: 1px solid #f0ebe4; }
+.info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.info-item.full-width { grid-column: 1 / -1; }
+.info-label { display: block; font-size: 0.8rem; color: #888; margin-bottom: 2px; }
+.info-value { display: block; font-size: 0.95rem; color: #333; font-weight: 500; }
+.info-value.highlight { color: #8B6F47; font-weight: 600; }
+.items-list { margin-bottom: 16px; }
+.item-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #f0ebe4; }
+.item-info { display: flex; align-items: center; gap: 10px; }
+.item-name { font-size: 0.9rem; color: #333; }
+.item-qty { font-size: 0.82rem; color: #888; background: #f5f0ea; padding: 2px 8px; border-radius: 8px; }
+.item-price { font-weight: 600; color: #8B6F47; font-size: 0.9rem; }
+.total-section { padding-top: 12px; }
+.total-row { display: flex; justify-content: space-between; padding: 6px 0; font-size: 0.9rem; color: #666; }
+.total-final { border-top: 2px solid #f0ebe4; padding-top: 12px; margin-top: 6px; font-size: 1.05rem; color: #2c2c2c; }
+.total-final strong { color: #8B6F47; }
+.status-display { text-align: center; margin-bottom: 16px; }
+.status-tag-lg { display: inline-block; padding: 8px 20px; border-radius: 20px; font-size: 0.9rem; font-weight: 700; }
+.status-processing { background: #fff3e0; color: #e65100; }
+.status-completed { background: #d4edda; color: #155724; }
+.order-meta { border-top: 1px solid #f0ebe4; padding-top: 12px; }
+.meta-row { display: flex; justify-content: space-between; padding: 6px 0; font-size: 0.85rem; color: #666; }
+.meta-highlight { color: #e65100; font-weight: 600; }
+.text-success { color: #2e7d32; font-weight: 600; }
+.text-warning { color: #e65100; font-weight: 600; }
+.confirm-card { border: 2px solid #e65100; }
+.confirm-note { font-size: 0.85rem; color: #888; margin-bottom: 16px; line-height: 1.5; }
+.btn-success { background: #2e7d32; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: 600; }
+.btn-success:hover { background: #1b5e20; }
+.btn-block { display: block; width: 100%; text-align: center; }
+.btn { display: inline-block; padding: 8px 18px; border-radius: 6px; text-decoration: none; font-size: 0.85rem; font-weight: 600; border: none; cursor: pointer; transition: all 0.2s; }
+.btn-primary { background: #8B6F47; color: white; }
+.btn-secondary { background: #e0d8ce; color: #555; }
+.btn-small { padding: 6px 14px; font-size: 0.82rem; }
+.modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000; }
+.modal-content { background: white; border-radius: 12px; padding: 32px; max-width: 440px; width: 90%; box-shadow: 0 8px 32px rgba(0,0,0,0.2); }
+.modal-content h3 { font-family: 'Playfair Display', serif; font-size: 1.2rem; margin-bottom: 12px; color: #2c2c2c; }
+.modal-content p { color: #555; font-size: 0.9rem; margin-bottom: 10px; }
+.modal-warning { color: #c62828; font-weight: 600; }
+.modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
+.alert { padding: 12px 18px; border-radius: 8px; margin-bottom: 20px; font-size: 0.9rem; }
+.alert-success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+@media (max-width: 768px) { .detail-grid { grid-template-columns: 1fr; } .info-grid { grid-template-columns: 1fr; } }
+</style>

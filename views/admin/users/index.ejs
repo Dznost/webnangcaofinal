@@ -1,0 +1,149 @@
+<section class="admin-section">
+    <div class="container">
+        <div class="section-header">
+            <h1>Quan Ly Nguoi Dung</h1>
+            <span class="user-total-badge"><%= users.length %> nguoi dung</span>
+        </div>
+
+        <% if (typeof success !== 'undefined' && success) { %>
+        <div class="alert alert-success"><%= success %></div>
+        <% } %>
+        <% if (typeof error !== 'undefined' && error) { %>
+        <div class="alert alert-error"><%= error %></div>
+        <% } %>
+
+        <!-- Search + filter -->
+        <form method="GET" action="/admin/users" class="admin-filter-bar">
+            <div class="search-wrap">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                <input type="text" name="q" value="<%= typeof searchQuery !== 'undefined' ? searchQuery : '' %>" placeholder="Tim theo ten, email, SDT..." class="filter-search-input">
+            </div>
+            <select name="role" class="filter-select">
+                <option value="">Tat ca role</option>
+                <option value="user" <%= (typeof roleFilter !== 'undefined' && roleFilter === 'user') ? 'selected' : '' %>>User</option>
+                <option value="shipper" <%= (typeof roleFilter !== 'undefined' && roleFilter === 'shipper') ? 'selected' : '' %>>Shipper</option>
+                <option value="staff" <%= (typeof roleFilter !== 'undefined' && roleFilter === 'staff') ? 'selected' : '' %>>Staff</option>
+                <option value="reception" <%= (typeof roleFilter !== 'undefined' && roleFilter === 'reception') ? 'selected' : '' %>>Reception (Le Tan)</option>
+                <option value="admin" <%= (typeof roleFilter !== 'undefined' && roleFilter === 'admin') ? 'selected' : '' %>>Admin</option>
+            </select>
+            <button type="submit" class="btn btn-primary btn-filter">Loc</button>
+            <% if ((typeof searchQuery !== 'undefined' && searchQuery) || (typeof roleFilter !== 'undefined' && roleFilter)) { %>
+            <a href="/admin/users" class="btn btn-clear">Xoa loc</a>
+            <% } %>
+        </form>
+
+        <% if ((typeof searchQuery !== 'undefined' && searchQuery) || (typeof roleFilter !== 'undefined' && roleFilter)) { %>
+        <p class="filter-note">Tim thay <strong><%= users.length %></strong> nguoi dung</p>
+        <% } %>
+
+        <% if (users && users.length > 0) { %>
+        <div class="table-scroll-wrap">
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>Nguoi Dung</th>
+                    <th>Email</th>
+                    <th>Dien Thoai</th>
+                    <th>Role</th>
+                    <th>Chi Nhanh</th>
+                    <th>Don Hang</th>
+                    <th>Dat Ban</th>
+                    <th>Ngay Tao</th>
+                    <th>Hanh Dong</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% users.forEach(function(u) { %>
+                <tr>
+                    <td>
+                        <div class="user-cell">
+                            <div class="user-avatar" style="background: <%= u.role === 'admin' ? '#c62828' : u.role === 'shipper' ? '#e65100' : u.role === 'staff' ? '#1565c0' : u.role === 'reception' ? '#00695c' : '#8B6F47' %>"><%= u.name ? u.name.charAt(0).toUpperCase() : 'U' %></div>
+                            <span class="user-name"><%= u.name || 'N/A' %></span>
+                        </div>
+                    </td>
+                    <td class="email-cell"><%= u.email %></td>
+                    <td><%= u.phone || '-' %></td>
+                    <td>
+                        <span class="role-badge role-<%= u.role %>"><%= u.role === 'reception' ? 'Le Tan' : u.role %></span>
+                    </td>
+                    <td>
+                        <% if (u.branchId && u.branchId.name) { %>
+                        <span class="branch-tag"><%= u.branchId.name %></span>
+                        <% } else if (u.role === 'shipper' || u.role === 'staff' || u.role === 'reception') { %>
+                        <span class="no-assign">Chua gan</span>
+                        <% } else { %>
+                        <span style="color:#ddd;">-</span>
+                        <% } %>
+                    </td>
+                    <td><span class="count-pill"><%= u.orderCount || 0 %></span></td>
+                    <td><span class="count-pill"><%= u.reservationCount || 0 %></span></td>
+                    <td class="date-cell"><%= new Date(u.createdAt).toLocaleDateString('vi-VN') %></td>
+                    <td>
+                        <div class="action-cell">
+                            <a href="/admin/users/<%= u._id %>" class="btn btn-small btn-primary">Chi Tiet</a>
+                            <% if (u.role !== 'admin') { %>
+                            <a href="/admin/users/<%= u._id %>/delete" class="btn btn-small btn-danger" onclick="return confirm('Ban chac chan muon xoa nguoi dung nay?')">Xoa</a>
+                            <% } %>
+                        </div>
+                    </td>
+                </tr>
+                <% }); %>
+            </tbody>
+        </table>
+        </div>
+        <% } else { %>
+        <div class="empty-state">
+            <p>Khong tim thay nguoi dung nao.</p>
+        </div>
+        <% } %>
+    </div>
+</section>
+
+<style>
+.admin-section { padding: 32px 0; }
+.section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+.section-header h1 { font-family: 'Playfair Display', serif; font-size: 1.7rem; color: #2c2c2c; margin: 0; }
+.user-total-badge { background: #f0ebe4; color: #8B6F47; padding: 5px 14px; border-radius: 12px; font-size: 0.85rem; font-weight: 700; }
+.admin-filter-bar { display: flex; gap: 10px; background: white; padding: 16px 20px; border-radius: 12px; box-shadow: 0 1px 8px rgba(0,0,0,0.06); margin-bottom: 16px; flex-wrap: wrap; align-items: center; }
+.search-wrap { display: flex; align-items: center; gap: 8px; flex: 1; min-width: 220px; border: 1.5px solid #e0d8ce; border-radius: 8px; padding: 8px 12px; }
+.search-wrap svg { color: #bbb; flex-shrink: 0; }
+.filter-search-input { border: none; outline: none; font-size: 0.86rem; width: 100%; background: transparent; color: #333; }
+.filter-search-input::placeholder { color: #ccc; }
+.filter-select { border: 1.5px solid #e0d8ce; border-radius: 8px; padding: 8px 12px; font-size: 0.86rem; color: #555; background: white; outline: none; cursor: pointer; }
+.filter-select:focus { border-color: #8B6F47; }
+.btn-filter { padding: 9px 18px; }
+.btn-clear { padding: 9px 14px; font-size: 0.82rem; background: transparent; color: #8B6F47; border: 1.5px solid #e0d8ce; }
+.btn-clear:hover { background: #f7f4ef; }
+.filter-note { font-size: 0.84rem; color: #888; margin-bottom: 12px; }
+.table-scroll-wrap { overflow-x: auto; border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,0.07); }
+.admin-table { width: 100%; border-collapse: collapse; background: white; min-width: 900px; }
+.admin-table thead { background: #8B6F47; color: white; }
+.admin-table th { padding: 13px 14px; text-align: left; font-size: 0.8rem; font-weight: 700; letter-spacing: 0.03em; white-space: nowrap; }
+.admin-table td { padding: 12px 14px; border-bottom: 1px solid #f7f4ef; font-size: 0.86rem; vertical-align: middle; }
+.admin-table tbody tr:hover { background: #faf8f5; }
+.user-cell { display: flex; align-items: center; gap: 10px; }
+.user-avatar { width: 32px; height: 32px; border-radius: 50%; color: white; display: flex; align-items: center; justify-content: center; font-size: 0.82rem; font-weight: 700; flex-shrink: 0; }
+.user-name { font-weight: 600; color: #2c2c2c; }
+.email-cell { color: #777; font-size: 0.84rem; }
+.role-badge { display: inline-block; padding: 3px 10px; border-radius: 10px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
+.role-admin { background: #fce4ec; color: #c62828; }
+.role-user { background: #e8f5e9; color: #2e7d32; }
+.role-shipper { background: #fff3e0; color: #e65100; }
+.role-staff { background: #e3f2fd; color: #1565c0; }
+.role-reception { background: #e0f2f1; color: #00695c; }
+.branch-tag { background: #f0ebe4; color: #7a5f3a; padding: 2px 10px; border-radius: 8px; font-size: 0.8rem; font-weight: 600; }
+.no-assign { color: #ccc; font-size: 0.8rem; font-style: italic; }
+.count-pill { display: inline-block; padding: 3px 12px; border-radius: 10px; font-size: 0.82rem; font-weight: 700; background: #f0ebe4; color: #8B6F47; }
+.date-cell { font-size: 0.8rem; color: #aaa; white-space: nowrap; }
+.action-cell { display: flex; gap: 6px; }
+.empty-state { text-align: center; padding: 60px 20px; background: white; border-radius: 12px; box-shadow: 0 1px 8px rgba(0,0,0,0.05); color: #aaa; }
+.alert { padding: 12px 18px; border-radius: 8px; margin-bottom: 20px; font-size: 0.9rem; }
+.alert-success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+.alert-error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+.btn { display: inline-block; padding: 8px 18px; border-radius: 6px; text-decoration: none; font-size: 0.85rem; font-weight: 600; border: none; cursor: pointer; transition: all 0.2s; }
+.btn-primary { background: #8B6F47; color: white; }
+.btn-primary:hover { background: #7a5f3a; }
+.btn-danger { background: #c62828; color: white; }
+.btn-danger:hover { background: #b71c1c; }
+.btn-small { padding: 5px 12px; font-size: 0.8rem; }
+</style>
